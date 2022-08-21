@@ -1,9 +1,9 @@
 # NGGguesser
 
 NGGguesser is similar to the popular site https://www.geoguessr.com/
-#Frontend
+# Frontend
 NextJS + Redux + Typescript
-#Backend
+# Backend
 Backend build on NodeJS + Express
-#Other
+# Other
 Also used socket.io and JWT auth
