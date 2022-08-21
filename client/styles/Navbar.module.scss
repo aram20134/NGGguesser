@@ -1,0 +1,46 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 40px;
+}
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    a {
+        font-size: 20px;
+        color:white;
+        font-weight: bold;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+    & > a:first-child {
+        color: #FC4F4F;
+        font-size: 30px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .header {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        padding: 15px;
+    }
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        a {
+            font-size: 15px;
+            color:white;
+            font-weight: bold;
+        }
+        & > a:first-child {
+            color: #FC4F4F;
+            font-size: 20px;
+        }
+    }
+}

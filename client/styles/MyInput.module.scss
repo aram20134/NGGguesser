@@ -1,0 +1,27 @@
+.col {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    gap: 5px;
+    p {
+        font-size: 24px;
+        font-weight: bold;
+    }
+}
+.inp {
+    background-color: #1A1A2E;
+    padding: 5px 10px;
+    border:none;
+    font-size: 16px;
+    width: 500px;
+    border-radius: 5px;
+}
+.desc {
+    font-size: 14px;
+    color:grey;
+}
+@media screen and (max-width: 600px) {
+    .inp {
+        width: auto;
+    }
+}

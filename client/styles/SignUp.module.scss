@@ -1,0 +1,39 @@
+.background {
+    background-image: 
+    radial-gradient(circle at top left, purple 5%, #222256 40%);
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    min-width: 100%;
+    min-height: 100%;
+}
+.background2 {
+    background-image: radial-gradient(at center right, purple 5%, #2D2D2E 40%);
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    min-width: 100%;
+    min-height: 100%;
+}
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    h1 {
+        margin-top: 5rem;
+        text-align: center;
+    }
+    .form {
+        margin-top: 5rem;
+        gap: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    .signup {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+    }
+}
+
