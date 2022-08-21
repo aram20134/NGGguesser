@@ -1,4 +1,4 @@
-# NGGguesser
+# NGGguesser - WORK IN PROGRESS
 
 NGGguesser is similar to the popular site https://www.geoguessr.com/
 # Frontend
