@@ -24,9 +24,9 @@ const MainContainer: React.FC<MainContainerProps> = ({title, children}) => {
         <header>
             <Navbar />
         </header>
-        <div>
+        <>
             {children}
-        </div>
+        </>
         <footer style={{marginTop:'5rem'}}>
             <Footer />
         </footer>

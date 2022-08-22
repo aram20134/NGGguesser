@@ -1,4 +1,5 @@
 require('dotenv').config()
+const JWTcheck = require('./middleware/socket');
 const express = require('express')
 const cors = require('cors')
 const fileUpload = require('express-fileupload')
@@ -9,6 +10,8 @@ const path = require('path')
 const errorHandle = require('./middleware/ErrorHandle')
 const { Server } = require("socket.io");
 const http = require('http');
+const jwt = require('jsonwebtoken');
+const ApiError = require('./error/ApiError')
 
 const PORT = 5002 || procces.env.PORT
 const app = express()
@@ -32,6 +35,9 @@ const start = async () => {
     }
 }
 
+
+// IO SOKCET
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -40,17 +46,39 @@ const io = new Server(server, {
         methods: ['GET', 'POST']
     }
 })
+
 server.listen(5003, () => [
     console.log('start')
 ])
-let users = {}
-io.on('connection', (socket) => {    
-    socket.on('USER_ONLINE', (data) => {
-        const userId = data.userId
-        users[userId] = []
-        users[userId].push(socket.id)
 
-        io.sockets.emit('USERS_ONLINE', users)
+
+io.use(JWTcheck)
+let users = new Set();
+let logUsers = {}
+io.on('connection', (socket) => {  
+
+    socket.on('USER_ONLINE', () => {
+        users.add({id: socket.decoded.id, socket: socket.id})
+        logUsers = {}
+        users.forEach((u) => {
+            logUsers[u.id] = u
+        })
+        io.sockets.emit('USERS_ONLINE', logUsers)
+        console.log(users)
+    })
+
+    socket.on('disconnect', () => {
+        users.forEach(user => {
+            if (user.id === socket.decoded.id) {
+                users.delete(user)
+            }
+        })
+        logUsers = {}
+        users.forEach((u) => {
+            logUsers[u.id] = u
+        })
+        io.sockets.emit('USERS_ONLINE', logUsers)
     })
 })
+
 start()

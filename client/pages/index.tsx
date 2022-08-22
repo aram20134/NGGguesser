@@ -14,17 +14,13 @@ import MyButtonLink from '../components/UI/MyButtonLink';
 import { users } from '../api/userAPI';
 import Image from 'next/image';
 import styles from '../styles/Index.module.scss'
+import IndexAuth from '../components/IndexAuth';
 
 
 const Index = ({users}) => {
   const user = useTypedSelector(st => st.user)
-  console.log(user);
 
-  useEffect(() => {
-
-  }, [])
-
-  return (
+  return !user.auth ? (
     <MainContainer title='NGG GUESSER'>
       <div className={styles.background}>
         <div className={styles.background3}></div>
@@ -34,7 +30,7 @@ const Index = ({users}) => {
         <div>
           <h1>ИЗУЧАЙ КАРТЫ!</h1>
           <p>Покажи свои знания карт. <br /> Соревнуйся с другими игроками, чтобы доказать свои знания! </p>
-          <p>С нами уже {users.users.length} игроков!</p>
+          <p>С нами уже {users.users} игроков!</p>
         </div>
         <div>
             <MyButtonLink link='signup' variant={ButtonVariant.primary}>Играть</MyButtonLink>
@@ -45,13 +41,13 @@ const Index = ({users}) => {
               <h2>Изучай карты</h2>
               <p>Изучай карты в своём темпе и набирай как можно больше очков.</p>
             </div>
-            <Image priority src={anaxes} />
+            <Image alt='anaxes' src={anaxes} priority />
           </div>
           <hr />
           <div className={styles.teaser}>
             <div style={{display:'flex', flexDirection:'row'}}>
-              <img className={styles.img2} src={cl1.src} />
-              <img className={styles.img2} src={cl2.src} />
+              <img alt='clone phase1' className={styles.img2} src={cl1.src} />
+              <img alt='clone phase2' className={styles.img2} src={cl2.src} />
             </div>
             <div>
               <h2>Играй с друзьями</h2>
@@ -64,10 +60,14 @@ const Index = ({users}) => {
               <h2>Соревнуйся с другими</h2>
               <p>Проверь свои способности с разными игроками. Поднимайся по таблице! </p>
             </div>
-            <Image className='img' src={medal} />
+            <Image alt='medal' src={medal} />
           </div>
         </main>
       </main>
+    </MainContainer>
+  ) : (
+    <MainContainer title='NGG GUESSER'>
+      <IndexAuth />
     </MainContainer>
   )
 }

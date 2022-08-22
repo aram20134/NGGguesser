@@ -18,13 +18,8 @@ export const users = async () => {
     return data
 }
 
-export const userOnline = async (state : boolean) => {
-    authHost.post('api/user/state', {state})
-}
-
 export const checkUser = async () => {
     const {data} = await authHost.get('api/user/check' )
-    // localStorage.setItem('token', data.token)
     setCookie('token', data.token)
     return jwt_decode(data.token)
 }

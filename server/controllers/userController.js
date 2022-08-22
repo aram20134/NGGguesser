@@ -6,9 +6,9 @@ const {User} = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 
-const signJWT = (id, name, number, experience, avgGameScore, gamesPlayed, avatar, role) => {
+const signJWT = ({id, name, number, experience, avatar, level, role}) => {
     return jwt.sign(
-        {id, name, number, experience, avgGameScore, gamesPlayed ,avatar, role}, 
+        {id, name, number, experience, avatar, level, role}, 
         process.env.SECRET_KEY,
         {expiresIn: '48h'}
     )
@@ -27,7 +27,7 @@ class UserController {
             }
             const hashPassword = await bcrypt.hash(password, 3)
             const user = await User.create({password:hashPassword, name})
-            const token = signJWT(user.id, user.name, user.number, user.exp, user.avgGameScore, user.avatar, user.role)
+            const token = signJWT(user)
             return res.json({token})
         } catch (e) {
             return next(ApiError.badRequest(e.message))
@@ -43,14 +43,14 @@ class UserController {
         if (!comparePasswd) {
             return next(ApiError.badRequest('Неверный пароль'))
         }
-        const token = signJWT(user.id, user.name, user.number, user.exp, user.avgGameScore, user.gamesPlayed ,user.avatar, user.role)
+        const token = signJWT(user)
 
         return res.json({token})
     }
     
     async getUsers (req, res, next) {
         try {
-            const users = await User.findAll({})
+            const users = await User.count()
             return res.json({users})
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -59,13 +59,8 @@ class UserController {
 
     async check (req, res, next) {
         const user = await User.findOne({where:{id: req.user.id}})
-        const token = signJWT(user.id, user.name, user.number, user.exp, user.avgGameScore, user.gamesPlayed ,user.avatar, user.role)
+        const token = signJWT(user)
         return res.json({token})
-    }
-
-    async userOnline (req, res, next) {
-        await User.update({online: req.body.state}, {where: {id: req.user.id}})
-        return res.json({message: 'success'})
     }
 }   
 module.exports = new UserController()
