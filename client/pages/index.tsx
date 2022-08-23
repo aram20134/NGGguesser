@@ -15,10 +15,19 @@ import { users } from '../api/userAPI';
 import Image from 'next/image';
 import styles from '../styles/Index.module.scss'
 import IndexAuth from '../components/IndexAuth';
+import { GetServerSideProps } from 'next';
+import {NextThunkDispatch, wrapper} from '../store';
+import { setMaps } from '../store/actions/map';
+import { getMaps } from './../api/mapAPI';
+import { setUserProps } from '../store/actions/user';
 
+interface IndexProps {
+  users: number;
+}
 
-const Index = ({users}) => {
+const Index : NextPage<IndexProps> = ({users}) => {
   const user = useTypedSelector(st => st.user)
+  const map = useTypedSelector(st => st.map)
 
   return !user.auth ? (
     <MainContainer title='NGG GUESSER'>
@@ -30,7 +39,7 @@ const Index = ({users}) => {
         <div>
           <h1>ИЗУЧАЙ КАРТЫ!</h1>
           <p>Покажи свои знания карт. <br /> Соревнуйся с другими игроками, чтобы доказать свои знания! </p>
-          <p>С нами уже {users.users} игроков!</p>
+          <p>С нами уже {users} игроков!</p>
         </div>
         <div>
             <MyButtonLink link='signup' variant={ButtonVariant.primary}>Играть</MyButtonLink>
@@ -74,9 +83,13 @@ const Index = ({users}) => {
 
 export default Index
 
-export async function getStaticProps(context : GetStaticProps) {
-  const response = await users()
+export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res}) => {
+  const dispatch = store.dispatch as NextThunkDispatch
+  const response = await users()  
+  await dispatch(setMaps())
+  await dispatch(setUserProps(req.cookies.token))
+
   return {
-    props: {users:response}
+    props: {users:response.users}
   }
-}
+})

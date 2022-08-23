@@ -1,9 +1,11 @@
 import {combineReducers} from 'redux'
 import {HYDRATE} from "next-redux-wrapper";
 import { user } from './userReducer';
+import { map } from './mapReducer';
 
 const rootReducer = combineReducers({
-    user: user
+    user: user,
+    map: map,
 })
 
 export const reducer = (state: any, action: any) => {

@@ -1,11 +1,21 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styles from '../styles/IndexAuth.module.scss'
+import { getMaps } from './../api/mapAPI';
+import { useActions } from './../hooks/useActions';
+import { useTypedSelector } from './../hooks/useTypedSelector';
+import { mapState } from './../types/map';
+import MapChapter from './MapChapter';
 
-const IndexAuth = () => {
+const IndexAuth : React.FC = () => {
+  
   return (
     <main className={styles.indexAuth}>
         <div className={styles.bg}></div>
-        {/* <img src={`${process.env.REACT_APP_API_URL}`} /> */}
+        <div className={styles.container}>
+          <h1>Выбери фазу и карту</h1>
+          <MapChapter phase={1} title='PHASE 1'/>
+          <MapChapter phase={2} title='PHASE 2' />
+        </div>
     </main>
   )
 }

@@ -41,7 +41,7 @@ const signup = (props) => {
     reg(name, password)
     .then(() => {return setError('success'), setLoading(false)})
     .catch((e) => {
-        if (e.response.status === 404) {
+        if (e.response?.status === 404) {
             setError('404'), setLoading(false)
         } else {
             setError('505'), setLoading(false)

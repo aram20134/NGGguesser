@@ -20,6 +20,7 @@ const Map = sequelize.define('maps', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING },
   description: { type: DataTypes.STRING },
+  phase: { type: DataTypes.INTEGER },
   image: { type: DataTypes.STRING },
   difficult: { type: DataTypes.STRING },
 })
@@ -31,6 +32,13 @@ const Like = sequelize.define('likes', {
 const UserMapPlayed = sequelize.define('userMapPlayed', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   score: { type: DataTypes.INTEGER, defaultValue: '0'}
+})
+
+const VariantMap = sequelize.define('variantMap', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  image: { type: DataTypes.STRING },
+  posX: { type: DataTypes.INTEGER },
+  posY: { type: DataTypes.INTEGER },
 })
 
 User.hasMany(Friend)
@@ -45,6 +53,9 @@ Like.belongsTo(Map)
 Map.hasMany(UserMapPlayed)
 UserMapPlayed.belongsTo(Map)
 
+Map.hasMany(VariantMap)
+VariantMap.belongsTo(Map)
+
 module.exports = {
-  User, Friend, Map, Like, UserMapPlayed
+  User, Friend, Map, Like, UserMapPlayed, VariantMap
 };

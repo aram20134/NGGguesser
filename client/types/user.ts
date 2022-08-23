@@ -9,13 +9,15 @@ export interface userState {
     level: number;
     avgGameScore:number;
     role: string;
+    friends: [];
+    userMapPlayeds: [];
 }
 
 export enum userActionTypes {
     CHANGE_NAME = 'CHANGE_NAME',
     CHANGE_EXP = 'CHANGE_EXP',
     CHANGE_AUTH = 'CHANGE_AUTH',
-    SET_USER = 'SET_USER'
+    SET_USER = 'SET_USER',
 }
 // SET USER ALL
 interface ChangeName {
@@ -39,4 +41,4 @@ interface setUser {
 }
 
 
-export type userAction = setUser | ChangeName | ChangeExp  | ChangeAuth 
+export type userAction = setUser | ChangeName | ChangeExp  | ChangeAuth

@@ -1,5 +1,7 @@
 import { Dispatch } from "react"
+import { host } from "../../api"
 import { checkUser } from "../../api/userAPI"
+import jwt_decode from 'jwt-decode';
 import { userAction, userActionTypes, userState } from "../../types/user"
 
 
@@ -15,8 +17,23 @@ export const ChangeAuth = (payload:boolean) : userAction => {
     return {type: userActionTypes.CHANGE_AUTH, payload}
 }
 
-// export const setUserTest = () => {
-//     return async (dispacth: Dispatch<userAction>) => {
-//         checkUser().then((res : userState) => dispacth({type: userActionTypes.SET_USER, payload:res}))
-//     }
-// }
+export const setUserProps = (token) => {
+    return async (dispacth: Dispatch<userAction>) => {
+        try {
+            const config = {
+                headers: {
+                    authorization: `Bearer ${token}`
+                }
+            }
+            const {data} = await host.get('api/user/check', config)
+            // console.log(response)
+            // checkUser().then((res : userState) => dispacth({type: userActionTypes.SET_USER, payload: res}))
+            // await checkUser().then((res) => console.log(res)).catch((e) => console.log(e))
+            // const response = await checkUser()
+            dispacth({type: userActionTypes.SET_USER, payload: jwt_decode(data.token)})
+        } catch (e) {
+            console.log(e.message)
+            dispacth({type: userActionTypes.CHANGE_AUTH, payload: false})
+        }
+    }
+}

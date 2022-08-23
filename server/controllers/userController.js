@@ -2,13 +2,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid')
 const path = require('path')
-const {User} = require('../models/models');
+const {User, Friend, UserMapPlayed} = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 
-const signJWT = ({id, name, number, experience, avatar, level, role}) => {
+const signJWT = ({id, name, number, experience, avatar, level, role, friends, userMapPlayeds}) => {
     return jwt.sign(
-        {id, name, number, experience, avatar, level, role}, 
+        {id, name, number, experience, avatar, level, role, friends, userMapPlayeds}, 
         process.env.SECRET_KEY,
         {expiresIn: '48h'}
     )
@@ -27,15 +27,15 @@ class UserController {
             }
             const hashPassword = await bcrypt.hash(password, 3)
             const user = await User.create({password:hashPassword, name})
-            const token = signJWT(user)
-            return res.json({token})
+            // const token = signJWT(user)
+            return res.json({message: 'success'})
         } catch (e) {
             return next(ApiError.badRequest(e.message))
         }
     }
     async login (req, res, next) {
         const {name, password} = req.body
-        const user = await User.findOne({where:{name}})
+        const user = await User.findOne({where:{name}, include: [{model: Friend}, {model: UserMapPlayed}]})
         if (!user) {
             return next(ApiError.badRequest('Пользователь не найден'))
         }

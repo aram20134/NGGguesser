@@ -1,0 +1,51 @@
+.mapChapter {
+    display: flex;
+    margin-top: 5rem;
+    padding: 2rem;
+    flex-direction: column;
+    hr {
+        border: 1px solid rgba(255, 255, 255, 0.545);
+    }
+    .cardContainer {
+        display: flex;
+        padding-right: 15px;
+        padding-top: 15px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 30px;
+        .cardMap {
+            display: flex;
+            flex-direction: column;
+            .img {
+                height: 150px;
+                overflow: hidden;
+                background-color: #1A1A2E;
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+                padding-top: 10px;
+            }
+            .title {
+                height: 150px;
+                background-color: #1A1A2E;
+                display: flex;
+                flex-direction: column;
+                padding: 15px;
+                align-items: center;
+                p {
+                    padding: 15px;
+                }
+            }
+            .mapStats {
+                height: 50px;
+                background-color: #1A1A2E;
+                display: flex;
+                flex-direction: column;
+                padding: 15px;
+                align-items: center;
+                border-bottom-left-radius: 15px;
+                border-bottom-right-radius: 15px;
+            }
+        }
+    }
+    
+}

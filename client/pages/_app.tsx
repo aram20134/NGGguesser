@@ -1,7 +1,7 @@
 import '../styles/globals.css'
 import React, {FC, useEffect} from 'react';
 import {AppProps} from 'next/app';
-import {wrapper} from '../store';
+import {NextThunkDispatch, wrapper} from '../store';
 import { checkUser } from '../api/userAPI';
 import { userState } from '../types/user';
 import { useActions } from './../hooks/useActions';
@@ -9,26 +9,22 @@ import { useState } from 'react';
 import io from 'socket.io-client';
 import { useTypedSelector } from './../hooks/useTypedSelector';
 import { getCookie } from 'cookies-next';
-import { setInterval } from 'timers';
+import { Router, useRouter } from 'next/router';
+import { GetServerSideProps, GetStaticProps } from 'next';
+import { setMaps } from '../store/actions/map';
 
 var token
 var socket
 
-
 const WrappedApp: FC<AppProps> = ({Component, pageProps}) => {
-    const {setUser} = useActions()
     const [loaded, setLoaded] = useState(false)
     const user = useTypedSelector(st => st.user)
-
-    useEffect(() => {
-        checkUser().then((res : userState) => {return setUser(res)}).finally(() => setLoaded(true))
-    }, [])
+    const router = useRouter()
 
     useEffect(() => {
         if (user.name !== 'user') {
             token = getCookie('token')
             socket = io(process.env.REACT_APP_API_URL, {auth: {token}})
-            console.log(user);
         }
     }, [user])
     
@@ -58,3 +54,4 @@ const WrappedApp: FC<AppProps> = ({Component, pageProps}) => {
 
 
 export default wrapper.withRedux(WrappedApp);
+
