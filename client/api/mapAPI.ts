@@ -5,4 +5,14 @@ import { setCookie } from 'cookies-next';
 export const getMaps = async () => {
     const {data} = await host.get('api/map/get')
     return data
-}   
+}
+
+export const setLike = async ({mapId}) => {
+    const {data} = await authHost.post('api/map/like', {mapId})
+    return data
+}
+
+export const delLike = async ({mapId}) => {
+    const {data} = await authHost.post('api/map/likeDel', {mapId})
+    return data
+}

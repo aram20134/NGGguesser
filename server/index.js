@@ -64,7 +64,6 @@ io.on('connection', (socket) => {
             logUsers[u.id] = u
         })
         io.sockets.emit('USERS_ONLINE', logUsers)
-        console.log(users)
     })
 
     socket.on('disconnect', () => {

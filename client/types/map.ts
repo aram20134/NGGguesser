@@ -9,9 +9,24 @@ interface Imap {
     image: string;
     phase: number;
     name: string;
-    likes: [],
+    likes: Ilikes[],
     userMapPlaydes: [],
-    variantMaps: [],
+    variantMaps: IvariantMaps[],
+}
+
+interface Ilikes {
+    id: number;
+    mapId: number;
+    userId: number;
+}
+
+interface IvariantMaps {
+    id: number;
+    image: string;
+    name: string;
+    posX: number;
+    posY: number;
+    mapId: number;
 }
 
 export enum mapActionTypes {

@@ -1,12 +1,20 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from '../styles/Footer.module.scss'
+import { useTypedSelector } from './../hooks/useTypedSelector';
 
 const Footer : React.FC = () => {
-  return (
+  const [load, setLoad] = useState(false)
+  const {sockets} = useTypedSelector(st => st.socket)
+  
+  useEffect(() => {
+    setLoad(true)
+  }, [])
+  
+  return load && (
     <>
      <hr />
      <div className={styles.footer}>
-        Помощи нет
+        Игроков на сайте {Object.values(sockets).length}
      </div>
     </>
   )

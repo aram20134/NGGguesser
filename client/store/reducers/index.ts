@@ -2,10 +2,12 @@ import {combineReducers} from 'redux'
 import {HYDRATE} from "next-redux-wrapper";
 import { user } from './userReducer';
 import { map } from './mapReducer';
+import { socket } from './socketReducer';
 
 const rootReducer = combineReducers({
     user: user,
     map: map,
+    socket: socket,
 })
 
 export const reducer = (state: any, action: any) => {

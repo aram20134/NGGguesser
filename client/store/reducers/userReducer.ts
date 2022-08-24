@@ -15,9 +15,6 @@ const initialState : userState = {
     userMapPlayeds: [],
 }
 
-// ТУТ ВСЁ НЕПРАВИЛЬНО, ДОЛЖНО ИДТИ В ОТДЕЛЬНЫЕ ФАЙЛЫ
-
-
 export const user = (state = initialState, action : userAction) : userState => {
     switch(action.type) {
         case userActionTypes.CHANGE_AUTH:

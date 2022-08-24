@@ -1,0 +1,28 @@
+.tooltip:hover .helper {
+    // visibility: visible;
+    transform: scale(1);
+}
+.helper {
+    transition: all 0.3s ease;
+    position: absolute;
+    // visibility: hidden;
+    transform: scale(0);
+    top: -35px;
+    background-color: rgb(3, 8, 49);
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 100;
+    display: flex;
+    white-space:nowrap;
+    justify-content: center;
+}
+.helper::after {
+    position: absolute;
+    content: '';
+    width: 1px;
+    height: 1px;
+    border: 10px solid transparent;
+    border-top: 10px solid purple;
+    bottom: -20px;
+    // align-self: center;
+}

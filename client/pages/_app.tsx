@@ -10,21 +10,16 @@ import io from 'socket.io-client';
 import { useTypedSelector } from './../hooks/useTypedSelector';
 import { getCookie } from 'cookies-next';
 import { Router, useRouter } from 'next/router';
-import { GetServerSideProps, GetStaticProps } from 'next';
-import { setMaps } from '../store/actions/map';
 
-var token
 var socket
 
 const WrappedApp: FC<AppProps> = ({Component, pageProps}) => {
-    const [loaded, setLoaded] = useState(false)
     const user = useTypedSelector(st => st.user)
-    const router = useRouter()
+    const {setSocket} = useActions()
 
     useEffect(() => {
         if (user.name !== 'user') {
-            token = getCookie('token')
-            socket = io(process.env.REACT_APP_API_URL, {auth: {token}})
+            socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
         }
     }, [user])
     
@@ -34,18 +29,10 @@ const WrappedApp: FC<AppProps> = ({Component, pageProps}) => {
                 socket.emit('USER_ONLINE')
             })
             socket.on('USERS_ONLINE', (data) => {
-                console.log('data', data);
-            })
-            socket.on('disconnect', (data) => {
-                console.log('diss')
+                setSocket({sockets: data})
             })
         }
     }, [socket])
-    
-    
-    // if (!loaded) {
-    //     return <h1 style={{color:'red'}}>загрузка</h1>
-    // }
 
     return (
         <Component {...pageProps} />

@@ -8,14 +8,21 @@
     }
     .cardContainer {
         display: flex;
-        padding-right: 15px;
+        // padding-right: 15px;
         padding-top: 15px;
         flex-direction: row;
         flex-wrap: wrap;
-        gap: 30px;
+        gap: 40px;
+        justify-content: flex-start;
         .cardMap {
             display: flex;
             flex-direction: column;
+            &:hover .map {
+                transform: scale(1.2);
+            }
+           .map {
+                transition: all 0.3s ease;
+            }
             .img {
                 height: 150px;
                 overflow: hidden;
@@ -23,6 +30,9 @@
                 border-top-left-radius: 15px;
                 border-top-right-radius: 15px;
                 padding-top: 10px;
+                display: flex;
+                justify-content: center;
+                // align-items: center;
             }
             .title {
                 height: 150px;
@@ -39,13 +49,79 @@
                 height: 50px;
                 background-color: #1A1A2E;
                 display: flex;
-                flex-direction: column;
+                flex-direction: row;
                 padding: 15px;
                 align-items: center;
+                justify-content: space-between;
                 border-bottom-left-radius: 15px;
                 border-bottom-right-radius: 15px;
+                .mapStatsItem {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    flex-direction: row;
+                    justify-content: center;
+                    position: relative;
+                    align-items: center;
+                    gap: 5px;
+                }
             }
         }
     }
-    
+}
+@media screen and (max-width: 1200px) {
+    .mapChapter {
+        display: flex;
+        margin-top: 5rem;
+        padding: 2rem;
+        flex-direction: column;
+        hr {
+            border: 1px solid rgba(255, 255, 255, 0.545);
+        }
+        .cardContainer {
+            display: flex;
+            // padding-right: 15px;
+            padding-top: 15px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: flex-start;
+            .cardMap {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                .img {
+                    height: 150px;
+                    overflow: hidden;
+                    background-color: #1A1A2E;
+                    border-top-left-radius: 15px;
+                    border-top-right-radius: 15px;
+                    padding-top: 10px;
+                    display: flex;
+                    justify-content: center;
+                    // align-items: center;
+                }
+                .title {
+                    height: 150px;
+                    background-color: #1A1A2E;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 15px;
+                    align-items: center;
+                    p {
+                        padding: 15px;
+                    }
+                }
+                .mapStats {
+                    height: 50px;
+                    background-color: #1A1A2E;
+                    display: flex;
+                    flex-direction: row;
+                    padding: 15px;
+                    align-items: center;
+                    border-bottom-left-radius: 15px;
+                    border-bottom-right-radius: 15px;
+                }
+            }
+        }
+    }
 }

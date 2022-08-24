@@ -7,16 +7,17 @@ interface MyButtonLinkProps {
     children: React.ReactNode;
     variant: ButtonVariant;
     link: string;
+    myStyle?: object;
 }
 
-const MyButtonLink : React.FC<MyButtonLinkProps> = ({children, variant, link}) => {
+const MyButtonLink : React.FC<MyButtonLinkProps> = ({children, variant, link, myStyle}) => {
   return ButtonVariant.outlined == variant ? (
     <Link href={link}>
-        <a className={styles.outlined}>{children}</a>
+        <a style={{...myStyle}} className={styles.outlined}>{children}</a>
     </Link>
   ) : (
     <Link href={link}>
-        <a className={styles.primary}>{children}</a>
+        <a style={{...myStyle}} className={styles.primary}>{children}</a>
     </Link>
   )
 }

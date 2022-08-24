@@ -39,6 +39,7 @@ const VariantMap = sequelize.define('variantMap', {
   image: { type: DataTypes.STRING },
   posX: { type: DataTypes.INTEGER },
   posY: { type: DataTypes.INTEGER },
+  name: { type: DataTypes.STRING },
 })
 
 User.hasMany(Friend)
@@ -49,6 +50,9 @@ UserMapPlayed.belongsTo(User)
 
 Map.hasMany(Like)
 Like.belongsTo(Map)
+
+User.hasMany(Like)
+Like.belongsTo(User)
 
 Map.hasMany(UserMapPlayed)
 UserMapPlayed.belongsTo(Map)

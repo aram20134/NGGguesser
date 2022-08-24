@@ -14,7 +14,7 @@ const Navbar : React.FC = () => {
   return router.pathname === '/' ? (
     <nav className={styles.header}>
         <div className={styles.navbar}>
-            <Link href='.'>NGG GUESSER</Link>
+            <Link href='/'>NGG GUESSER</Link>
             {auth === false 
             ? <Link href='/signin'>Вход</Link> 
             : <Link href='/profile'>{name}</Link> 
@@ -24,7 +24,7 @@ const Navbar : React.FC = () => {
   ) : (
     <nav className={styles.header}>
         <div className={styles.navbar}>
-            <Link href='.'>NGG GUESSER</Link>
+            <Link href='/'>NGG GUESSER</Link>
             {auth === false 
             ? <div style={{display:'flex', flexDirection:'row', gap:'15px'}}>
                 <MyButtonLink link='/signup' variant={ButtonVariant.primary}>Регистрация</MyButtonLink>

@@ -26,10 +26,6 @@ export const setUserProps = (token) => {
                 }
             }
             const {data} = await host.get('api/user/check', config)
-            // console.log(response)
-            // checkUser().then((res : userState) => dispacth({type: userActionTypes.SET_USER, payload: res}))
-            // await checkUser().then((res) => console.log(res)).catch((e) => console.log(e))
-            // const response = await checkUser()
             dispacth({type: userActionTypes.SET_USER, payload: jwt_decode(data.token)})
         } catch (e) {
             console.log(e.message)

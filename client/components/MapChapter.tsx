@@ -3,6 +3,11 @@ import styles from "../styles/MapChapter.module.scss";
 import { useTypedSelector } from "./../hooks/useTypedSelector";
 import Image from 'next/image';
 import MyButton, { ButtonVariant } from "./UI/MyButton";
+import MyButtonLink from "./UI/MyButtonLink";
+import people from '../public/people.svg'
+import avgScore from '../public/avgScore.svg'
+import mapVariant from '../public/mapVariant.svg'
+import Tooltip from "./UI/Tooltip";
 
 interface MapChapterProps {
   title: string;
@@ -20,13 +25,25 @@ const MapChapter: React.FC<MapChapterProps> = ({ title, phase}) => {
       <div className={styles.cardContainer}>
         {maps.map((m) =>
         <div key={m.id} className={styles.cardMap}>
-             <div className={styles.img}><Image src={`${process.env.REACT_APP_API_URL}${m.image}`} width={'300px'} height={'300px'} /></div>
+             <div className={styles.img}><Image src={`${process.env.REACT_APP_API_URL}${m.image}`} width={'254px'} height={'254px'} objectFit='contain' className={styles.map} /></div>
              <div className={styles.title}>
                 <h2>{m.name}</h2>
-                <MyButton myStyle={{marginTop:'2rem', fontSize: '18px'}} variant={ButtonVariant.outlined} click={() => console.log('click')}>Играть</MyButton>                
+                <MyButtonLink myStyle={{marginTop:'2rem', fontSize: '18px'}} variant={ButtonVariant.outlined} link={`/map/${m.name.toLowerCase()}`}>Играть</MyButtonLink>                
             </div>
             <hr />
             <div className={styles.mapStats}>
+                <Tooltip classN={styles.mapStatsItem} title="Ср. счёт">
+                    <Image src={avgScore} width='25px' />
+                    <p>2000</p>
+                </Tooltip>
+                <Tooltip title="Сыграли" classN={styles.mapStatsItem}>
+                    <Image src={people} width='25px' />
+                    <p>10</p>
+                </Tooltip>
+                <Tooltip title="Локаций" classN={styles.mapStatsItem}>
+                    <Image src={mapVariant} width='25px' />
+                    <p>{m.variantMaps.length}</p>
+                </Tooltip>
             </div>
            </div>
         )}
