@@ -55,7 +55,7 @@ const map = ({param, likesMap, variantMap}) => {
       <main className={styles.map}>
         <div className={styles.bg}></div>
         <div className={styles.container}>
-          <Image src={`${process.env.REACT_APP_API_URL}${map.image}`} width='300px' height='300px' className={styles.map} />
+          <Image src={`${process.env.REACT_APP_API_URL}/map/${map.image}`} width='300px' height='300px' className={styles.map} />
           <div className={styles.desc}>
             <h1>{map.name}</h1>
             <p>{map.description}</p>

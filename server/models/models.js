@@ -22,6 +22,7 @@ const Map = sequelize.define('maps', {
   description: { type: DataTypes.STRING },
   phase: { type: DataTypes.INTEGER },
   image: { type: DataTypes.STRING },
+  mapSchema: { type: DataTypes.STRING },
   difficult: { type: DataTypes.STRING },
 })
 

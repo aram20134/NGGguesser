@@ -9,12 +9,16 @@ class mapController {
     async addMap(req, res, next) {
         try {
             const {name, description, difficult, phase} = req.body
-            const {img} = req.files
-            if (!name || !description || !difficult || !phase) return next(ApiError.badRequest('Получены не все значения'))
+            const {img, mapSchema} = req.files
+            if (!name || !description || !difficult || !phase || !mapSchema) return next(ApiError.badRequest('Получены не все значения'))
     
             let fileName = uuid.v4() + '.' + img.name.split('.').pop()
-            img.mv(path.resolve(__dirname, '..', 'static', fileName))
-            const map = await Map.create({name, description, phase, difficult, image: fileName})
+            let fileName2 = uuid.v4() + '.' + mapSchema.name.split('.').pop()
+
+            img.mv(path.resolve(__dirname, '..', 'static/map', fileName))
+            mapSchema.mv(path.resolve(__dirname, '..', 'static/mapSchema', fileName2))
+
+            const map = await Map.create({name, description, phase, difficult, image: fileName, mapSchema: fileName2})
             return res.json(map)
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -53,9 +57,12 @@ class mapController {
             if (!mapId || !img || !posX || !posY) return next(ApiError.badRequest('Получены не все значения'))
             
             let fileName = uuid.v4() + '.' + img.name.split('.').pop()
+
             img.mv(path.resolve(__dirname, '..', 'static/variantMaps', fileName))
+            
             const name = fileName.split('.').shift()
             const variantMap = await VariantMap.create({mapId, posX, posY, image:fileName, name})
+            
             return res.json({variantMap})
         } catch (e) {
             next(ApiError.badRequest(e.message))

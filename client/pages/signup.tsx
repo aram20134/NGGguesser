@@ -13,7 +13,7 @@ import { NextThunkDispatch, wrapper } from './../store/index';
 import { setUser } from './../store/actions/user';
 import { userState } from './../types/user';
 
-const signup = (props) => {
+const signup = () => {
   const [name, setName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");

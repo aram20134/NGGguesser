@@ -25,7 +25,7 @@ const MapChapter: React.FC<MapChapterProps> = ({ title, phase}) => {
       <div className={styles.cardContainer}>
         {maps.map((m) =>
         <div key={m.id} className={styles.cardMap}>
-             <div className={styles.img}><Image src={`${process.env.REACT_APP_API_URL}${m.image}`} width={'254px'} height={'254px'} objectFit='contain' className={styles.map} /></div>
+             <div className={styles.img}><Image src={`${process.env.REACT_APP_API_URL}/map/${m.image}`} width={'254px'} height={'254px'} objectFit='contain' className={styles.map} /></div>
              <div className={styles.title}>
                 <h2>{m.name}</h2>
                 <MyButtonLink myStyle={{marginTop:'2rem', fontSize: '18px'}} variant={ButtonVariant.outlined} link={`/map/${m.name.toLowerCase()}`}>Играть</MyButtonLink>                

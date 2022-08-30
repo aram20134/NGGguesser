@@ -10,7 +10,7 @@ const Footer : React.FC = () => {
     setLoad(true)
   }, [])
   
-  return load && (
+  return (
     <>
      <hr />
      <div className={styles.footer}>

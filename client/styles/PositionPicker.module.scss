@@ -1,0 +1,58 @@
+.container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    margin: 25px;
+    width: 400px;
+    transition: all 0.3s ease;
+
+    .imgPicker {
+        position: absolute;
+        z-index: 100;
+        background-color:cadetblue;
+        width: 400px;
+        height: 250px;
+        right: 0;
+        bottom: 0;
+        margin-bottom: 70px;
+        overflow: hidden;
+        opacity: 50%;
+        border: 3px solid black;
+        transition: all 0.3s ease;
+        &:hover {
+            opacity: 100%;
+            width: 700px;
+            height: 500px;
+            transition: all 0.3s ease;
+        }
+    }
+}
+.img {
+    width: 100vw;
+    height: 100vh;
+    background-repeat: no-repeat;
+    background-position: center center;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+.choose {
+    position: absolute;
+    visibility: hidden;
+    padding: 10px;
+    border-radius: 35%;
+    border: 2px solid green;
+    width: 20px;
+    box-sizing: content-box;
+}
+.trueChoose {
+    position: absolute;
+    visibility: hidden;
+    padding: 10px;
+    left: 0;
+    border-radius: 50%;
+    border: 2px solid rgb(128, 0, 0);
+    width: 20px;
+    box-sizing: content-box;
+    z-index: 100;
+}

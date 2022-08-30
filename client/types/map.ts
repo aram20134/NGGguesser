@@ -2,25 +2,26 @@ export interface mapState {
     maps: Imap[];
 }
 
-interface Imap {
+export interface Imap {
     id: number;
     difficult: string;
     description: string;
     image: string;
     phase: number;
     name: string;
+    mapSchema: string;
     likes: Ilikes[],
     userMapPlaydes: [],
     variantMaps: IvariantMaps[],
 }
 
-interface Ilikes {
+export interface Ilikes {
     id: number;
     mapId: number;
     userId: number;
 }
 
-interface IvariantMaps {
+export interface IvariantMaps {
     id: number;
     image: string;
     name: string;
