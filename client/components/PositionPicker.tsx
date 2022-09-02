@@ -8,50 +8,27 @@ import clone2 from '../public/clone2.png'
 import anaxes from '../public/anaxes.png'
 import Draggable from 'react-draggable';
 import MyButton, { ButtonVariant } from './UI/MyButton';
-import { useActions } from '../hooks/useActions';
-import { useTypedSelector } from '../hooks/useTypedSelector';
-import io from 'socket.io-client';
-import { getCookie } from 'cookies-next';
+import { userAgent } from 'next/server';
 
 interface PositionPickerProps {
   map: Imap;
   variantMap: IvariantMaps;
+  choseChecked: boolean;
+  setScore: Function;
+  setChoseChecked: Function;
+  setLineWidth: Function;
 }
 
 
-const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap})  => {
+const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLineWidth,choseChecked, setChoseChecked, setScore})  => {
     const [img, setImg] = useState<{width: number; height: number}>()
     const [load, setLoad] = useState(false)
     const [scale, setScale] = useState(1)
     const [IsChosed, setIsChosed] = useState(false)
-    const [choseChecked, setChoseChecked] = useState(false)
     const [choseCoords, setChoseCoords] = useState<{x: number; y: number}>()
     
-    const {setSocket} = useActions()
-    const user = useTypedSelector(st => st.user)
-    var socket
     const padding = 12
-
-    useEffect(() => {
-      if (user.name !== 'user') {
-        socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
-      }
-    }, [user])
-
-    useEffect(() => {
-      if (user.name !== 'user') {
-          socket.on('connect', () => {
-              socket.emit('USER_ONLINE')
-          })
-          socket.on('USERS_ONLINE', (data) => {
-            setSocket({sockets: data})
-          })
-      }
-      return () => {
-        socket.disconnect()
-      }
-    }, [socket])
-
+    
     useEffect(() => {
       const getImg = () => {
         const img = new Image()
@@ -60,21 +37,34 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap})  => {
         setLoad(true)
       }
       getImg()
-    }, [])
+    }, [load])
 
     useEffect(() => {
       if (load) {
         const img = document.getElementById('imageCont')
         const cont = document.getElementById('cont')
 
-        img.onmouseover = () => {
+        const onMouseOverStyle = () => {
           cont.style.width = '700px'
         }
-        img.onmouseleave = () => {
+
+        const onMouseLeaveStyle = () => {
           cont.style.width = '400px'
         }
+
+        img.addEventListener('mouseover', onMouseOverStyle)
+        img.addEventListener('mouseleave', onMouseLeaveStyle)
+
+        if (choseChecked) {
+          img.removeEventListener('mouseover', onMouseOverStyle)
+          img.removeEventListener('mouseleave', onMouseLeaveStyle)
+        }
+        return () => {
+          img.removeEventListener('mouseover', onMouseOverStyle)
+          img.removeEventListener('mouseleave', onMouseLeaveStyle)
+        }
       }
-    }, [load])
+    }, [load, choseChecked])
 
     const setChoose = (e : React.MouseEvent) => {
       const target = document.querySelector('#image').getBoundingClientRect()
@@ -118,20 +108,20 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap})  => {
       const a = choseCoords.x - variantMap.posX
       const b = choseCoords.y - variantMap.posY
       const lineWidth = Math.round(Math.sqrt(a*a + b*b))
-
+      setLineWidth(lineWidth)
+      
       const maxScore = 5000
-      var score = maxScore - lineWidth * 4
-      if (score < 100) {
+      var score = maxScore - lineWidth * 4 - Math.round(lineWidth / 2)
+      if (score < 500) {
         score = 0
       } else if (score > 4500) {
         score = 5000
       }
-      console.log(score);
+      setScore(score)
     }
-
   return load && (
     <div id='cont' className={styles.container}>
-        <div id ='imageCont' className={styles.imgPicker}>
+        <div id ='imageCont' className={choseChecked ? styles.imgPickerChecked : styles.imgPicker}>
         <Draggable handle='#image' defaultPosition={{x: -img.width / 2, y: -img.height / 2}}>
           <div>
             <div id='image' 
@@ -153,7 +143,7 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap})  => {
           </div>
         </Draggable>
         </div>
-        <MyButton disabled={!IsChosed || choseChecked} click={(e) => !choseChecked && checkChoose(e)} myStyle={{width: '100%', zIndex: 200}} variant={ButtonVariant.primary}>Выбрать</MyButton>
+        {!choseChecked && <MyButton disabled={!IsChosed || choseChecked} click={(e) => !choseChecked && checkChoose(e)} myStyle={{width: '100%', zIndex: 200}} variant={ButtonVariant.primary}>Выбрать</MyButton>}
     </div>
   )
 }
