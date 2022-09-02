@@ -1,0 +1,24 @@
+.scoreBarContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+    .scoreBar {
+        height: 15px;
+        border-radius: 15px;
+        width: 100%;
+        background-color: grey;
+        display: flex;
+        span {
+            height: 15px;
+            max-width: 0%;
+            transition: all 0.8s ease;
+            border-radius: 15px;
+            background-color: yellowgreen;
+        }
+    }
+    h1 {
+        color: yellow;
+    }
+}

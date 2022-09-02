@@ -23,5 +23,41 @@
         height: 400px;
         width: 100vw;
     }
-    
+    .scoreInfo {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+        margin-top: 25px;
+        gap: 25px;
+        p {
+            text-align: center;
+        }
+        b {
+            // background-color: purple;
+            padding: 10px 25px;
+            font-size: 18px;
+            position: relative;
+            font-style: italic;
+            color: yellowgreen;
+            border-radius: 15px;
+            &::before {
+                position: absolute;
+                content: '';
+                background-color: white;
+                width: 100%;
+                bottom: 5px;
+                border-radius: 15px;
+                height: 2px;
+                left: 0;
+            }
+            // &::after {
+            //     position: absolute;
+            //     content: '';
+            //     background-color: red;
+            //     width: 10px;
+            //     height: 10px;
+            // }
+        }
+    }
 }

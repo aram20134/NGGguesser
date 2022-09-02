@@ -19,7 +19,7 @@ const WrappedApp: FC<AppProps> = ({Component, pageProps}) => {
 
     useEffect(() => {
         if (user.name !== 'user') {
-            socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
+            socket = io(process.env.REACT_APP_API_URL, {auth: {token: getCookie('token')}})
         }
     }, [user])
     

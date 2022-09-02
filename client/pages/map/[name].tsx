@@ -17,26 +17,29 @@ import mapVariant from '../../public/mapVariant.svg'
 import { delLike, setLike } from '../../api/mapAPI';
 import MyButtonLink from '../../components/UI/MyButtonLink';
 import { ButtonVariant } from '../../components/UI/MyButton';
+import { useActions } from '../../hooks/useActions';
+import { io } from 'socket.io-client';
+import { getCookie } from 'cookies-next';
 
 
 const map = ({param, likesMap, variantMap}) => {
   const [isLiked, setIsLiked] = useState(false)
   const [likes, setLikes] = useState(likesMap)
-
+  var socket;
   var {maps} = useTypedSelector(st => st.map)
   const user = useTypedSelector(st => st.user)
+  const {setSocket} = useActions()
   
   maps = maps.filter((m) => m.name.toLowerCase() === param ? true : false)
   const map = maps[0]
 
   useEffect(() => {
-    console.log(map);
-    console.log(variantMap)
     map.likes.map((l) => {
       if (l.userId === user.id) {
         setIsLiked(true)
       }
     })
+
   }, [])
   
   const setUserLike = () => {
@@ -49,6 +52,21 @@ const map = ({param, likesMap, variantMap}) => {
     }
     setIsLiked(!isLiked)
   }
+
+
+    useEffect(() => {
+        if (user.name !== 'user') {
+          socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
+        }
+    }, [user])
+
+    // useEffect(() => {
+    //   socket.emit('START_PLAY', (map.id))
+    //   socket.on('STARTED_PLAY', (d) => {
+    //     console.log(d)
+    //   })
+    // }, [socket])
+    
 
   return (
     <MainContainer title={`Карта ${param}`}>

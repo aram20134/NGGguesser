@@ -10,8 +10,8 @@ const path = require('path')
 const errorHandle = require('./middleware/ErrorHandle')
 const { Server } = require("socket.io");
 const http = require('http');
-const jwt = require('jsonwebtoken');
 const ApiError = require('./error/ApiError')
+const uuid = require('uuid');
 
 const PORT = 5002 || procces.env.PORT
 const app = express()
@@ -64,6 +64,7 @@ io.on('connection', (socket) => {
             logUsers[u.id] = u
         })
         io.sockets.emit('USERS_ONLINE', logUsers)
+        console.log(logUsers)
     })
 
     socket.on('disconnect', () => {
@@ -78,6 +79,13 @@ io.on('connection', (socket) => {
         })
         io.sockets.emit('USERS_ONLINE', logUsers)
     })
+    
+    // socket.on('START_PLAY', async (mapId) => {
+    //     var room = uuid.v4()
+    //     socket.join(room)
+    //     var test = await models.Map.findAll()
+    //     io.to(room).emit('STARTED_PLAY', room)
+    // })
 })
 
 start()
