@@ -20,14 +20,49 @@ import {NextThunkDispatch, wrapper} from '../store';
 import { setMaps } from '../store/actions/map';
 import { getMaps } from './../api/mapAPI';
 import { setUserProps } from '../store/actions/user';
+import { io } from 'socket.io-client';
+import { getCookie } from 'cookies-next';
 
 interface IndexProps {
   users: number;
+  test: any
 }
 
 const Index : NextPage<IndexProps> = ({users}) => {
   const user = useTypedSelector(st => st.user)
-  const map = useTypedSelector(st => st.map)
+  const map = useTypedSelector(st => st.socket)
+  const {setSocket} = useActions()
+
+  
+
+  useEffect(() => {
+    if (getCookie('token')) {
+      var socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
+      socket.auth = {...socket.auth, sessionID: localStorage.getItem('sessionID')}
+    } else {
+      var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
+    }
+    
+    socket.on('connect', () => {
+      socket.emit('USER_ONLINE')
+    })
+
+    socket.on('SESSION', ({sessionID}) => {
+      console.log(sessionID)
+      socket.auth = {...socket.auth, sessionID}
+      localStorage.setItem('sessionID', sessionID)
+    })
+
+    socket.on('USERS_ONLINE', async (data) => {
+      await setSocket({sockets: data})
+    })
+    
+    return () => {
+      socket.disconnect()
+    }
+    
+  }, [])
+  
 
   return !user.auth ? (
     <MainContainer title='NGG GUESSER'>
@@ -85,6 +120,12 @@ export default Index
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res}) => {
   const dispatch = store.dispatch as NextThunkDispatch
+
+  // socket.emit('GET_USERS_ONLINE')
+  // socket.on('USERS_ONLINE', async (data) => {
+  //   test = data
+  // })
+
   const response = await users()  
   await dispatch(setMaps())
   await dispatch(setUserProps(req.cookies.token))

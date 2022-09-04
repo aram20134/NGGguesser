@@ -7,6 +7,6 @@ export const makeStore = createStore(reducer, applyMiddleware(thunk));
 
 const initStore = () => makeStore
 
-export const wrapper = createWrapper<Store<RootState>>(initStore, {debug: true});
+export const wrapper = createWrapper<Store<RootState>>(initStore, {debug: false});
 
 export type NextThunkDispatch = ThunkDispatch<RootState, void, AnyAction>

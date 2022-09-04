@@ -16,47 +16,89 @@ import { io } from 'socket.io-client'
 import { getCookie } from 'cookies-next'
 import MyButton, { ButtonVariant } from '../../components/UI/MyButton'
 import ScoreBar from '../../components/UI/ScoreBar'
+import { useRouter } from 'next/router';
 
 interface playProps {
   variantMap: IvariantMaps;
   map: Imap;
-  socket: any;
 }
 
-const play : React.FC<playProps> = ({map, variantMap, socket}) => {
+const Play : React.FC<playProps> = () => {
   const [choseChecked, setChoseChecked] = useState(false)
   const [score, setScore] = useState(0)
+  const [allScore, setAllScore] = useState(0)
   const [lineWidth, setLineWidth] = useState(0)
+  const [variantMaps, setVariantMaps] = useState<IvariantMaps>()
+  const [map, setMap] = useState<Imap>()
+  const [loaded, setLoaded] = useState(false)
+  const [stage, setStage] = useState(0)
+  const [positions, setPositions] = useState<{posX: number, posY: number, truePosX: number, truePosY: number}>()
+  const [allChoses, setAllChoses] = useState<[{posX: number, posY: number, truePosX: number, truePosY: number}]>()
+  const [checkAllChoses, setCheckAllChoses] = useState(false)
 
   const {setSocket} = useActions()
-  const user = useTypedSelector(st => st.user)
+  const {maps} = useTypedSelector(st => st.map)
+  const router = useRouter()
 
   useEffect(() => {
-    if (user.name !== 'user') {
-      socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
+    if (getCookie('token')) {
+      var socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
+      socket.auth = {...socket.auth, sessionID: localStorage.getItem('sessionID')}
+    } else {
+      var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
     }
-  }, [user])
 
-  useEffect(() => {
-    if (user.name !== 'user') {
-        socket.on('connect', () => {
-            socket.emit('USER_ONLINE')
-        })
-        socket.on('USERS_ONLINE', (data) => {
-          setSocket({sockets: data})
-        })
+    socket.on('connect', () => {
+      socket.emit('USER_ONLINE')
+    })
+
+    socket.on('USERS_ONLINE', async (data) => {
+      await setSocket({sockets: data})
+    })
+    
+    socket.emit('STARTED_PLAY', {room: router.query.name})
+    console.log(stage)
+    socket.on('MAPS_END', () => {
+      console.log('map end');
+    })
+
+    socket.on('STARTED_PLAY', async (data, stage, score, chooses) => {
+      if (data === null || data === undefined) {
+        router.replace('/404')
+      }
+      console.log(chooses);
+      setAllChoses(chooses)
+      if (stage <= 4) {
+        var map = maps.filter((m) => m.id === data[stage].mapId ? true : false)
+        await setMap(map[0])
+      } else {
+        var map = maps.filter((m) => m.id === data[0].mapId ? true : false)
+        await setMap(map[0])
+        setChoseChecked(true)
+      }
+
+      await setAllScore(score)
+      await setStage(stage)
+      await setVariantMaps(data)
+      setLoaded(true)
+    })
+    
+    if (choseChecked && stage <= 4) {
+      socket.emit('NEXT_MAP', {room: router.query.name, score: score, posX: positions.posX, posY: positions.posY, truePosX: positions.truePosX, truePosY: positions.truePosY})
     }
+
+    console.log(allScore)
+    console.log(positions)
     return () => {
       socket.disconnect()
     }
-  }, [socket])
+  }, [choseChecked])
 
     useEffect(() => {
-        // console.log(socket);
-        // console.log(variantMap, map);
+      if (loaded && stage <= 4) {
         const viewer = new Viewer({
           container: document.querySelector('#viewer') as any,
-          panorama: `${process.env.REACT_APP_API_URL}/variantMaps/${variantMap.image}`,
+          panorama: `${process.env.REACT_APP_API_URL}/variantMaps/${variantMaps[stage].image}`,
           fisheye: false,
           defaultZoomLvl: 0,
           navbar: [],
@@ -70,53 +112,99 @@ const play : React.FC<playProps> = ({map, variantMap, socket}) => {
             croppedX: 0
           }
         });
-    }, [])
-    
-  return (
-    <MainContainer title={`Игра на ${map.name}`}>
-      <main className={styles.container}>
-        <div className={styles.bg}></div>
-          <div id='viewer' style={{width: '100%', height: choseChecked ? '60vh' : '80vh', position: 'relative', overflow: 'hidden'}}>
-            <div className="mapPicker">
-              <PositionPicker setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMap} />
+      }
+  }, [variantMaps])
+     
+  if (stage <= 4) {
+    return loaded && (
+      <MainContainer title={`Игра на ${map.name}`}>
+        <main className={styles.container}>
+          <div className={styles.bg}></div>
+            <div id='viewer' style={{width: '100%', height: choseChecked ? '60vh' : '80vh', position: 'relative', overflow: 'hidden'}}>
+              <PositionPicker setPositions={setPositions} setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMaps[stage]} />
+              <div className={styles.allScore}>
+                <div className={styles.allScoreAtr}>
+                  <p>Карта</p>
+                  <h5>{map.name}</h5>
+                </div>
+                <div className={styles.allScoreAtr}>
+                  <p>Раунд</p>
+                  <h5>{stage + 1} / 5</h5>
+                </div>
+                <div className={styles.allScoreAtr}>
+                  <p>Счёт</p>
+                  <h5>{allScore}</h5>
+                </div>
+              </div>
             </div>
+            {choseChecked &&
+              <div className={styles.scoreInfo}>
+                <ScoreBar title={`счёт: ${score}`} width='600px' score={Math.round(score / 50)} />
+                <p>Твоя позиция дальше на <b>{lineWidth} шагов</b> от правильного ответа.</p>
+                {stage <= 3 
+                ? (
+                  <MyButton variant={ButtonVariant.primary} click={() => router.reload()}>Играть дальше</MyButton>
+                )
+                : (
+                  <div style={{display: 'flex', flexDirection: 'row', gap: '50px'}}>
+                    <MyButton variant={ButtonVariant.primary} click={() => router.reload()}>Общий счёт</MyButton>
+                    <MyButton variant={ButtonVariant.outlined} click={() => router.reload()}>Главное меню</MyButton>
+                  </div>
+                )}
+              </div>
+            }
+        </main>
+      </MainContainer>
+    )
+  } else {
+    return loaded && (
+      <MainContainer title={`Игра на ${map.name}`}>
+        <main className={styles.container}>
+          <div className={styles.bg}></div>
+          <div style={{width: '100%', height: choseChecked ? '60vh' : '80vh', position: 'relative', overflow: 'hidden'}}>
+            <PositionPicker allChoses={checkAllChoses} last={true} allPositions={allChoses} setPositions={setPositions} setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMaps[stage]} />
           </div>
           {choseChecked &&
-            <div className={styles.scoreInfo}>
-              <ScoreBar title={`счёт: ${score}`} width='600px' score={Math.round(score / 50)} />
-              <p>Твоя позиция дальше на <b>{lineWidth} пикселей</b> от правильного ответа.</p>
-              <MyButton variant={ButtonVariant.primary} click={() => console.log('sd')}>Играть дальше</MyButton>
-            </div>
-          }
-      </main>
-    </MainContainer>
-  )
+              <div className={styles.scoreInfo}>
+                {score && !checkAllChoses && <ScoreBar title={`счёт: ${score}`} width='600px' score={Math.round(score / 50)} />}
+                {score && checkAllChoses && <ScoreBar title={`Общий счёт: ${allScore}`} width='600px' score={Math.round(allScore / 250)} />}
+                <p>Твоя позиция дальше на <b>{lineWidth} шагов</b> от правильного ответа.</p>
+                {stage <= 3 
+                ? (
+                  <MyButton variant={ButtonVariant.primary} click={() => router.reload()}>Играть дальше</MyButton>
+                )
+                : (
+                  <div style={{display: 'flex', flexDirection: 'row', gap: '50px'}}>
+                    <MyButton variant={ButtonVariant.primary} click={() => setCheckAllChoses(true)}>Общий счёт</MyButton>
+                    <MyButton variant={ButtonVariant.outlined} click={() => router.push('/')}>Главное меню</MyButton>
+                  </div>
+                )}
+              </div>
+            }
+        </main>
+      </MainContainer>
+    )
+  }
 }
 
-export default play
+export default Play
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
     const dispatch = store.dispatch as NextThunkDispatch
-    // var socket = io(process.env.REACT_APP_API_URL, {auth: {token : req.cookies.token}})
+
     await dispatch(setMaps())
     await dispatch(setUserProps(req.cookies.token))
-    const {map, user} = store.getState()
-    const param = query.name
-    // const check = map.maps.filter((m) => m.variantMaps)
-    for (let i = 0; i < map.maps.length; i++) {
-      for (let j = 0; j < map.maps[i].variantMaps.length; j++) {
-          if (map.maps[i].variantMaps[j].name === param) {
-            var check = map.maps[i].variantMaps[j]
-            var checkMap = map.maps[i]
-          }
-      }
-    }
- 
-    if (!check) {
-      return {
-        notFound: true
-      }
-    }
+    var {user, map} = store.getState()
+    var param = query.name
+
+    // console.log(variantMaps)
+    // var mapGame = map.maps.filter((m) => m.id === variantMaps[0].id)
+    
+    // if (!check) {
+    //   return {
+    //     notFound: true
+    //   }
+    // }
     if (!user.auth) {
       return {
         redirect: {destination: '/', permanent: true}
@@ -124,6 +212,6 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
     }
     
     return {
-      props: {variantMap: check, map: checkMap}
+      props: {}
     }
   })

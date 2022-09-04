@@ -9,6 +9,8 @@ import MyButtonLink from './UI/MyButtonLink';
 
 const Navbar : React.FC = () => {
   const {auth, name} = useTypedSelector(state => state.user)
+  const user = useTypedSelector(state => state.user)
+
   const router = useRouter()
 
   return router.pathname === '/' ? (

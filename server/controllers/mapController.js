@@ -52,15 +52,17 @@ class mapController {
     }
     async addVariantMap(req, res, next) {
         try {
-            const {mapId, posX, posY} = req.body
+            var {mapId, posX, posY} = req.body
             const {img} = req.files
             if (!mapId || !img || !posX || !posY) return next(ApiError.badRequest('Получены не все значения'))
             
             let fileName = uuid.v4() + '.' + img.name.split('.').pop()
 
             img.mv(path.resolve(__dirname, '..', 'static/variantMaps', fileName))
-            
+                
             const name = fileName.split('.').shift()
+            posX = posX * 9 - mapId * 2
+            posY = posY * 9 - mapId * 2
             const variantMap = await VariantMap.create({mapId, posX, posY, image:fileName, name})
             
             return res.json({variantMap})

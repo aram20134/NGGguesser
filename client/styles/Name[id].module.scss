@@ -60,4 +60,34 @@
             // }
         }
     }
+    .allScore {
+        position: absolute;
+        right: 0;
+        top: 20px;
+        width: 300px;
+        height: 100px;
+        background: purple;
+        z-index: 200;
+        flex-direction: row;
+        gap: 20px;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+        .allScoreAtr {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            p {
+                font-size: 14px;
+                font-weight: bold;
+                color: rgb(177, 177, 177);
+            }
+            h5 {
+                font-size: 24px;
+                font-weight: bold;
+            }
+        }
+    }
 }

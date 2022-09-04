@@ -1,4 +1,4 @@
-import { NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import { log } from "../api/userAPI";
 import Alert, { AlertVariant } from "../components/UI/Alert";
@@ -10,16 +10,34 @@ import MainContainer from "./../components/MainContainer";
 import MyInput from "./../components/UI/MyInput";
 import { useTypedSelector } from './../hooks/useTypedSelector';
 import { useRouter } from 'next/router';
+import { io } from "socket.io-client";
+import { NextThunkDispatch, wrapper } from "../store";
+import { getCookie } from "cookies-next";
 
-const signin: NextPage = () => {
+const Signin: NextPage = () => {
   const [nameL, setNameL] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false);
 
-  const {setUser} = useActions()
-  const {name} = useTypedSelector(state => state.user)
+  const {setUser, setSocket} = useActions()
+  const sockets = useTypedSelector(state => state.socket)
   const router = useRouter() 
+
+  useEffect(() => {
+    var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
+
+    socket.on('connect', () => {
+      socket.emit('USER_ONLINE')
+    })
+
+    socket.on('USERS_ONLINE', async (data) => {
+      await setSocket({sockets: data})
+    })
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
 
   const checkLogin = async (e : React.FormEvent) => {
     e.preventDefault();
@@ -86,9 +104,11 @@ const signin: NextPage = () => {
   );
 };
 
-export default signin;
+export default Signin;
 
-export async function getServerSideProps({req}) {
+export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
+  const dispatch = store.dispatch as NextThunkDispatch
+
   if (req.cookies.token) {
     return {
       props: {},  
@@ -98,4 +118,4 @@ export async function getServerSideProps({req}) {
   return {
     props: {}
   }
-}
+})

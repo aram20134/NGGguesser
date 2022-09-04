@@ -10,5 +10,4 @@ router.post('/like', auth, mapController.setLike)
 router.post('/addVariantMap', checkRole('ADMIN'), mapController.addVariantMap)
 router.post('/likeDel', auth, mapController.delLike)
 
-
 module.exports = router

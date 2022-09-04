@@ -16,7 +16,7 @@ const MainContainer: React.FC<MainContainerProps> = ({title, children}) => {
         <Head>
             <meta charSet='utf-8'></meta>
             {/* <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes"></meta> */}
-            <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+            <meta httpEquiv="X-UA-Compatible" content="IE=edge"></meta>
             <meta name='description' content='SWRPGUESSER это игра, которая позволяет проверить свои навыки знания карт на серверах SWRP NGG.'></meta>
             <title>{title}</title>
             <link rel='shortcut icon' href={ico.src}></link>

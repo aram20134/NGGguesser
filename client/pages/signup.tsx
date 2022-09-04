@@ -12,13 +12,33 @@ import { useTypedSelector } from './../hooks/useTypedSelector';
 import { NextThunkDispatch, wrapper } from './../store/index';
 import { setUser } from './../store/actions/user';
 import { userState } from './../types/user';
+import { io } from "socket.io-client";
+import { useActions } from './../hooks/useActions';
 
-const signup = () => {
+const Signup = () => {
   const [name, setName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const {setSocket} = useActions()
+
+  useEffect(() => {
+    var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
+
+    socket.on('connect', () => {
+      socket.emit('USER_ONLINE')
+    })
+
+    socket.on('USERS_ONLINE', async (data) => {
+      await setSocket({sockets: data})
+    })
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
+
 
   useEffect(() => {
     setError("");
@@ -132,10 +152,12 @@ const signup = () => {
   );
 };
 
-export default signup;
+export default Signup;
 
-export async function getServerSideProps({req}) {
-  if (req.cookies.token) {
+export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
+  const dispatch = store.dispatch as NextThunkDispatch
+
+  if (req.cookies.token) {  
     return {
       props: {},  
       redirect: {destination: '/', permanent: true}
@@ -144,4 +166,4 @@ export async function getServerSideProps({req}) {
   return {
     props: {}
   }
-}
+})

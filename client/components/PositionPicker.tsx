@@ -9,6 +9,8 @@ import anaxes from '../public/anaxes.png'
 import Draggable from 'react-draggable';
 import MyButton, { ButtonVariant } from './UI/MyButton';
 import { userAgent } from 'next/server';
+import { getCookie } from 'cookies-next';
+import { io } from 'socket.io-client';
 
 interface PositionPickerProps {
   map: Imap;
@@ -17,10 +19,14 @@ interface PositionPickerProps {
   setScore: Function;
   setChoseChecked: Function;
   setLineWidth: Function;
+  setPositions: Function;
+  allPositions?: object;
+  last?: boolean
+  allChoses?: boolean
 }
 
 
-const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLineWidth,choseChecked, setChoseChecked, setScore})  => {
+const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLineWidth,choseChecked, setChoseChecked, setScore, setPositions, allPositions, last = false, allChoses = false})  => {
     const [img, setImg] = useState<{width: number; height: number}>()
     const [load, setLoad] = useState(false)
     const [scale, setScale] = useState(1)
@@ -28,8 +34,57 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
     const [choseCoords, setChoseCoords] = useState<{x: number; y: number}>()
     
     const padding = 12
-    
+
     useEffect(() => {
+      const setAllChoses = (allPositions) => {
+        if (load) {
+          var canvas = document.getElementById("canv") as HTMLCanvasElement
+          var ctx = canvas?.getContext("2d") as CanvasRenderingContext2D
+
+          ctx.lineWidth = 5
+          ctx.strokeStyle = 'green'
+          ctx.setLineDash([10, 10])
+
+          for(let i = 1; i < 5; i++) {
+            ctx.moveTo(allPositions[i].posX + padding, allPositions[i].posY + padding)
+            ctx.lineTo(allPositions[i].truePosX + padding, allPositions[i].truePosY + padding)
+            ctx.stroke()
+          }
+
+          for (let i = 1; i < 5; i++) {
+            var imgTrueChose = new Image()
+            imgTrueChose.src = `${process.env.REACT_APP_API_URL}/map/${map.image}`
+            imgTrueChose.className = styles.trueChoose
+            imgTrueChose.id = 'TrueChose' + i
+            document.getElementById('image').appendChild(imgTrueChose)
+            imgTrueChose.style.visibility = 'visible'
+            imgTrueChose.style.transform = `translate(${allPositions[i].truePosX}px, ${allPositions[i].truePosY}px) scale(3)`
+          }
+          for (let i = 1; i < 5; i++) {
+            var imgChoose = new Image()
+            imgChoose.src = map.phase === 1 ? clone1.src : clone2.src
+            imgChoose.className = styles.choose
+            imgChoose.id = 'imgChoose' + i
+            document.getElementById('image').appendChild(imgChoose)
+            imgChoose.style.visibility = 'visible'
+            imgChoose.style.left = '0'
+            imgChoose.style.transform = `translate(${allPositions[i].posX}px, ${allPositions[i].posY}px) scale(3)`
+          }
+        }
+      }
+      if (last) {
+        setChoose(undefined, allPositions[5].posX, allPositions[5].posY)
+        checkChoose(undefined, allPositions[5].truePosX, allPositions[5].truePosY, allPositions[5].posX, allPositions[5].posY)
+        if (allChoses) {
+          setAllChoses(allPositions)
+        }
+      }
+    }, [load, allChoses])
+    
+    
+
+    useEffect(() => {
+      
       const getImg = () => {
         const img = new Image()
         img.src = `${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema}`
@@ -66,13 +121,17 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
       }
     }, [load, choseChecked])
 
-    const setChoose = (e : React.MouseEvent) => {
+    const setChoose = (e? : React.MouseEvent, posX?, posY?) => {
+      if (!document.querySelector('#image')) return
       const target = document.querySelector('#image').getBoundingClientRect()
       const image : HTMLImageElement = document.querySelector('#choose')
-
-      var x = Math.round((e.clientX - target.left) / scale) - image.width / 2 - padding
-      var y = Math.round((e.clientY - target.top) / scale) - image.height / 2 - padding
-
+      if (posX && posY) {
+        var x : number = posX
+        var y : number = posY
+      } else {
+        var x : number = Math.round((e.clientX - target.left) / scale) - image.width / 2 - padding
+        var y : number = Math.round((e.clientY - target.top) / scale) - image.height / 2 - padding
+      }
       image.style.visibility = 'visible'
       image.style.transform = `translate(${x}px, ${y}px)`
 
@@ -81,15 +140,25 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
       console.log(x, y);
     }
 
-    const checkChoose = (e) => {
+    const checkChoose = (e, truePosX?, truePosY?, LposX?, LposY?) => {
+      if (!document.querySelector('#choose')) return
       const image : HTMLImageElement = document.querySelector('#trueChoose')
       const image2 : HTMLImageElement = document.querySelector('#choose')
-
+      
+      if (truePosX && truePosY) {
+        var posX : number  = truePosX
+        var posY : number  = truePosY
+      } else {
+        var posX : number  = Math.round(variantMap.posX / 9 + map.id * 2)
+        var posY : number = Math.round(variantMap.posY / 9 + map.id * 2)
+        setPositions({posX: choseCoords.x, posY: choseCoords.y, truePosX: posX, truePosY: posY})
+        setChoseChecked(true)
+      }
+      
       image2.style.transform = image2.style.transform + 'scale(3)'
-      image.style.transform = `translate(${variantMap.posX}px, ${variantMap.posY}px) scale(3)`
+      image.style.transform = `translate(${posX}px, ${posY}px) scale(3)`
       image.style.visibility = 'visible'
-
-      setChoseChecked(true)
+  
 
       var canvas = document.getElementById("canv") as HTMLCanvasElement
       var ctx = canvas?.getContext("2d") as CanvasRenderingContext2D
@@ -97,19 +166,31 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
       ctx.lineWidth = 5
       ctx.strokeStyle = 'green'
       ctx.setLineDash([10, 10])
-      ctx.moveTo(choseCoords.x + padding, choseCoords.y + padding)
-      ctx.lineTo(variantMap.posX + padding, variantMap.posY + padding)
+
+      if (LposX && LposY) {
+        ctx.moveTo(LposX, LposY)
+        ctx.lineTo(posX, posY)
+      } else {
+        ctx.moveTo(choseCoords.x + padding, choseCoords.y + padding)
+        ctx.lineTo(posX + padding, posY + padding)
+      }
+
       ctx.stroke()
 
       // Теорема Пифагора
       // a = x1 - x2
       // b = y1 - y2
       // c = sqrt(a*a + b*b)
-      const a = choseCoords.x - variantMap.posX
-      const b = choseCoords.y - variantMap.posY
+      if (LposX && LposY) {
+        var a = LposX - posX
+        var b = LposY - posY
+      } else {
+        var a = choseCoords.x - posX
+        var b = choseCoords.y - posY
+      }
       const lineWidth = Math.round(Math.sqrt(a*a + b*b))
       setLineWidth(lineWidth)
-      
+
       const maxScore = 5000
       var score = maxScore - lineWidth * 4 - Math.round(lineWidth / 2)
       if (score < 500) {

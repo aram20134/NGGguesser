@@ -9,7 +9,7 @@ export const setMaps = () => {
             const response : mapState = await getMaps()
             dispatch({type: mapActionTypes.SET_MAPS, payload:response})
         } catch (e) {
-            
+            console.log(e);
         }
     }
 }

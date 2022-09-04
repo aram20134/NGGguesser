@@ -20,12 +20,18 @@ import { ButtonVariant } from '../../components/UI/MyButton';
 import { useActions } from '../../hooks/useActions';
 import { io } from 'socket.io-client';
 import { getCookie } from 'cookies-next';
+import { v4 as uuidv4 } from 'uuid';
 
+interface mapProps {
+  param: any;
+  likesMap: any;
+}
 
-const map = ({param, likesMap, variantMap}) => {
+const Map : React.FC<mapProps> = ({param, likesMap}) => {
+
   const [isLiked, setIsLiked] = useState(false)
   const [likes, setLikes] = useState(likesMap)
-  var socket;
+  const [UUID, setUUID] = useState()
   var {maps} = useTypedSelector(st => st.map)
   const user = useTypedSelector(st => st.user)
   const {setSocket} = useActions()
@@ -34,12 +40,44 @@ const map = ({param, likesMap, variantMap}) => {
   const map = maps[0]
 
   useEffect(() => {
+    if (getCookie('token')) {
+      var socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
+      socket.auth = {...socket.auth, sessionID: localStorage.getItem('sessionID')}
+    } else {
+      var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
+    }
+    
+    socket.on('connect', () => {
+      socket.emit('USER_ONLINE')
+    })
+
+    socket.on('SESSION', ({sessionID}) => {
+      socket.auth = {...socket.auth, sessionID}
+      localStorage.setItem('sessionID', sessionID)
+    })
+
+    socket.on('USERS_ONLINE', async (data) => {
+      await setSocket({sockets: data})
+    })
+
+    const room = uuidv4()
+    setUUID(room)
+
+    socket.emit('START_PLAY', {mapId: map.id, room})
+
+    console.log(socket);
+    return () => {
+      socket.disconnect()
+    }
+    
+  }, [])
+
+  useEffect(() => {
     map.likes.map((l) => {
       if (l.userId === user.id) {
         setIsLiked(true)
       }
     })
-
   }, [])
   
   const setUserLike = () => {
@@ -53,27 +91,12 @@ const map = ({param, likesMap, variantMap}) => {
     setIsLiked(!isLiked)
   }
 
-
-    useEffect(() => {
-        if (user.name !== 'user') {
-          socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
-        }
-    }, [user])
-
-    // useEffect(() => {
-    //   socket.emit('START_PLAY', (map.id))
-    //   socket.on('STARTED_PLAY', (d) => {
-    //     console.log(d)
-    //   })
-    // }, [socket])
-    
-
   return (
     <MainContainer title={`Карта ${param}`}>
       <main className={styles.map}>
         <div className={styles.bg}></div>
         <div className={styles.container}>
-          <Image src={`${process.env.REACT_APP_API_URL}/map/${map.image}`} width='300px' height='300px' className={styles.map} />
+          <Image priority src={`${process.env.REACT_APP_API_URL}/map/${map.image}`} width='300px' height='300px' className={styles.map} />
           <div className={styles.desc}>
             <h1>{map.name}</h1>
             <p>{map.description}</p>
@@ -110,27 +133,24 @@ const map = ({param, likesMap, variantMap}) => {
           </div>
         </div>
         <div className={styles.container3}>
-            <MyButtonLink variant={ButtonVariant.primary} link={`/play/${variantMap}`}>Играть</MyButtonLink>
+            <MyButtonLink variant={ButtonVariant.primary} link={`/play/${UUID}`}>Играть</MyButtonLink>
         </div>
       </main>
     </MainContainer>
   )
 }
 
-export default map
+export default Map
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
   const dispatch = store.dispatch as NextThunkDispatch
 
   await dispatch(setMaps())
   await dispatch(setUserProps(req.cookies.token))
-  const {map, user, socket} = store.getState()
+  const {map, user} = store.getState()
   const param = query.name
   const check = map.maps.filter((m) => m.name.toLowerCase() === param ? true : false)
-
-  const i = Math.floor(Math.random() * check[0]?.variantMaps?.length)
-  const variantMap = check[0].variantMaps[i].name
-
+  
   if (check.length === 0) {
     return {
       notFound: true
@@ -142,6 +162,6 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
     }
   }
   return {
-    props: {param, likesMap: check[0].likes.length, variantMap}
+    props: {param, likesMap: check[0].likes.length}
   }
 })

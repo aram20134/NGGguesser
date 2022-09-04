@@ -1,5 +1,5 @@
 require('dotenv').config()
-const JWTcheck = require('./middleware/socket');
+const JWTcheck = require('./middleware/JWTcheck');
 const express = require('express')
 const cors = require('cors')
 const fileUpload = require('express-fileupload')
@@ -12,6 +12,9 @@ const { Server } = require("socket.io");
 const http = require('http');
 const ApiError = require('./error/ApiError')
 const uuid = require('uuid');
+const sessionHandler = require('./middleware/sessionHandler');
+const gameStore = require('./socketStore/gameStore');
+const sessionStore = require('./socketStore/sessionStore');
 
 const PORT = 5002 || procces.env.PORT
 const app = express()
@@ -50,42 +53,61 @@ const io = new Server(server, {
 server.listen(5003, () => [
     console.log('start')
 ])
-
-
 io.use(JWTcheck)
-let users = new Set();
-let logUsers = {}
-io.on('connection', (socket) => {  
+io.use(sessionHandler)
 
+io.on('connection', (socket) => {
+    socket.join(socket.sessionID)
     socket.on('USER_ONLINE', () => {
-        users.add({id: socket.decoded.id, socket: socket.id})
-        logUsers = {}
-        users.forEach((u) => {
-            logUsers[u.id] = u
-        })
+        const logUsers = []
+        for (let entry of io.of("/").sockets) {
+            entry.map((u) => u.decoded !== undefined && logUsers.push({id: u.id, user: u.decoded}))
+        }
         io.sockets.emit('USERS_ONLINE', logUsers)
-        console.log(logUsers)
+
+        socket.emit('SESSION', {
+            sessionID: socket.sessionID
+        })
     })
 
     socket.on('disconnect', () => {
-        users.forEach(user => {
-            if (user.id === socket.decoded.id) {
-                users.delete(user)
-            }
-        })
-        logUsers = {}
-        users.forEach((u) => {
-            logUsers[u.id] = u
-        })
+        const logUsers = []
+        for (let entry of io.of("/").sockets) {
+            entry.map((u) => u.id !== undefined && logUsers.push({id: u.id, user: u.decoded}))
+        }
         io.sockets.emit('USERS_ONLINE', logUsers)
     })
-    
-    // socket.on('START_PLAY', async (mapId) => {
-    //     var room = uuid.v4()
-    //     socket.join(room)
-    //     var test = await models.Map.findAll()
-    //     io.to(room).emit('STARTED_PLAY', room)
-    // })
+
+    socket.on('START_PLAY', async ({mapId, room}) => {
+        var variantMaps = await models.VariantMap.findAll({order: sequelize.random(), limit: 5, where: {mapId}})
+        gameStore.saveGame(room, variantMaps)
+    })
+
+    socket.on('STARTED_PLAY', ({room}) => {
+        if (gameStore.findStage(room) === 4) {
+            console.log('end')
+            socket.emit('MAPS_END')
+        }
+        socket.emit('STARTED_PLAY', gameStore.findGame(room), gameStore.findStage(room), gameStore.findScore(room), gameStore.findAllChooses(room))
+    })
+
+    socket.on('NEXT_MAP', ({room, score, posX, posY, truePosX, truePosY}) => {
+        if (gameStore.findStage(room) === 4) {
+            gameStore.saveChoose(room, posX, posY, truePosX, truePosY)
+            gameStore.saveScore(room, gameStore.findScore(room) + score)
+            gameStore.saveStage(room, gameStore.findStage(room) + 1)
+            console.log(gameStore)
+            return socket.emit('MAPS_END')
+        } else if (gameStore.findStage(room) === 5) {
+            return console.log('stage 5')
+        }
+        
+        gameStore.saveChoose(room, posX, posY, truePosX, truePosY)
+        gameStore.saveScore(room, gameStore.findScore(room) + score)
+        gameStore.saveStage(room, gameStore.findStage(room) + 1)
+        console.log(gameStore)
+    })
+
 })
 
 start()
