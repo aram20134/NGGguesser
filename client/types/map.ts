@@ -11,13 +11,20 @@ export interface Imap {
     name: string;
     mapSchema: string;
     likes: Ilikes[],
-    userMapPlaydes: [],
+    userMapPlayeds: IuserMapPlayeds[],
     variantMaps: IvariantMaps[],
 }
 
 export interface Ilikes {
     id: number;
     mapId: number;
+    userId: number;
+}
+
+export interface IuserMapPlayeds {
+    id: number;
+    mapId: number;
+    score: number;
     userId: number;
 }
 

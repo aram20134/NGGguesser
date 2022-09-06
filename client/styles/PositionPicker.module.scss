@@ -50,6 +50,7 @@
     border-radius: 35%;
     border: 2px solid green;
     width: 20px;
+    pointer-events: none;
     box-sizing: content-box;
 }
 .trueChoose {
@@ -61,7 +62,7 @@
     border: 2px solid rgb(128, 0, 0);
     width: 20px;
     box-sizing: content-box;
-    z-index: 100;
+    pointer-events: none;
 }
 
 @media screen and (max-width: 450px) {
@@ -117,6 +118,7 @@
         border-radius: 35%;
         border: 2px solid green;
         width: 20px;
+        pointer-events: none;
         box-sizing: content-box;
     }
     .trueChoose {
@@ -127,7 +129,7 @@
         border-radius: 50%;
         border: 2px solid rgb(128, 0, 0);
         width: 20px;
+        pointer-events: none;
         box-sizing: content-box;
-        z-index: 100;
     }
 }

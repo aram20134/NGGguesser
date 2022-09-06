@@ -48,7 +48,6 @@ const Index : NextPage<IndexProps> = ({users}) => {
     })
 
     socket.on('SESSION', ({sessionID}) => {
-      console.log(sessionID)
       socket.auth = {...socket.auth, sessionID}
       localStorage.setItem('sessionID', sessionID)
     })

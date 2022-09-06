@@ -58,6 +58,7 @@ io.use(sessionHandler)
 
 io.on('connection', (socket) => {
     socket.join(socket.sessionID)
+
     socket.on('USER_ONLINE', () => {
         const logUsers = []
         for (let entry of io.of("/").sockets) {
@@ -80,32 +81,24 @@ io.on('connection', (socket) => {
 
     socket.on('START_PLAY', async ({mapId, room}) => {
         var variantMaps = await models.VariantMap.findAll({order: sequelize.random(), limit: 5, where: {mapId}})
-        gameStore.saveGame(room, variantMaps)
+        gameStore.saveGame(room, variantMaps, socket.decoded.id)
     })
 
     socket.on('STARTED_PLAY', ({room}) => {
-        if (gameStore.findStage(room) === 4) {
-            console.log('end')
-            socket.emit('MAPS_END')
-        }
-        socket.emit('STARTED_PLAY', gameStore.findGame(room), gameStore.findStage(room), gameStore.findScore(room), gameStore.findAllChooses(room))
+        socket.emit('STARTED_PLAY', gameStore.findGame(room), gameStore.findStage(room), gameStore.findScore(room), gameStore.findAllChooses(room), gameStore.findUser(room))
     })
 
     socket.on('NEXT_MAP', ({room, score, posX, posY, truePosX, truePosY}) => {
-        if (gameStore.findStage(room) === 4) {
+        if (gameStore.findStage(room) <= 5) {
             gameStore.saveChoose(room, posX, posY, truePosX, truePosY)
             gameStore.saveScore(room, gameStore.findScore(room) + score)
             gameStore.saveStage(room, gameStore.findStage(room) + 1)
             console.log(gameStore)
-            return socket.emit('MAPS_END')
-        } else if (gameStore.findStage(room) === 5) {
-            return console.log('stage 5')
         }
-        
-        gameStore.saveChoose(room, posX, posY, truePosX, truePosY)
-        gameStore.saveScore(room, gameStore.findScore(room) + score)
-        gameStore.saveStage(room, gameStore.findStage(room) + 1)
-        console.log(gameStore)
+        // gameStore.saveChoose(room, posX, posY, truePosX, truePosY)
+        // gameStore.saveScore(room, gameStore.findScore(room) + score)
+        // gameStore.saveStage(room, gameStore.findStage(room) + 1)
+        // console.log(gameStore)
     })
 
 })

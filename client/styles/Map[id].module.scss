@@ -26,6 +26,7 @@
     .desc {
         display: flex;
         flex-direction: column;
+        max-width: 20vw;
     }
 }
 .container2 {
@@ -47,6 +48,7 @@
         h3 {
             font-weight: 900;
             font-size: 30px;
+            color: inherit;
         }
         p {
             color: rgb(255 88 255);
@@ -61,6 +63,12 @@
     .mapDesc {
         display: flex;
         flex-direction: column;
+        &.easy {
+            color: #00c500;
+        }
+        &.hard {
+            color: red;
+        }
     }
 }
 .container3 {

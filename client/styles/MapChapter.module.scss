@@ -63,6 +63,17 @@
                     position: relative;
                     align-items: center;
                     gap: 5px;
+                    &.easy {
+                        color: #00c500;
+                    }
+                    &.hard {
+                        color: red;
+                    }
+                    p {
+                        color: inherit;
+                        font-weight: bold;
+                        pointer-events: none;
+                    }
                 }
             }
         }

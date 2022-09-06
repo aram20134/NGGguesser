@@ -20,6 +20,19 @@
         color: #FC4F4F;
         font-size: 30px;
     }
+    .profile {
+        padding: 15px 40px;
+        transition: all 0.3s ease;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 15px;
+        font-size: 24px;
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.34);
+        }
+    }
 }
 
 @media screen and (max-width: 600px) {

@@ -92,7 +92,7 @@ const Map : React.FC<mapProps> = ({param, likesMap}) => {
   }
 
   return (
-    <MainContainer title={`Карта ${param}`}>
+    <MainContainer title={`Карта ${map.name}`}>
       <main className={styles.map}>
         <div className={styles.bg}></div>
         <div className={styles.container}>
@@ -105,15 +105,15 @@ const Map : React.FC<mapProps> = ({param, likesMap}) => {
         <div className={styles.container2}>
           <div className={styles.mapInfo}>
             <Image src={avgScore} width='48px' height='48px' />
-            <div className={styles.mapDesc}>
-              <h3>2100</h3>
+            <div className={styles.mapDesc + ' ' + (map.difficult === 'easy' ? styles.easy : styles.easy)}>
+              <h3>{Math.round(map.userMapPlayeds.length != 0 ? map.userMapPlayeds.reduce((acc, cur, i, arr) => {return acc += cur.score}, 0) / map.userMapPlayeds.length : 0)}</h3>
               <p>Ср. счёт</p>
             </div>
           </div>
           <div className={styles.mapInfo}>
             <Image src={people} width='48px' height='48px' className={styles.liked} />
             <div className={styles.mapDesc}>
-              <h3>12</h3>
+              <h3>{map.userMapPlayeds.length}</h3>
               <p>Исследовали</p>
             </div>
           </div>

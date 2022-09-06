@@ -4,6 +4,8 @@ class gameStore {
     this.stage = new Map();
     this.score = new Map();
     this.chooses = new Map()
+    this.dateStart = new Map()
+    this.user = new Map()
   }
 
   findGame(room) {
@@ -18,11 +20,21 @@ class gameStore {
     return this.score.get(room);
   }
 
-  saveGame(room, varaintMaps) {
+  findUser(room) {
+    return this.user.get(room);
+  }
+
+  findDateStart(room) {
+    return this.dateStart.get(room);
+  }
+
+  saveGame(room, varaintMaps, userId) {
     this.games.set(room, varaintMaps);
     this.stage.set(room, 0)
     this.score.set(room, 0)
     this.chooses.set(room, [{}])
+    this.dateStart.set(room, new Date().getTime())
+    this.user.set(room, userId)
   }
 
   saveChoose(room, posX, posY, truePosX, truePosY) {

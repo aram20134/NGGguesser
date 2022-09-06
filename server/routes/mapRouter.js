@@ -9,5 +9,6 @@ router.get('/get', mapController.getMaps)
 router.post('/like', auth, mapController.setLike)
 router.post('/addVariantMap', checkRole('ADMIN'), mapController.addVariantMap)
 router.post('/likeDel', auth, mapController.delLike)
+router.post('/addUserMapPlayed', auth, mapController.addUserMapPlayed)
 
 module.exports = router

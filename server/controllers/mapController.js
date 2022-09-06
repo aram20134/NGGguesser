@@ -70,6 +70,18 @@ class mapController {
             next(ApiError.badRequest(e.message))
         }
     }
+
+    async addUserMapPlayed(req, res, next) {
+        try {
+            const {score, mapId} = req.body
+            const userId = req.user.id
+            if (!score || !userId || !mapId) return next(ApiError.badRequest('Получены не все значения'))
+            const userMapPlayed = await UserMapPlayed.create({score, userId, mapId})
+            return res.json({userMapPlayed})
+        } catch (e) {
+            
+        }
+    }
 }
 
 module.exports = new mapController()

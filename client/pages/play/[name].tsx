@@ -17,6 +17,7 @@ import { getCookie } from 'cookies-next'
 import MyButton, { ButtonVariant } from '../../components/UI/MyButton'
 import ScoreBar from '../../components/UI/ScoreBar'
 import { useRouter } from 'next/router';
+import { UserMapPlayed } from '../../api/mapAPI'
 
 interface playProps {
   variantMap: IvariantMaps;
@@ -38,6 +39,7 @@ const Play : React.FC<playProps> = () => {
 
   const {setSocket} = useActions()
   const {maps} = useTypedSelector(st => st.map)
+  const {id} = useTypedSelector(st => st.user)
   const router = useRouter()
 
   useEffect(() => {
@@ -53,46 +55,44 @@ const Play : React.FC<playProps> = () => {
     })
 
     socket.on('USERS_ONLINE', async (data) => {
-      await setSocket({sockets: data})
+      setSocket({ sockets: data })
     })
     
     socket.emit('STARTED_PLAY', {room: router.query.name})
-    console.log(stage)
-    socket.on('MAPS_END', () => {
-      console.log('map end');
-    })
 
-    socket.on('STARTED_PLAY', async (data, stage, score, chooses) => {
+    socket.on('STARTED_PLAY', async (data, stage, score, chooses, userId) => {
+      if (userId !== id) {
+        router.replace('/404')
+      }
       if (data === null || data === undefined) {
         router.replace('/404')
       }
-      console.log(chooses);
       setAllChoses(chooses)
       if (stage <= 4) {
         var map = maps.filter((m) => m.id === data[stage].mapId ? true : false)
-        await setMap(map[0])
+        setMap(map[0])
       } else {
         var map = maps.filter((m) => m.id === data[0].mapId ? true : false)
-        await setMap(map[0])
+        setMap(map[0])
         setChoseChecked(true)
       }
 
-      await setAllScore(score)
-      await setStage(stage)
-      await setVariantMaps(data)
+      setAllScore(score)
+      setStage(stage)
+      setVariantMaps(data)
       setLoaded(true)
     })
     
     if (choseChecked && stage <= 4) {
       socket.emit('NEXT_MAP', {room: router.query.name, score: score, posX: positions.posX, posY: positions.posY, truePosX: positions.truePosX, truePosY: positions.truePosY})
     }
-
-    console.log(allScore)
-    console.log(positions)
+    if (choseChecked && stage == 4) {
+      UserMapPlayed({score: allScore + score, mapId: map.id})
+    }
     return () => {
       socket.disconnect()
     }
-  }, [choseChecked])
+  }, [choseChecked, stage])
 
     useEffect(() => {
       if (loaded && stage <= 4) {
@@ -115,7 +115,7 @@ const Play : React.FC<playProps> = () => {
       }
   }, [variantMaps])
      
-  if (stage <= 4) {
+  if (stage <= 3) {
     return loaded && (
       <MainContainer title={`Игра на ${map.name}`}>
         <main className={styles.container}>
@@ -139,7 +139,7 @@ const Play : React.FC<playProps> = () => {
             </div>
             {choseChecked &&
               <div className={styles.scoreInfo}>
-                <ScoreBar title={`счёт: ${score}`} width='600px' score={Math.round(score / 50)} />
+                <ScoreBar title={`Cчёт: ${score}`} width='600px' score={Math.round(score / 50)} />
                 <p>Твоя позиция дальше на <b>{lineWidth} шагов</b> от правильного ответа.</p>
                 {stage <= 3 
                 ? (
@@ -147,7 +147,7 @@ const Play : React.FC<playProps> = () => {
                 )
                 : (
                   <div style={{display: 'flex', flexDirection: 'row', gap: '50px'}}>
-                    <MyButton variant={ButtonVariant.primary} click={() => router.reload()}>Общий счёт</MyButton>
+                    <MyButton variant={ButtonVariant.primary} click={() => setCheckAllChoses(true)}>Общий счёт</MyButton>
                     <MyButton variant={ButtonVariant.outlined} click={() => router.reload()}>Главное меню</MyButton>
                   </div>
                 )}
@@ -166,19 +166,13 @@ const Play : React.FC<playProps> = () => {
           </div>
           {choseChecked &&
               <div className={styles.scoreInfo}>
-                {score && !checkAllChoses && <ScoreBar title={`счёт: ${score}`} width='600px' score={Math.round(score / 50)} />}
+                {score && !checkAllChoses && <ScoreBar title={`Cчёт: ${score}`} width='600px' score={Math.round(score / 50)} />}
                 {score && checkAllChoses && <ScoreBar title={`Общий счёт: ${allScore}`} width='600px' score={Math.round(allScore / 250)} />}
                 <p>Твоя позиция дальше на <b>{lineWidth} шагов</b> от правильного ответа.</p>
-                {stage <= 3 
-                ? (
-                  <MyButton variant={ButtonVariant.primary} click={() => router.reload()}>Играть дальше</MyButton>
-                )
-                : (
                   <div style={{display: 'flex', flexDirection: 'row', gap: '50px'}}>
                     <MyButton variant={ButtonVariant.primary} click={() => setCheckAllChoses(true)}>Общий счёт</MyButton>
                     <MyButton variant={ButtonVariant.outlined} click={() => router.push('/')}>Главное меню</MyButton>
                   </div>
-                )}
               </div>
             }
         </main>
