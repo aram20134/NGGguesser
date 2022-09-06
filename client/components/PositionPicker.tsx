@@ -33,7 +33,7 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
     const [IsChosed, setIsChosed] = useState(false)
     const [choseCoords, setChoseCoords] = useState<{x: number; y: number}>()
     
-    const padding = 12
+    const padding = 20
 
     useEffect(() => {
       const setAllChoses = (allPositions) => {
@@ -56,19 +56,38 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
             imgTrueChose.src = `${process.env.REACT_APP_API_URL}/map/${map.image}`
             imgTrueChose.className = styles.trueChoose
             imgTrueChose.id = 'TrueChose' + i
-            document.getElementById('image').appendChild(imgTrueChose)
             imgTrueChose.style.visibility = 'visible'
-            imgTrueChose.style.transform = `translate(${allPositions[i].truePosX}px, ${allPositions[i].truePosY}px) scale(3)`
+            imgTrueChose.style.transform = `translate(${allPositions[i].truePosX}px, ${allPositions[i].truePosY}px) scale(2)`
+            
+            var num = document.createElement('p')
+            num.append(`${i}`)
+            num.style.position = 'absolute'
+            num.style.transform = `translate(${allPositions[i].truePosX}px, ${allPositions[i].truePosY}px) scale(2)`
+            num.style.left = '-20px'
+            num.style.top = '-20px'
+
+            document.getElementById('image').appendChild(imgTrueChose)
+            document.getElementById('image').appendChild(num)
           }
+          
           for (let i = 1; i < 5; i++) {
             var imgChoose = new Image()
             imgChoose.src = map.phase === 1 ? clone1.src : clone2.src
             imgChoose.className = styles.choose
             imgChoose.id = 'imgChoose' + i
-            document.getElementById('image').appendChild(imgChoose)
             imgChoose.style.visibility = 'visible'
             imgChoose.style.left = '0'
-            imgChoose.style.transform = `translate(${allPositions[i].posX}px, ${allPositions[i].posY}px) scale(3)`
+            imgChoose.style.transform = `translate(${allPositions[i].posX}px, ${allPositions[i].posY}px) scale(2)`
+            
+            var num = document.createElement('p')
+            num.append(`${i}`)
+            num.style.position = 'absolute'
+            num.style.transform = `translate(${allPositions[i].posX}px, ${allPositions[i].posY}px) scale(2)`
+            num.style.left = '-20px'
+            num.style.top = '-20px'
+
+            document.getElementById('image').appendChild(imgChoose)
+            document.getElementById('image').appendChild(num)
           }
         }
       }
@@ -84,7 +103,6 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
     
 
     useEffect(() => {
-      
       const getImg = () => {
         const img = new Image()
         img.src = `${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema}`
@@ -128,9 +146,17 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
       if (posX && posY) {
         var x : number = posX
         var y : number = posY
+
+        var num = document.createElement('p')
+        num.append('5')
+        num.style.position = 'absolute'
+        num.style.transform = `translate(${x}px, ${y}px) scale(2)`
+        num.style.left = '-20px'
+        num.style.top = '-20px'
+        document.getElementById('image').appendChild(num)
       } else {
-        var x : number = Math.round((e.clientX - target.left) / scale) - image.width / 2 - padding
-        var y : number = Math.round((e.clientY - target.top) / scale) - image.height / 2 - padding
+        var x : number = Math.round((e.clientX - target.left) / scale) - image.width / 2 - 12
+        var y : number = Math.round((e.clientY - target.top) / scale) - image.height / 2 - 12
       }
       image.style.visibility = 'visible'
       image.style.transform = `translate(${x}px, ${y}px)`
@@ -148,15 +174,22 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
       if (truePosX && truePosY) {
         var posX : number  = truePosX
         var posY : number  = truePosY
+        var num = document.createElement('p')
+        num.append('5')
+        num.style.position = 'absolute'
+        num.style.transform = `translate(${truePosX}px, ${truePosY}px) scale(2)`
+        num.style.left = '-20px'
+        num.style.top = '-20px'
+        document.getElementById('image').appendChild(num)
       } else {
-        var posX : number  = Math.round(variantMap.posX / 9 + map.id * 2)
-        var posY : number = Math.round(variantMap.posY / 9 + map.id * 2)
+        var posX : number  = Math.round(variantMap.posX / 9 + map.id * 2) - 20
+        var posY : number = Math.round(variantMap.posY / 9 + map.id * 2) - 20
         setPositions({posX: choseCoords.x, posY: choseCoords.y, truePosX: posX, truePosY: posY})
         setChoseChecked(true)
       }
       
-      image2.style.transform = image2.style.transform + 'scale(3)'
-      image.style.transform = `translate(${posX}px, ${posY}px) scale(3)`
+      image2.style.transform = image2.style.transform + 'scale(2)'
+      image.style.transform = `translate(${posX}px, ${posY}px) scale(2)`
       image.style.visibility = 'visible'
   
 
@@ -168,8 +201,8 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
       ctx.setLineDash([10, 10])
 
       if (LposX && LposY) {
-        ctx.moveTo(LposX, LposY)
-        ctx.lineTo(posX, posY)
+        ctx.moveTo(LposX + padding, LposY + padding)
+        ctx.lineTo(posX + padding, posY + padding)
       } else {
         ctx.moveTo(choseCoords.x + padding, choseCoords.y + padding)
         ctx.lineTo(posX + padding, posY + padding)
