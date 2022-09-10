@@ -12,8 +12,6 @@ import { getCookie } from 'cookies-next';
 import { Router, useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 
-var socket
-
 const WrappedApp: FC<AppProps> = ({Component, pageProps}) => {
     return (
         <Component {...pageProps} />

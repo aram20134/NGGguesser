@@ -4,6 +4,10 @@ const sessionStore = require('../socketStore/sessionStore');
 
 module.exports = function (socket, next) {
     
+    if (socket.handshake.query.forOnline) {
+        return next()
+    }
+
     const sessionID = socket.handshake.auth.sessionID;
 
     if (sessionID) {

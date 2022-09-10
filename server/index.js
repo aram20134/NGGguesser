@@ -56,9 +56,13 @@ server.listen(5003, () => [
 io.use(JWTcheck)
 io.use(sessionHandler)
 
+setInterval(() => {
+    gameStore.clearGames()
+}, 86400000); // 24h
+
 io.on('connection', (socket) => {
     socket.join(socket.sessionID)
-
+    console.log(gameStore);
     socket.on('USER_ONLINE', () => {
         const logUsers = []
         for (let entry of io.of("/").sockets) {

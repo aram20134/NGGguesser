@@ -48,9 +48,18 @@ class UserController {
         return res.json({token})
     }
     
-    async getUsers (req, res, next) {
+    async getUsersCount (req, res, next) {
         try {
             const users = await User.count()
+            return res.json({users})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async getUsers (req, res, next) {
+        try {
+            const users = await User.findAll()
             return res.json({users})
         } catch (e) {
             next(ApiError.badRequest(e.message))

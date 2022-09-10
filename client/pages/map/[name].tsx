@@ -21,13 +21,14 @@ import { useActions } from '../../hooks/useActions';
 import { io } from 'socket.io-client';
 import { getCookie } from 'cookies-next';
 import { v4 as uuidv4 } from 'uuid';
+import { useSocket } from '../../hooks/useSocket';
 
 interface mapProps {
   param: any;
   likesMap: any;
 }
 
-const Map : React.FC<mapProps> = ({param, likesMap}) => {
+const Map : NextPage<mapProps> = ({param, likesMap}) => {
 
   const [isLiked, setIsLiked] = useState(false)
   const [likes, setLikes] = useState(likesMap)
@@ -39,38 +40,16 @@ const Map : React.FC<mapProps> = ({param, likesMap}) => {
   maps = maps.filter((m) => m.name.toLowerCase() === param ? true : false)
   const map = maps[0]
 
+  const socket = useSocket()
+
   useEffect(() => {
-    if (getCookie('token')) {
-      var socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
-      socket.auth = {...socket.auth, sessionID: localStorage.getItem('sessionID')}
-    } else {
-      var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
+    if (socket) {
+      const room = uuidv4()
+      setUUID(room)
+      socket.emit('START_PLAY', {mapId: map.id, room})
     }
-    
-    socket.on('connect', () => {
-      socket.emit('USER_ONLINE')
-    })
-
-    socket.on('SESSION', ({sessionID}) => {
-      socket.auth = {...socket.auth, sessionID}
-      localStorage.setItem('sessionID', sessionID)
-    })
-
-    socket.on('USERS_ONLINE', async (data) => {
-      await setSocket({sockets: data})
-    })
-
-    const room = uuidv4()
-    setUUID(room)
-
-    socket.emit('START_PLAY', {mapId: map.id, room})
-
-    console.log(socket);
-    return () => {
-      socket.disconnect()
-    }
-    
-  }, [])
+  }, [socket])
+  
 
   useEffect(() => {
     map.likes.map((l) => {

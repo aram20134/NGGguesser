@@ -13,6 +13,7 @@ import { useRouter } from 'next/router';
 import { io } from "socket.io-client";
 import { NextThunkDispatch, wrapper } from "../store";
 import { getCookie } from "cookies-next";
+import { useSocket } from './../hooks/useSocket';
 
 const Signin: NextPage = () => {
   const [nameL, setNameL] = useState<string>("");
@@ -23,21 +24,7 @@ const Signin: NextPage = () => {
   const {setUser, setSocket} = useActions()
   const sockets = useTypedSelector(state => state.socket)
   const router = useRouter() 
-
-  useEffect(() => {
-    var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
-
-    socket.on('connect', () => {
-      socket.emit('USER_ONLINE')
-    })
-
-    socket.on('USERS_ONLINE', async (data) => {
-      await setSocket({sockets: data})
-    })
-    return () => {
-      socket.disconnect()
-    }
-  }, [])
+  const socket = useSocket()
 
   const checkLogin = async (e : React.FormEvent) => {
     e.preventDefault();

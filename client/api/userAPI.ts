@@ -8,8 +8,13 @@ export const reg = async (name : string, password : string) => {
 
 export const log = async (name : string, password : string) => {
     const {data} = await host.post('api/user/log', {name, password})
-    setCookie('token', data.token)
+    setCookie('token', data.token, {maxAge:172800}) // 48h
     return jwt_decode(data.token)
+}
+
+export const usersCount = async () => {
+    const {data} = await host.get('api/user/userscount')
+    return data
 }
 
 export const users = async () => {

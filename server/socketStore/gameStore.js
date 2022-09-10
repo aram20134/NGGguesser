@@ -56,5 +56,14 @@ class gameStore {
   findAllGames() {
     return [...this.games.values()];
   }
+
+  clearGames() {
+    this.games.clear()
+    this.stage.clear()
+    this.score.clear()
+    this.chooses.clear()
+    this.dateStart.clear()
+    this.user.clear()
+  }
 }
 module.exports = new gameStore()

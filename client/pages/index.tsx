@@ -11,7 +11,7 @@ import cl1 from '../public/clone1.png'
 import cl2 from '../public/clone2.png'
 import medal from '../public/medal.png'
 import MyButtonLink from '../components/UI/MyButtonLink';
-import { users } from '../api/userAPI';
+import { users, usersCount } from '../api/userAPI';
 import Image from 'next/image';
 import styles from '../styles/Index.module.scss'
 import IndexAuth from '../components/IndexAuth';
@@ -22,6 +22,7 @@ import { getMaps } from './../api/mapAPI';
 import { setUserProps } from '../store/actions/user';
 import { io } from 'socket.io-client';
 import { getCookie } from 'cookies-next';
+import { useSocket } from '../hooks/useSocket';
 
 interface IndexProps {
   users: number;
@@ -33,35 +34,7 @@ const Index : NextPage<IndexProps> = ({users}) => {
   const map = useTypedSelector(st => st.socket)
   const {setSocket} = useActions()
 
-  
-
-  useEffect(() => {
-    if (getCookie('token')) {
-      var socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
-      socket.auth = {...socket.auth, sessionID: localStorage.getItem('sessionID')}
-    } else {
-      var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
-    }
-    
-    socket.on('connect', () => {
-      socket.emit('USER_ONLINE')
-    })
-
-    socket.on('SESSION', ({sessionID}) => {
-      socket.auth = {...socket.auth, sessionID}
-      localStorage.setItem('sessionID', sessionID)
-    })
-
-    socket.on('USERS_ONLINE', async (data) => {
-      await setSocket({sockets: data})
-    })
-    
-    return () => {
-      socket.disconnect()
-    }
-    
-  }, [])
-  
+  const socket = useSocket()
 
   return !user.auth ? (
     <MainContainer title='NGG GUESSER'>
@@ -125,7 +98,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   //   test = data
   // })
 
-  const response = await users()  
+  const response = await usersCount()  
   await dispatch(setMaps())
   await dispatch(setUserProps(req.cookies.token))
 

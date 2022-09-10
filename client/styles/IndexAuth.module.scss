@@ -3,6 +3,7 @@
     flex-direction: column;
     min-height: 100vh;
     align-items: center;
+    flex: 1 1 auto;
     .container {
         display: flex;
         max-width: 1200px;

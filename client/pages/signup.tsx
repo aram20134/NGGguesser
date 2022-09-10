@@ -14,8 +14,9 @@ import { setUser } from './../store/actions/user';
 import { userState } from './../types/user';
 import { io } from "socket.io-client";
 import { useActions } from './../hooks/useActions';
+import { useSocket } from "../hooks/useSocket";
 
-const Signup = () => {
+const Signup: NextPage = () => {
   const [name, setName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");
@@ -24,20 +25,7 @@ const Signup = () => {
 
   const {setSocket} = useActions()
 
-  useEffect(() => {
-    var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
-
-    socket.on('connect', () => {
-      socket.emit('USER_ONLINE')
-    })
-
-    socket.on('USERS_ONLINE', async (data) => {
-      await setSocket({sockets: data})
-    })
-    return () => {
-      socket.disconnect()
-    }
-  }, [])
+  const socket = useSocket()
 
 
   useEffect(() => {
