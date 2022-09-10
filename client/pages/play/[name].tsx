@@ -1,5 +1,4 @@
-import { GetServerSideProps } from 'next'
-import Image from 'next/image'
+import { GetServerSideProps, NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
 import MainContainer from '../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../store'
@@ -18,13 +17,14 @@ import MyButton, { ButtonVariant } from '../../components/UI/MyButton'
 import ScoreBar from '../../components/UI/ScoreBar'
 import { useRouter } from 'next/router';
 import { UserMapPlayed } from '../../api/mapAPI'
+import { useSocket } from './../../hooks/useSocket';
 
 interface playProps {
   variantMap: IvariantMaps;
   map: Imap;
 }
 
-const Play : React.FC<playProps> = () => {
+const Play : NextPage<playProps> = () => {
   const [choseChecked, setChoseChecked] = useState(false)
   const [score, setScore] = useState(0)
   const [allScore, setAllScore] = useState(0)
@@ -33,6 +33,7 @@ const Play : React.FC<playProps> = () => {
   const [map, setMap] = useState<Imap>()
   const [loaded, setLoaded] = useState(false)
   const [stage, setStage] = useState(0)
+  const [last, setLast] = useState(false)
   const [positions, setPositions] = useState<{posX: number, posY: number, truePosX: number, truePosY: number}>()
   const [allChoses, setAllChoses] = useState<[{posX: number, posY: number, truePosX: number, truePosY: number}]>()
   const [checkAllChoses, setCheckAllChoses] = useState(false)
@@ -42,86 +43,81 @@ const Play : React.FC<playProps> = () => {
   const {id} = useTypedSelector(st => st.user)
   const router = useRouter()
 
+  const socket = useSocket()
+
   useEffect(() => {
-    if (getCookie('token')) {
-      var socket = io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token')}})
-      socket.auth = {...socket.auth, sessionID: localStorage.getItem('sessionID')}
-    } else {
-      var socket = io(process.env.REACT_APP_API_URL, {query: {forOnline: true}})
-    }
+    if (socket) {
+      socket.emit('STARTED_PLAY', {room: router.query.name})
 
-    socket.on('connect', () => {
-      socket.emit('USER_ONLINE')
-    })
-
-    socket.on('USERS_ONLINE', async (data) => {
-      setSocket({ sockets: data })
-    })
-    
-    socket.emit('STARTED_PLAY', {room: router.query.name})
-
-    socket.on('STARTED_PLAY', async (data, stage, score, chooses, userId) => {
-      if (userId !== id) {
-        router.replace('/404')
+      socket.on('STARTED_PLAY', async (data, stage, score, chooses, userId) => {
+        
+        if (userId !== id) {
+          router.replace('/404')
+        }
+        if (data === null || data === undefined) {
+          router.replace('/404')
+        }
+        setAllChoses(chooses)
+        if (stage <= 4) {
+          var map = maps.filter((m) => m.id === data[stage].mapId ? true : false)
+          setMap(map[0])
+        } else {
+          var map = maps.filter((m) => m.id === data[0].mapId ? true : false)
+          setMap(map[0])
+          setChoseChecked(true)
+        }
+  
+        setAllScore(score)
+        setStage(stage)
+        setVariantMaps(data)
+        setLoaded(true)
+      })
+      
+      if (choseChecked && stage <= 4) {
+        socket.emit('NEXT_MAP', {room: router.query.name, score: score, posX: positions.posX, posY: positions.posY, truePosX: positions.truePosX, truePosY: positions.truePosY})
       }
-      if (data === null || data === undefined) {
-        router.replace('/404')
+      if (choseChecked && stage == 4) {
+        socket.emit('STARTED_PLAY', {room: router.query.name})
+        UserMapPlayed({score: allScore + score, mapId: map.id})
       }
-      setAllChoses(chooses)
-      if (stage <= 4) {
-        var map = maps.filter((m) => m.id === data[stage].mapId ? true : false)
-        setMap(map[0])
-      } else {
-        var map = maps.filter((m) => m.id === data[0].mapId ? true : false)
-        setMap(map[0])
-        setChoseChecked(true)
-      }
-
-      setAllScore(score)
-      setStage(stage)
-      setVariantMaps(data)
-      setLoaded(true)
-    })
-    
-    if (choseChecked && stage <= 4) {
-      socket.emit('NEXT_MAP', {room: router.query.name, score: score, posX: positions.posX, posY: positions.posY, truePosX: positions.truePosX, truePosY: positions.truePosY})
     }
-    if (choseChecked && stage == 4) {
-      UserMapPlayed({score: allScore + score, mapId: map.id})
-    }
-    return () => {
-      socket.disconnect()
-    }
-  }, [choseChecked, stage])
+  }, [choseChecked, stage, socket])
 
     useEffect(() => {
       if (loaded && stage <= 4) {
-        const viewer = new Viewer({
-          container: document.querySelector('#viewer') as any,
-          panorama: `${process.env.REACT_APP_API_URL}/variantMaps/${variantMaps[stage].image}`,
-          fisheye: false,
-          defaultZoomLvl: 0,
-          navbar: [],
-          loadingImg: `${process.env.REACT_APP_API_URL}/map/${map.image}`,
-          panoData: {
-            fullWidth:3739,
-            fullHeight: 1870,
-            croppedHeight:977,
-            croppedWidth:3739,
-            croppedY:447,
-            croppedX: 0
+        const getPanorama = () => {
+          const img = new Image()
+          img.src = `${process.env.REACT_APP_API_URL}/variantMaps/${variantMaps[stage].image}`
+          img.onload = () => {
+            console.log(img.width, img.height);
+            const viewer = new Viewer({
+              container: document.querySelector('#viewer') as any,
+              panorama: img.src,
+              fisheye: false,
+              defaultZoomLvl: 0,
+              navbar: [],
+              loadingImg: `${process.env.REACT_APP_API_URL}/map/${map.image}`,
+              panoData: {
+                fullWidth: img.width,
+                fullHeight: img.height * 2,
+                croppedHeight: img.height,
+                croppedWidth: img.width,
+                croppedY: img.height / 2,
+                croppedX: 0
+              }
+            });
           }
-        });
+        }
+        getPanorama()
       }
   }, [variantMaps])
      
-  if (stage <= 3) {
     return loaded && (
       <MainContainer title={`Игра на ${map.name}`}>
         <main className={styles.container}>
           <div className={styles.bg}></div>
             <div id='viewer' style={{width: '100%', height: choseChecked ? '60vh' : '80vh', position: 'relative', overflow: 'hidden'}}>
-              <PositionPicker setPositions={setPositions} setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMaps[stage]} />
+               <PositionPicker allChoses={checkAllChoses} last={stage === 5 ? true : last} allPositions={allChoses} setPositions={setPositions} setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMaps[stage]} />
               <div className={styles.allScore}>
                 <div className={styles.allScoreAtr}>
                   <p>Карта</p>
@@ -129,7 +125,7 @@ const Play : React.FC<playProps> = () => {
                 </div>
                 <div className={styles.allScoreAtr}>
                   <p>Раунд</p>
-                  <h5>{stage + 1} / 5</h5>
+                  <h5>{stage === 5 ? 5 : stage + 1} / 5</h5>
                 </div>
                 <div className={styles.allScoreAtr}>
                   <p>Счёт</p>
@@ -139,7 +135,8 @@ const Play : React.FC<playProps> = () => {
             </div>
             {choseChecked &&
               <div className={styles.scoreInfo}>
-                <ScoreBar title={`Cчёт: ${score}`} width='600px' score={Math.round(score / 50)} />
+                {score >= 0 && !checkAllChoses && <ScoreBar title={`Cчёт: ${score === 0 ? 0 : score}`} width='600px' score={Math.round(score / 50)} />}
+                {stage >= 4 && score >= 0 && checkAllChoses && <ScoreBar title={`Общий счёт: ${allScore}`} width='600px' score={Math.round(allScore / 250)} />}
                 <p>Твоя позиция дальше на <b>{lineWidth} шагов</b> от правильного ответа.</p>
                 {stage <= 3 
                 ? (
@@ -147,8 +144,11 @@ const Play : React.FC<playProps> = () => {
                 )
                 : (
                   <div style={{display: 'flex', flexDirection: 'row', gap: '50px'}}>
-                    <MyButton variant={ButtonVariant.primary} click={() => setCheckAllChoses(true)}>Общий счёт</MyButton>
-                    <MyButton variant={ButtonVariant.outlined} click={() => router.reload()}>Главное меню</MyButton>
+                    {checkAllChoses 
+                    ? (<MyButton variant={ButtonVariant.primary} click={() => setCheckAllChoses(!checkAllChoses)}>Последний выбор</MyButton>)
+                    : (<MyButton variant={ButtonVariant.primary} click={() => setCheckAllChoses(!checkAllChoses)}>Общий счёт</MyButton>)
+                    }
+                    <MyButton variant={ButtonVariant.outlined} click={() => router.push('/')}>Главное меню</MyButton>
                   </div>
                 )}
               </div>
@@ -156,29 +156,6 @@ const Play : React.FC<playProps> = () => {
         </main>
       </MainContainer>
     )
-  } else {
-    return loaded && (
-      <MainContainer title={`Игра на ${map.name}`}>
-        <main className={styles.container}>
-          <div className={styles.bg}></div>
-          <div style={{width: '100%', height: choseChecked ? '60vh' : '80vh', position: 'relative', overflow: 'hidden'}}>
-            <PositionPicker allChoses={checkAllChoses} last={true} allPositions={allChoses} setPositions={setPositions} setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMaps[stage]} />
-          </div>
-          {choseChecked &&
-              <div className={styles.scoreInfo}>
-                {score && !checkAllChoses && <ScoreBar title={`Cчёт: ${score}`} width='600px' score={Math.round(score / 50)} />}
-                {score && checkAllChoses && <ScoreBar title={`Общий счёт: ${allScore}`} width='600px' score={Math.round(allScore / 250)} />}
-                <p>Твоя позиция дальше на <b>{lineWidth} шагов</b> от правильного ответа.</p>
-                  <div style={{display: 'flex', flexDirection: 'row', gap: '50px'}}>
-                    <MyButton variant={ButtonVariant.primary} click={() => setCheckAllChoses(true)}>Общий счёт</MyButton>
-                    <MyButton variant={ButtonVariant.outlined} click={() => router.push('/')}>Главное меню</MyButton>
-                  </div>
-              </div>
-            }
-        </main>
-      </MainContainer>
-    )
-  }
 }
 
 export default Play
@@ -191,14 +168,6 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
     var {user, map} = store.getState()
     var param = query.name
 
-    // console.log(variantMaps)
-    // var mapGame = map.maps.filter((m) => m.id === variantMaps[0].id)
-    
-    // if (!check) {
-    //   return {
-    //     notFound: true
-    //   }
-    // }
     if (!user.auth) {
       return {
         redirect: {destination: '/', permanent: true}

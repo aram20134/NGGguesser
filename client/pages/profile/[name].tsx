@@ -1,12 +1,28 @@
-import { GetServerSideProps } from 'next'
-import React from 'react'
+import { GetServerSideProps, NextPage } from 'next'
+import React, { useEffect } from 'react'
+import MainContainer from '../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../store'
 import { setMaps } from '../../store/actions/map'
 import { setUserProps } from '../../store/actions/user'
+import { useRouter } from 'next/router';
+import styles from '../../styles/profile[name].module.scss'
+import { users } from '../../api/userAPI'
+import { useSocket } from './../../hooks/useSocket';
 
-const Name : React.FC = () => {
+const Name : NextPage = () => {
+  const router = useRouter()
+  const socket = useSocket()
+
+  useEffect(() => {
+  
+  }, [])
+  
   return (
-    <div>name</div>
+    <MainContainer title={`Профиль ${router.query.name}`}>
+      <main className={styles.profile}>
+        <div className={styles.bg}></div>
+      </main>
+    </MainContainer>
   )
 }
 
@@ -19,15 +35,14 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
     await dispatch(setUserProps(req.cookies.token))
     var {user, map} = store.getState()
     var param = query.name
+    var response = await users()
+    response = response.users.filter((u) => u.name === param ? true : false)[0]
 
-    // console.log(variantMaps)
-    // var mapGame = map.maps.filter((m) => m.id === variantMaps[0].id)
-    
-    // if (!check) {
-    //   return {
-    //     notFound: true
-    //   }
-    // }
+    if (!response) {
+      return {
+        notFound: true
+      }
+    }
     if (!user.auth) {
       return {
         redirect: {destination: '/', permanent: true}
@@ -35,6 +50,6 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
     }
     
     return {
-      props: {}
+      props: {response}
     }
   })
