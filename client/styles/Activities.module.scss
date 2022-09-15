@@ -1,0 +1,72 @@
+.bg {
+    background-image: repeating-linear-gradient(188deg, purple -15%, #00005c 75%, purple);
+    position: fixed;
+    top: 0;
+    min-height: 100%;
+    z-index: -2;
+    min-width: 100%;
+}
+
+.activities {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    align-items: center;
+    .container {
+        max-width: 1200px;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.158);
+        margin-top: 3rem;
+        display: flex;
+        border-radius: 15px;
+        justify-content: center;
+    }
+    .activitiesContainer {
+        max-width: 1200px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+        h1 {
+            align-self: center;
+        }
+        .activity {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            .lineBar {
+                display: flex;
+                flex-direction: row;
+                position: relative;
+                align-items: center;
+                h3 {
+                    color: gray;
+                }
+                .line {
+                    background-color: gray;
+                    position: absolute;
+                    height: 2px;
+                    max-width: 400px;
+                    width: 100%;
+                    left: 100px;
+                }
+            }
+            
+            .action {
+                padding: 10px 60px;
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+                align-items: center;
+                a {
+                    font-weight: bold;
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+    }
+}

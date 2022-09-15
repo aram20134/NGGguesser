@@ -36,7 +36,6 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
     const padding = 20
 
     useEffect(() => {
-      console.log(allPositions)
       const setAllChoses = (allPositions) => {
         if (load) {
           var canvas = document.getElementById("canv") as HTMLCanvasElement

@@ -9,10 +9,9 @@ module.exports = function (socket, next) {
     }
 
     const sessionID = socket.handshake.auth.sessionID;
-
-    if (sessionID) {
+    if (sessionID !== 'undefined') {
         const session = sessionStore.findSession(sessionID);
-
+        
         if (session) {
             socket.sessionID = sessionID;
             return next();
@@ -24,6 +23,7 @@ module.exports = function (socket, next) {
     }
 
     const newSessionID = uuid.v4()
+    
     socket.sessionID = newSessionID;
     sessionStore.saveSession(socket.decoded.id, newSessionID)
 

@@ -21,3 +21,8 @@ export const UserMapPlayed = async ({score, mapId}) => {
     const {data} = await authHost.post('api/map/addUserMapPlayed', {score, mapId})
     return data
 }
+
+export const GetUserMapPlayed = async (userId : number) => {
+    const {data} = await authHost.post('api/map/getUserMapPlayed', {userId})
+    return data
+}

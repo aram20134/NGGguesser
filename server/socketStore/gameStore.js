@@ -6,6 +6,7 @@ class gameStore {
     this.chooses = new Map()
     this.dateStart = new Map()
     this.user = new Map()
+    this.isStartedPlay = new Map()
   }
 
   findGame(room) {
@@ -14,6 +15,10 @@ class gameStore {
 
   findStage(room) {
     return this.stage.get(room);
+  }
+
+  findIsStartedPlay(room) {
+    return this.isStartedPlay.get(room);
   }
 
   findScore(room) {
@@ -35,6 +40,7 @@ class gameStore {
     this.chooses.set(room, [{}])
     this.dateStart.set(room, new Date().getTime())
     this.user.set(room, userId)
+    this.isStartedPlay.set(room, false)
   }
 
   saveChoose(room, posX, posY, truePosX, truePosY) {
@@ -49,12 +55,23 @@ class gameStore {
     this.stage.set(room, stage)
   }
 
+  saveIsStartedPlay(room, bool) {
+    this.isStartedPlay.set(room, bool);
+  }
+
   findAllChooses(room) {
     return this.chooses.get(room)
   }
 
-  findAllGames() {
-    return [...this.games.values()];
+  findAllGames(room) {
+    return {room: room, stage: this.stage.get(room), score: this.score.get(room), dateStart: this.dateStart.get(room), mapId: this.games.get(room)[0].mapId}
+  }
+
+  findUserCurrGames(userId) {
+    var pairs = [...this.user.entries()]
+    
+    pairs = pairs.map((pair) => pair[1] === userId && pair[0])
+    return pairs.map((room) => this.findIsStartedPlay(room) && this.findAllGames(room))
   }
 
   clearGames() {
@@ -64,6 +81,16 @@ class gameStore {
     this.chooses.clear()
     this.dateStart.clear()
     this.user.clear()
+    this.isStartedPlay.clear()
+  }
+  clearGame(room) {
+    this.stage.delete(room)
+    this.games.delete(room)
+    this.score.delete(room)
+    this.chooses.delete(room)
+    this.dateStart.delete(room)
+    this.user.delete(room)
+    this.isStartedPlay.delete(room)
   }
 }
 module.exports = new gameStore()

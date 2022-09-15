@@ -10,12 +10,22 @@
         width: 100%;
         background-color: grey;
         display: flex;
+        align-items: center;
+        position: relative;
         span {
             height: 15px;
             max-width: 0%;
             transition: all 0.8s ease;
             border-radius: 15px;
             background-color: yellowgreen;
+        }
+        .overlay {
+            margin: auto;
+            z-index: 2;
+            font-size: 18px;
+            line-height: 0;
+            font-weight: bold;
+            text-shadow: 0 0 5px #000000ba;
         }
     }
     h1 {

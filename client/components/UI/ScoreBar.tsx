@@ -5,10 +5,13 @@ interface ScoreBarProps {
   title?: string;
   score: number;
   width: string;
+  overlay?: number;
+  myStyle?: object;
 }
 
-const ScoreBar: React.FC<ScoreBarProps> = ({ title, score, width }) => {
-    const [scoreT, setScoreT] = useState(0)
+const ScoreBar: React.FC<ScoreBarProps> = ({ title, score, width, overlay, myStyle }) => {
+  const [scoreT, setScoreT] = useState(0)
+
   useEffect(() => {
     setTimeout(() => {
         setScoreT(score)
@@ -17,9 +20,10 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ title, score, width }) => {
 
   return (
     <div style={{ maxWidth: `${width}` }} className={styles.scoreBarContainer}>
-      <h1>{title}</h1>
-      <span className={styles.scoreBar}>
-        <span style={{ maxWidth: `${scoreT}%`, width: "100%" }}></span>
+      {title && <h1>{title}</h1>}
+      <span style={{...myStyle}} className={styles.scoreBar}>
+        <span style={{ maxWidth: `${scoreT}%`, position: 'absolute', width: "100%", ...myStyle }}></span>
+        {overlay && <div className={styles.overlay}>{score + ' / ' + overlay}</div>}
       </span>
     </div>
   );

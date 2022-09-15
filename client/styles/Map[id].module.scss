@@ -30,6 +30,10 @@
         max-width: 20vw;
     }
 }
+// .imageContainer {
+//     box-shadow: 5px 5px 25px 6px #00000066;
+//     border-radius: 50%;
+// }
 .container2 {
     display: flex;
     flex-direction: row;
@@ -43,6 +47,7 @@
         padding: 25px;
         gap: 10px;
         border-radius: 15px;
+        box-shadow: 5px 5px 25px 10px #00000047;
         width: 250px;
         display: flex;
         flex-direction: row;

@@ -17,12 +17,13 @@ export const useSocket = () => {
             setSocketNew(io(process.env.REACT_APP_API_URL, {query: {forOnline: true}}))
         }
     }, [])
-
+        
+        
     useEffect(() => {
-        if (socketNew) {
-            socketNew.on('connect', () => {
-                socketNew.emit('USER_ONLINE')
-            })
+    if (socketNew) {    
+        socketNew.on('connect', () => {
+            socketNew.emit('USER_ONLINE')
+            })  
             console.log(socketNew);
             socketNew.on('SESSION', ({sessionID}) => {
                 socketNew.auth = {...socketNew.auth, sessionID}

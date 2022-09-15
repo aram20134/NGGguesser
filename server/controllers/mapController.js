@@ -79,7 +79,17 @@ class mapController {
             const userMapPlayed = await UserMapPlayed.create({score, userId, mapId})
             return res.json({userMapPlayed})
         } catch (e) {
-            
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async getUserMapPlayed(req, res, next) {
+        try {
+            const {userId} = req.body
+            const userMapPlayed = await UserMapPlayed.findAll({where: {userId}})
+            return res.json({userMapPlayed})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
         }
     }
 }

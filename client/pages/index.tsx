@@ -98,11 +98,11 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   //   test = data
   // })
 
-  const response = await usersCount()  
+  const {users} = await usersCount()  
   await dispatch(setMaps())
   await dispatch(setUserProps(req.cookies.token))
 
   return {
-    props: {users:response.users}
+    props: {users}
   }
 })

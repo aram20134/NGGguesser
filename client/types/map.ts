@@ -19,6 +19,7 @@ export interface Ilikes {
     id: number;
     mapId: number;
     userId: number;
+    updatedAt: string;
 }
 
 export interface IuserMapPlayeds {
@@ -26,6 +27,7 @@ export interface IuserMapPlayeds {
     mapId: number;
     score: number;
     userId: number;
+    updatedAt: string;
 }
 
 export interface IvariantMaps {

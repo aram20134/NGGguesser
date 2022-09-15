@@ -1,3 +1,5 @@
+import { Ilikes, IuserMapPlayeds } from "./map";
+
 export interface userState {
     id: number;
     name:string;
@@ -10,7 +12,9 @@ export interface userState {
     avgGameScore:number;
     role: string;
     friends: [];
-    userMapPlayeds: [];
+    likes: Ilikes[];
+    userMapPlayeds: IuserMapPlayeds[];
+    updatedAt: string;
 }
 
 export enum userActionTypes {
@@ -19,7 +23,7 @@ export enum userActionTypes {
     CHANGE_AUTH = 'CHANGE_AUTH',
     SET_USER = 'SET_USER',
 }
-// SET USER ALL
+
 interface ChangeName {
     type: userActionTypes.CHANGE_NAME
     payload: string;

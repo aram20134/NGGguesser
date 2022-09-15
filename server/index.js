@@ -89,6 +89,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('STARTED_PLAY', ({room}) => {
+        gameStore.saveIsStartedPlay(room, true)
         socket.emit('STARTED_PLAY', gameStore.findGame(room), gameStore.findStage(room), gameStore.findScore(room), gameStore.findAllChooses(room), gameStore.findUser(room))
     })
 
@@ -99,12 +100,16 @@ io.on('connection', (socket) => {
             gameStore.saveStage(room, gameStore.findStage(room) + 1)
             console.log(gameStore)
         }
-        // gameStore.saveChoose(room, posX, posY, truePosX, truePosY)
-        // gameStore.saveScore(room, gameStore.findScore(room) + score)
-        // gameStore.saveStage(room, gameStore.findStage(room) + 1)
-        // console.log(gameStore)
     })
-
+    socket.on('GET_CURR_MAPS', ({userId}) => {
+        socket.emit('GET_CURR_MAPS', gameStore.findUserCurrGames(userId))
+        console.log(gameStore.findUserCurrGames(userId))
+    })
+    
+    socket.on('DEL_CURR_MAP', ({room}) => {
+        gameStore.clearGame(room)
+        console.log(gameStore);
+    })
 })
 
 start()

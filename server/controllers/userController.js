@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid')
 const path = require('path')
-const {User, Friend, UserMapPlayed} = require('../models/models');
+const {User, Friend, UserMapPlayed, Like} = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 
@@ -35,7 +35,7 @@ class UserController {
     }
     async login (req, res, next) {
         const {name, password} = req.body
-        const user = await User.findOne({where:{name}, include: [{model: Friend}, {model: UserMapPlayed}]})
+        const user = await User.findOne({where:{name}})
         if (!user) {
             return next(ApiError.badRequest('Пользователь не найден'))
         }
@@ -61,6 +61,36 @@ class UserController {
         try {
             const users = await User.findAll()
             return res.json({users})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async getUserLikes (req, res, next) {
+        try {
+            const {userId} = req.body
+            const userLikes = await Like.findAll({where: {userId}})
+            return res.json({userLikes})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async getUserByName (req, res, next) {
+        try {
+            const {name} = req.body
+            const user = await User.findOne({where: {name}})
+            return res.json({user})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+    
+    async getUserActivity (req, res, next) {
+        try {
+            const {userId} = req.body
+            const user = await User.findOne({where: {id: userId}, include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}], order: [[UserMapPlayed, 'updatedAt', 'DESC'], [Like, 'updatedAt', 'DESC']]})
+            return res.json({user})
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
