@@ -43,8 +43,20 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
     }
   }, [socket])
   
+  if (!currGames) {
+    return (
+      <MainContainer title='Текущие игры'>
+      <main className={styles.games}>
+        <div className={styles.bg}></div>
+        <div className={styles.gamesContainer}>
+          <h1>Текущие игры</h1>
+        </div>
+      </main>
+    </MainContainer>
+    )
+  }
 
-  return currGames && (
+  return (
     <MainContainer title='Текущие игры'>
       <main className={styles.games}>
         <div className={styles.bg}></div>

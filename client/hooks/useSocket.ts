@@ -24,7 +24,7 @@ export const useSocket = () => {
         socketNew.on('connect', () => {
             socketNew.emit('USER_ONLINE')
             })  
-            console.log(socketNew);
+            // console.log(socketNew);
             socketNew.on('SESSION', ({sessionID}) => {
                 socketNew.auth = {...socketNew.auth, sessionID}
                 localStorage.setItem('sessionID', sessionID)
