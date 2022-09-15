@@ -9,7 +9,7 @@ const initialState : mapState = {
         name: '',
         likes: [],
         phase: 0,
-        userMapPlaydes: [],
+        userMapPlayeds: [],
         variantMaps: [],
         mapSchema: ''
     }]

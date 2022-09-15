@@ -13,6 +13,8 @@ const initialState : userState = {
     role: 'USER',
     friends: [],
     userMapPlayeds: [],
+    updatedAt: '0',
+    likes: []
 }
 
 export const user = (state = initialState, action : userAction) : userState => {
