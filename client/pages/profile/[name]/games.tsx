@@ -25,7 +25,7 @@ interface currGameProps {
   mapId: number;
 }
 
-const games : NextPage<gamesProps> = ({user, map}) => {
+const Games : NextPage<gamesProps> = ({user, map}) => {
   const socket = useSocket()
   const [currGames, setCurrGames] = useState<[currGameProps]>()
 
@@ -74,7 +74,7 @@ const games : NextPage<gamesProps> = ({user, map}) => {
   )
 }
 
-export default games
+export default Games
 
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {

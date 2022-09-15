@@ -3,14 +3,14 @@ import React, { useEffect } from 'react'
 import { NextThunkDispatch, wrapper } from '../../../store'
 import { setUserProps } from '../../../store/actions/user'
 
-const friends : NextPage = () => {
+const Friends : NextPage = () => {
 
   return (
     <div>games</div>
   )
 }
 
-export default friends
+export default Friends
 
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {

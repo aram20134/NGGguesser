@@ -15,7 +15,7 @@ interface mapLikesProps {
   likes: Ilikes[];
 }
 
-const mapLiked : NextPage<mapLikesProps> = ({likes}) => {
+const MapLiked : NextPage<mapLikesProps> = ({likes}) => {
   const [isLiked, setisLiked] = useState()
   useEffect(() => {
     console.log(likes);
@@ -35,7 +35,7 @@ const mapLiked : NextPage<mapLikesProps> = ({likes}) => {
   )
 }
 
-export default mapLiked
+export default MapLiked
 
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {

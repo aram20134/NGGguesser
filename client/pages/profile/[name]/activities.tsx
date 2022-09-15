@@ -20,7 +20,7 @@ interface activitiesProps {
   map: mapState;
 }
 
-const activities : NextPage<activitiesProps> = ({user, dates, map}) => {
+const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
   const socket = useSocket()
 
   return (
@@ -55,7 +55,7 @@ const activities : NextPage<activitiesProps> = ({user, dates, map}) => {
   )
 }
 
-export default activities
+export default Activities
 
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
