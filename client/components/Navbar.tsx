@@ -20,7 +20,7 @@ const Navbar : React.FC = () => {
             <Link href='/'>NGG GUESSER</Link>
             {auth === false 
             ? <Link href='/signin'>Вход</Link> 
-            : <Link href={`/profile/${name}`}><a className={styles.profile}><Image src={`${process.env.REACT_APP_API_URL}/user/${avatar}`} width='50px' height='50px' /> {name}</a></Link> 
+            : <Link href={`/profile/${name}`}><a className={styles.profile}><Image src={`${process.env.REACT_APP_API_URL}user/${avatar}`} width='50px' height='50px' /> {name}</a></Link> 
             }
         </div>
     </nav>
@@ -33,7 +33,7 @@ const Navbar : React.FC = () => {
                 <MyButtonLink link='/signup' variant={ButtonVariant.primary}>Регистрация</MyButtonLink>
                 <MyButtonLink link='/signin' variant={ButtonVariant.outlined}>Вход</MyButtonLink>
             </div>
-            : <Link href={`/profile/${name}`}><a className={styles.profile}><Image src={`${process.env.REACT_APP_API_URL}/user/${avatar}`} width='50px' height='50px' /> {name}</a></Link> 
+            : <Link href={`/profile/${name}`}><a className={styles.profile}><Image src={`${process.env.REACT_APP_API_URL}user/${avatar}`} width='50px' height='50px' /> {name}</a></Link> 
             }
         </div>
     </nav>
