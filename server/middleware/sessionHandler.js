@@ -3,7 +3,7 @@ const uuid = require('uuid');
 const sessionStore = require('../socketStore/sessionStore');
 
 module.exports = function (socket, next) {
-    
+    console.log('sessionHandler');
     if (socket.handshake.query.forOnline) {
         return next()
     }

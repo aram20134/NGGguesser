@@ -34,14 +34,14 @@ const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
               return (
                 <div key={key} className={styles.activity}>
                   <div className={styles.lineBar}><h3>{key}</h3> <div className={styles.line}></div></div>
-                  {dates[key].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).reverse().map((a) => {
+                  {dates[key].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).reverse().map((a, i) => {
                     switch (a.action) {
                       case 'map_played':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
-                        return <div className={styles.action}><Image src={mapSVG} />Вы сыграли на <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link> со счётом {a.score}</div>
+                        return <div key={i} className={styles.action}><Image src={mapSVG} />Вы сыграли на <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link> со счётом {a.score}</div>
                       case 'map_liked':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
-                        return <div className={styles.action}><Image src={like} />Вы поставили лайк на карту {m.name}</div>
+                        return <div key={i} className={styles.action}><Image src={like} />Вы поставили лайк на карту {m.name}</div>
                     }
                   }
                   )}

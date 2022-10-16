@@ -1,10 +1,18 @@
+import { userState } from "./user";
+import { Socket } from "socket.io-client";
+
 export interface socketState {
-    sockets: Isockets[]
+    sockets?: Isockets[]
+    socket?: Isocket
 }
 
 interface Isockets {
     id: number;
-    socket: string;
+    user: userState;
+}
+
+interface Isocket {
+    id: string;
 }
 
 export enum socketActionTypes {

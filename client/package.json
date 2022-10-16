@@ -15,6 +15,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^3.1.2",
     "next": "12.2.5",
+    "next-progress": "^2.2.0",
     "next-redux-wrapper": "^7.0.5",
     "photo-sphere-viewer": "^4.7.0",
     "react": "18.2.0",

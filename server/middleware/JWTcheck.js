@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const ApiError = require('../error/ApiError')
 
 module.exports = function (socket, next) {
-    
+    console.log('JWTcheck');
     if (socket.handshake.query.forOnline) {
         return next()
     }

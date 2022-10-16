@@ -70,8 +70,8 @@ class gameStore {
   findUserCurrGames(userId) {
     var pairs = [...this.user.entries()]
     
-    pairs = pairs.map((pair) => pair[1] === userId && pair[0])
-    return pairs.map((room) => this.findIsStartedPlay(room) && this.findAllGames(room))
+    pairs = pairs.map((pair) => pair[1] === userId && pair[0]).map((room, i) => this.findIsStartedPlay(room) && this.findAllGames(room)).filter(pair => pair != null)
+    return pairs
   }
 
   clearGames() {

@@ -6,13 +6,13 @@ import { useTypedSelector } from './useTypedSelector';
 
 
 export const useSocket = () => {
-    const {setSocket} = useActions()
+    const {setSockets} = useActions()
     const [socketNew, setSocketNew] = useState<Socket>()
 
 
     useEffect(() => {
         if (getCookie('token')) {
-            setSocketNew(io(process.env.REACT_APP_API_URL, {auth: {token : getCookie('token'), sessionID: localStorage.getItem('sessionID')}}))
+            setSocketNew(io(process.env.REACT_APP_API_URL, {autoConnect: true, auth: {token : getCookie('token'), sessionID: localStorage.getItem('sessionID')}}))
         } else {
             setSocketNew(io(process.env.REACT_APP_API_URL, {query: {forOnline: true}}))
         }
@@ -20,18 +20,20 @@ export const useSocket = () => {
         
         
     useEffect(() => {
-    if (socketNew) {    
-        socketNew.on('connect', () => {
-            socketNew.emit('USER_ONLINE')
+        if (socketNew) {
+            console.log(socketNew);
+            // socketNew.connected && setSockets({socket: socketNew})
+            socketNew.on('connect', () => {
+                socketNew.emit('USER_ONLINE')
             })  
-            // console.log(socketNew);
             socketNew.on('SESSION', ({sessionID}) => {
                 socketNew.auth = {...socketNew.auth, sessionID}
                 localStorage.setItem('sessionID', sessionID)
             })
-    
+        
             socketNew.on('USERS_ONLINE', async (data) => {
-                await setSocket({sockets: data})
+                await setSockets({sockets: data, socket: socketNew})
+                console.log(data);
             })
             return () => {
                 socketNew.disconnect()

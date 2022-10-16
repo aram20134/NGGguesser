@@ -31,7 +31,11 @@ const Name : NextPage<NameProps> = ({user, userMapPlayed, owner}) => {
   const [mapPlayed, setMapPlayed] = useState<IuserMapPlayeds[]>(userMapPlayed)
   const router = useRouter()
   const socket = useSocket()
-  const avatar = user.avatar.split('.').shift() + '.svg'
+  const avatar = user.avatar === "userNoImage.png" ? user.avatar.split('.').shift() + '.svg' : user.avatar
+
+  useEffect(() => {
+    setMapPlayed(userMapPlayed)
+  }, [router])
   
   
   return owner ? (
@@ -90,7 +94,7 @@ const Name : NextPage<NameProps> = ({user, userMapPlayed, owner}) => {
               <p>Завёршённых игр</p>
             </div>
             <div className={styles.stats}>
-              <h2>{Math.round(mapPlayed.reduce((acc, cur) => {return acc + cur.score}, 0) / mapPlayed.length)}</h2>
+              <h2>{mapPlayed.length > 1 ? Math.round(mapPlayed.reduce((acc, cur) => {return acc + cur.score}, 0) / mapPlayed.length) : '0'}</h2>
               <p>Средний счёт</p>
             </div>
             <div className={styles.stats}>
@@ -122,7 +126,7 @@ const Name : NextPage<NameProps> = ({user, userMapPlayed, owner}) => {
               <p>Завёршённых игр</p>
             </div>
             <div className={styles.stats}>
-              <h2>{Math.round(mapPlayed.reduce((acc, cur) => {return acc + cur.score}, 0) / mapPlayed?.length)}</h2>
+              <h2>{mapPlayed.length > 1 ? Math.round(mapPlayed.reduce((acc, cur) => {return acc + cur.score}, 0) / mapPlayed?.length) : '0'}</h2>
               <p>Средний счёт</p>
             </div>
             <div className={styles.stats}>
@@ -141,25 +145,20 @@ export default Name
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
     const dispatch = store.dispatch as NextThunkDispatch
 
-    await dispatch(setMaps())
     await dispatch(setUserProps(req.cookies.token))
     var {user, map} = store.getState()
     var param = query.name
     var response = await users()
     response = response.users.filter((u) => u.name === param ? true : false)[0]
-    const {userMapPlayed} = await GetUserMapPlayed(user.id)
-    const owner = param === user.name
 
     if (!response) {
       return {
         notFound: true
       }
     }
-    // if (!user.auth) {
-    //   return {
-    //     redirect: {destination: '/', permanent: true}
-    //   }
-    // }
+
+    const {userMapPlayed} = await GetUserMapPlayed(response.id)
+    const owner = param === user.name
     
     return {
       props: {user: response, userMapPlayed, owner}

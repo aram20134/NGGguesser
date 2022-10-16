@@ -62,12 +62,18 @@ setInterval(() => {
 
 io.on('connection', (socket) => {
     socket.join(socket.sessionID)
-    console.log(gameStore);
+    var countUser = 0 
+    for (let entry of io.of("/").sockets) {
+        entry.map((u) => (u.sessionID === socket.sessionID) && (countUser += 1))
+    }
+    countUser > 1 && socket.disconnect()
+    
     socket.on('USER_ONLINE', () => {
-        const logUsers = []
+        var logUsers = []
         for (let entry of io.of("/").sockets) {
-            entry.map((u) => u.decoded !== undefined && logUsers.push({id: u.id, user: u.decoded}))
+            entry.map((u) => u.decoded !== undefined && logUsers.push({id: u.sessionID, user: u.decoded}))
         }
+        
         io.sockets.emit('USERS_ONLINE', logUsers)
 
         socket.emit('SESSION', {

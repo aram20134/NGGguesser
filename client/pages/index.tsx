@@ -18,11 +18,9 @@ import IndexAuth from '../components/IndexAuth';
 import { GetServerSideProps } from 'next';
 import {NextThunkDispatch, wrapper} from '../store';
 import { setMaps } from '../store/actions/map';
-import { getMaps } from './../api/mapAPI';
 import { setUserProps } from '../store/actions/user';
-import { io } from 'socket.io-client';
-import { getCookie } from 'cookies-next';
 import { useSocket } from '../hooks/useSocket';
+import { useRouter } from 'next/router';
 
 interface IndexProps {
   users: number;
@@ -32,10 +30,9 @@ interface IndexProps {
 const Index : NextPage<IndexProps> = ({users}) => {
   const user = useTypedSelector(st => st.user)
   const map = useTypedSelector(st => st.socket)
-  const {setSocket} = useActions()
-
   const socket = useSocket()
-
+  const router = useRouter()
+  
   return !user.auth ? (
     <MainContainer title='NGG GUESSER'>
       <div className={styles.background}>
@@ -92,13 +89,8 @@ export default Index
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res}) => {
   const dispatch = store.dispatch as NextThunkDispatch
-
-  // socket.emit('GET_USERS_ONLINE')
-  // socket.on('USERS_ONLINE', async (data) => {
-  //   test = data
-  // })
-
-  const {users} = await usersCount()  
+  
+  const {users} = await usersCount()
   await dispatch(setMaps())
   await dispatch(setUserProps(req.cookies.token))
 
