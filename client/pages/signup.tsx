@@ -23,8 +23,6 @@ const Signup: NextPage = () => {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const {setSocket} = useActions()
-
   const socket = useSocket()
 
 
@@ -143,8 +141,6 @@ const Signup: NextPage = () => {
 export default Signup;
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
-  const dispatch = store.dispatch as NextThunkDispatch
-
   if (req.cookies.token) {  
     return {
       props: {},  

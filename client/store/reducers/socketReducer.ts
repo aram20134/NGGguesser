@@ -4,7 +4,8 @@ import { Socket } from "socket.io-client";
 const initialState = {
     sockets: [],
     socket: {
-        id: ''
+        id: "",
+        connected: false
     }
 }
 

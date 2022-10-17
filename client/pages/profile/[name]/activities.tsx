@@ -21,7 +21,6 @@ interface activitiesProps {
 }
 
 const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
-  const socket = useSocket()
 
   return (
     <MainContainer title='Активность'>

@@ -1,5 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next'
 import React, { ReactEventHandler, useEffect, useState } from 'react'
+import { Socket } from 'socket.io-client'
 import { getMaps } from '../../../api/mapAPI'
 import MainContainer from '../../../components/MainContainer'
 import MyButton, { ButtonVariant } from '../../../components/UI/MyButton'
@@ -11,6 +12,7 @@ import { setUserProps } from '../../../store/actions/user'
 import styles from '../../../styles/Games.module.scss'
 import { Imap, IvariantMaps, mapState } from '../../../types/map'
 import { userState } from '../../../types/user'
+import { useTypedSelector } from './../../../hooks/useTypedSelector';
 
 interface gamesProps {
   user: userState;
@@ -26,7 +28,7 @@ interface currGameProps {
 }
 
 const Games : NextPage<gamesProps> = ({user, map}) => {
-  const socket = useSocket()
+  const {socket} = useTypedSelector(st => st.socket) as any
   const [currGames, setCurrGames] = useState<[currGameProps]>()
 
   const delCurrMap = async (e : React.ChangeEvent<HTMLDivElement>, room) => {
@@ -35,7 +37,7 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
   }
 
   useEffect(() => {
-    if (socket) {
+    if (socket.connected) {
       socket.emit('GET_CURR_MAPS', ({userId: user.id}))
       socket.on('GET_CURR_MAPS', (currGames) => {
         setCurrGames(currGames.filter((curr) => curr.stage <= 4))

@@ -23,8 +23,9 @@ export const useSocket = () => {
         if (socketNew) {
             console.log(socketNew);
             // socketNew.connected && setSockets({socket: socketNew})
-            socketNew.on('connect', () => {
+            socketNew.on('connect', async () => {
                 socketNew.emit('USER_ONLINE')
+                await setSockets({socket: socketNew})
             })  
             socketNew.on('SESSION', ({sessionID}) => {
                 socketNew.auth = {...socketNew.auth, sessionID}

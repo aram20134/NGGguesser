@@ -30,7 +30,6 @@ interface NameProps {
 const Name : NextPage<NameProps> = ({user, userMapPlayed, owner}) => {
   const [mapPlayed, setMapPlayed] = useState<IuserMapPlayeds[]>(userMapPlayed)
   const router = useRouter()
-  const socket = useSocket()
   const avatar = user.avatar === "userNoImage.png" ? user.avatar.split('.').shift() + '.svg' : user.avatar
 
   useEffect(() => {

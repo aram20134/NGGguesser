@@ -5,7 +5,7 @@ import {wrapper} from '../store';
 import NextProgress from "next-progress";
 
 const WrappedApp: FC<AppProps> = ({Component, pageProps}) => {
-
+    
     return (
         <>
             <NextProgress delay={300} options={{ showSpinner: true }} />

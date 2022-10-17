@@ -18,7 +18,7 @@ import { delLike, setLike } from '../../api/mapAPI';
 import MyButtonLink from '../../components/UI/MyButtonLink';
 import { ButtonVariant } from '../../components/UI/MyButton';
 import { useActions } from '../../hooks/useActions';
-import { io } from 'socket.io-client';
+import { Socket, SocketOptions } from 'socket.io-client';
 import { getCookie } from 'cookies-next';
 import { v4 as uuidv4 } from 'uuid';
 import { useSocket } from '../../hooks/useSocket';
@@ -35,15 +35,14 @@ const Map : NextPage<mapProps> = ({param, likesMap}) => {
   const [UUID, setUUID] = useState()
   var {maps} = useTypedSelector(st => st.map)
   const user = useTypedSelector(st => st.user)
-  const {setSocket} = useActions()
   
   maps = maps.filter((m) => m.name.toLowerCase() === param ? true : false)
   const map = maps[0]
 
-  const socket = useSocket()
+  const {socket} = useTypedSelector(st => st.socket) as any
 
   useEffect(() => {
-    if (socket) {
+    if (socket.connected) {
       const room = uuidv4()
       setUUID(room)
       socket.emit('START_PLAY', {mapId: map.id, room})

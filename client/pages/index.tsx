@@ -30,7 +30,6 @@ interface IndexProps {
 const Index : NextPage<IndexProps> = ({users}) => {
   const user = useTypedSelector(st => st.user)
   const map = useTypedSelector(st => st.socket)
-  const socket = useSocket()
   const router = useRouter()
   
   return !user.auth ? (

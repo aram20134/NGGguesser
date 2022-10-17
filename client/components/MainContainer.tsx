@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Head from 'next/head';
 import Navbar from './Navbar';
 import ico from '../public/favicon/favicon.ico'
 import Footer from './Footer';
 import { checkUser } from '../api/userAPI';
+import { useSocket } from './../hooks/useSocket';
 
 interface MainContainerProps {
     title: string;
@@ -11,6 +12,12 @@ interface MainContainerProps {
 }
 
 const MainContainer: React.FC<MainContainerProps> = ({title, children}) => {
+
+    useEffect(() => {
+        checkUser()
+    }, [])
+    useSocket()
+    
     return (
     <>
         <Head>

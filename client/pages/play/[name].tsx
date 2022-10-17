@@ -38,7 +38,6 @@ const Play : NextPage<playProps> = () => {
   const [allChoses, setAllChoses] = useState<[{posX: number, posY: number, truePosX: number, truePosY: number}]>()
   const [checkAllChoses, setCheckAllChoses] = useState(false)
 
-  const {setSocket} = useActions()
   const {maps} = useTypedSelector(st => st.map)
   const {id} = useTypedSelector(st => st.user)
   const router = useRouter()
