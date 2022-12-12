@@ -4,7 +4,7 @@ import MyButton, { ButtonVariant } from "../components/UI/MyButton";
 import MyInput from "../components/UI/MyInput";
 import styles from "../styles/SignUp.module.scss";
 import MainContainer from "./../components/MainContainer";
-import { checkUser, reg, users } from "../api/userAPI";
+import { checkUser, reg } from "../api/userAPI";
 import Alert, { AlertVariant } from "../components/UI/Alert";
 import Link from "next/link";
 import {useRouter} from "next/router";

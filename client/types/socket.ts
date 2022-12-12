@@ -13,6 +13,7 @@ interface Isockets {
 
 interface Isocket {
     id: string;
+    disconnected: boolean;
     connected: boolean;
 }
 

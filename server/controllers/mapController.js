@@ -87,7 +87,16 @@ class mapController {
         try {
             const {userId} = req.body
             const userMapPlayed = await UserMapPlayed.findAll({where: {userId}})
-            return res.json({userMapPlayed})
+            return res.json(userMapPlayed)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+    async getHighscore(req, res, next) {
+        try {
+            const {mapId} = req.params
+            const highscore = await UserMapPlayed.findAll({where: {mapId}, order:[['score', 'DESC']], limit: 5})
+            return res.json(highscore)
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }

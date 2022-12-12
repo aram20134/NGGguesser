@@ -22,8 +22,8 @@ export const getUserByName = async (name : string) => {
     return data
 }
 
-export const users = async () => {
-    const {data} = await host.get('api/user/users')
+export const findUser = async (userId?, name?) => {
+    const {data} = await host.post('api/user/findUser', {userId, name})
     return data
 }
 

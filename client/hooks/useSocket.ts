@@ -21,9 +21,8 @@ export const useSocket = () => {
         
     useEffect(() => {
         if (socketNew) {
-            console.log(socketNew);
-            // socketNew.connected && setSockets({socket: socketNew})
             socketNew.on('connect', async () => {
+                console.log(socketNew);
                 socketNew.emit('USER_ONLINE')
                 await setSockets({socket: socketNew})
             })  
@@ -36,11 +35,16 @@ export const useSocket = () => {
                 await setSockets({sockets: data, socket: socketNew})
                 console.log(data);
             })
+            socketNew.on('close', () => {
+                socketNew.disconnect()
+                console.log('discon')
+                setSockets({socket: socketNew})
+            })
             return () => {
                 socketNew.disconnect()
             }
         }
     }, [socketNew])
-    
+
     return socketNew
 }

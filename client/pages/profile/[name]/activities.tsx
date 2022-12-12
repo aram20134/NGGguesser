@@ -37,10 +37,10 @@ const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
                     switch (a.action) {
                       case 'map_played':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
-                        return <div key={i} className={styles.action}><Image src={mapSVG} />Вы сыграли на <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link> со счётом {a.score}</div>
+                        return <div key={i} className={styles.action}><Image loading='lazy' src={mapSVG} /><p>Вы сыграли на <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link> со счётом {a.score}</p></div>
                       case 'map_liked':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
-                        return <div key={i} className={styles.action}><Image src={like} />Вы поставили лайк на карту {m.name}</div>
+                        return <div key={i} className={styles.action}><Image loading='lazy' src={like} /><p>Вы поставили лайк на карту <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link></p></div>
                     }
                   }
                   )}

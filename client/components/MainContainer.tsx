@@ -14,7 +14,7 @@ interface MainContainerProps {
 const MainContainer: React.FC<MainContainerProps> = ({title, children}) => {
 
     useEffect(() => {
-        checkUser()
+        checkUser().catch(e => e)
     }, [])
     useSocket()
     

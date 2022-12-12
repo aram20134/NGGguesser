@@ -2,14 +2,11 @@ import { GetServerSideProps, NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
 import MainContainer from '../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../store'
-import { setMaps } from '../../store/actions/map'
 import { setUserProps } from '../../store/actions/user'
 import { useRouter } from 'next/router';
 import styles from '../../styles/profile[name].module.scss'
-import { getUserByName, users } from '../../api/userAPI'
-import { useSocket } from './../../hooks/useSocket';
+import { findUser } from '../../api/userAPI'
 import Image from 'next/image'
-import { useTypedSelector } from '../../hooks/useTypedSelector'
 import MyButton, { ButtonVariant } from '../../components/UI/MyButton'
 import { userState } from '../../types/user'
 import ScoreBar from '../../components/UI/ScoreBar'
@@ -27,22 +24,22 @@ interface NameProps {
   userMapPlayed: IuserMapPlayeds[]
 }
 
-const Name : NextPage<NameProps> = ({user, userMapPlayed, owner}) => {
-  const [mapPlayed, setMapPlayed] = useState<IuserMapPlayeds[]>(userMapPlayed)
+const Name : NextPage<NameProps> = ({user, owner}) => {
+  const [mapPlayed, setMapPlayed] = useState<IuserMapPlayeds[]>([])
+  const [loaded, setLoaded] = useState(false)
   const router = useRouter()
   const avatar = user.avatar === "userNoImage.png" ? user.avatar.split('.').shift() + '.svg' : user.avatar
 
   useEffect(() => {
-    setMapPlayed(userMapPlayed)
-  }, [router])
-  
-  
-  return owner ? (
+    GetUserMapPlayed(user.id).then((res) => {setMapPlayed(res), setLoaded(true)})
+  }, [])
+
+  return mapPlayed && owner ? (
     <MainContainer title={`Профиль ${router.query.name}`}>
       <main className={styles.profile}>
         <div className={styles.bg}></div>
         <div className={styles.container}>
-          <Image src={`${process.env.REACT_APP_API_URL}/user/${avatar}`} width='150px' height='150px' />
+          <Image loading='lazy' src={`${process.env.REACT_APP_API_URL}/user/${avatar}`} width='150px' height='150px' />
           <MyButton myStyle={{fontSize: '16px'}} variant={ButtonVariant.outlined} click={() => console.log('click')}>Редактировать</MyButton>
           <h1>{user.name[0].toUpperCase() + user.name.slice(1)}</h1>
           <div className={styles.LVL}>
@@ -89,15 +86,15 @@ const Name : NextPage<NameProps> = ({user, userMapPlayed, owner}) => {
           <h2>Статистика</h2>
           <div className={styles.statsContainer}>
             <div className={styles.stats}>
-              <h2>{mapPlayed.length}</h2>
+              <h2>{loaded ? mapPlayed.length : (<div className="mini-loader" style={{width: '35px', height:'35px'}}></div>)}</h2>
               <p>Завёршённых игр</p>
             </div>
             <div className={styles.stats}>
-              <h2>{mapPlayed.length > 1 ? Math.round(mapPlayed.reduce((acc, cur) => {return acc + cur.score}, 0) / mapPlayed.length) : '0'}</h2>
+              <h2>{loaded ? mapPlayed.length > 1 ? Math.round(mapPlayed.reduce((acc, cur) => {return acc + cur.score}, 0) / mapPlayed.length) : '0' : (<div className="mini-loader" style={{width: '35px', height:'35px'}}></div>)}</h2>
               <p>Средний счёт</p>
             </div>
             <div className={styles.stats}>
-              <h2>{mapPlayed.reduce((acc, cur) => {return acc > cur.score ? acc : cur.score}, 0)}</h2>
+              <h2>{loaded ? mapPlayed.reduce((acc, cur) => {return acc > cur.score ? acc : cur.score}, 0) : (<div className="mini-loader" style={{width: '35px', height:'35px'}}></div>)}</h2>
               <p>Лучшая игра</p>
             </div>
           </div>
@@ -144,11 +141,9 @@ export default Name
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
     const dispatch = store.dispatch as NextThunkDispatch
 
-    await dispatch(setUserProps(req.cookies.token))
-    var {user, map} = store.getState()
-    var param = query.name
-    var response = await users()
-    response = response.users.filter((u) => u.name === param ? true : false)[0]
+    dispatch(setUserProps(req.cookies.token))
+    var {user} = store.getState()
+    var response = await findUser(null, query.name)
 
     if (!response) {
       return {
@@ -156,10 +151,9 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
       }
     }
 
-    const {userMapPlayed} = await GetUserMapPlayed(response.id)
-    const owner = param === user.name
+    const owner = query.name === user.name
     
     return {
-      props: {user: response, userMapPlayed, owner}
+      props: {user: response, owner}
     }
   })

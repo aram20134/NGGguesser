@@ -57,10 +57,18 @@ class UserController {
         }
     }
 
-    async getUsers (req, res, next) {
+    async findUser (req, res, next) {
         try {
-            const users = await User.findAll()
-            return res.json({users})
+            const {userId, name} = req.body
+            var user
+            if (userId) {
+                user = await User.findOne({where:{id: userId}})
+            } else if (name) {
+                user = await User.findOne({where:{name}})
+            } else {
+                next(ApiError.badRequest('Не получено ни одно значение'))
+            }
+            return res.json(user)
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }

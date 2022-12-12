@@ -4,6 +4,7 @@ const ApiError = require('../error/ApiError')
 module.exports = function (socket, next) {
     console.log('JWTcheck');
     if (socket.handshake.query.forOnline) {
+        socket.forOnline = true
         return next()
     }
 

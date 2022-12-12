@@ -5,7 +5,8 @@ const initialState = {
     sockets: [],
     socket: {
         id: "",
-        connected: false
+        disconnected: false,
+        connected: true
     }
 }
 

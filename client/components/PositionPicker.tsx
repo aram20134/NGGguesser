@@ -250,9 +250,9 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
               onDoubleClick={(e) => !choseChecked && setChoose(e)}
               className={styles.img} 
               style={{backgroundImage: `url(${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema})`, width: img.width, height: img.height, transform: `scale(${scale})`}}>
-              <img id='choose' src={map.phase === 1 ? clone1.src : clone2.src} className={styles.choose} />
+              <img loading='lazy' id='choose' src={map.phase === 1 ? clone1.src : clone2.src} className={styles.choose} />
               <canvas id='canv' width={img.width} height={img.height}></canvas>
-              <img id='trueChoose' src={`${process.env.REACT_APP_API_URL}/map/${map.image}`} className={styles.trueChoose} />
+              <img loading='lazy' id='trueChoose' src={`${process.env.REACT_APP_API_URL}/map/${map.image}`} className={styles.trueChoose} />
             </div>
           </div>
         </Draggable>

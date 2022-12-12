@@ -22,6 +22,7 @@ import { Socket, SocketOptions } from 'socket.io-client';
 import { getCookie } from 'cookies-next';
 import { v4 as uuidv4 } from 'uuid';
 import { useSocket } from '../../hooks/useSocket';
+import Highscore from '../../components/Highscore';
 
 interface mapProps {
   param: any;
@@ -42,7 +43,7 @@ const Map : NextPage<mapProps> = ({param, likesMap}) => {
   const {socket} = useTypedSelector(st => st.socket) as any
 
   useEffect(() => {
-    if (socket.connected) {
+    if (socket.id) {
       const room = uuidv4()
       setUUID(room)
       socket.emit('START_PLAY', {mapId: map.id, room})
@@ -113,6 +114,7 @@ const Map : NextPage<mapProps> = ({param, likesMap}) => {
         <div className={styles.container3}>
             <MyButtonLink variant={ButtonVariant.primary} link={`/play/${UUID}`}>Играть</MyButtonLink>
         </div>
+        <Highscore map={map.id} />
       </main>
     </MainContainer>
   )

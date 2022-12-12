@@ -3,6 +3,7 @@ import React, { ReactEventHandler, useEffect, useState } from 'react'
 import { Socket } from 'socket.io-client'
 import { getMaps } from '../../../api/mapAPI'
 import MainContainer from '../../../components/MainContainer'
+import Alert, { AlertVariant } from '../../../components/UI/Alert'
 import MyButton, { ButtonVariant } from '../../../components/UI/MyButton'
 import MyButtonLink from '../../../components/UI/MyButtonLink'
 import { useSocket } from '../../../hooks/useSocket'
@@ -30,14 +31,15 @@ interface currGameProps {
 const Games : NextPage<gamesProps> = ({user, map}) => {
   const {socket} = useTypedSelector(st => st.socket) as any
   const [currGames, setCurrGames] = useState<[currGameProps]>()
+  const [error, setError] = useState("")
 
   const delCurrMap = async (e : React.ChangeEvent<HTMLDivElement>, room) => {
     socket.emit('DEL_CURR_MAP', {room})
-    setCurrGames(currGames.filter((g) => g.room !== room && g) as [currGameProps])
+    setCurrGames(currGames.filter((game) => game.room !== room && game) as [currGameProps])
   }
 
   useEffect(() => {
-    if (socket.connected) {
+    if (socket.auth) {
       socket.emit('GET_CURR_MAPS', ({userId: user.id}))
       socket.on('GET_CURR_MAPS', (currGames) => {
         setCurrGames(currGames.filter((curr) => curr.stage <= 4))
@@ -52,6 +54,9 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
         <div className={styles.bg}></div>
         <div className={styles.gamesContainer}>
           <h1>Текущие игры</h1>
+          <div className={styles.gamesContainer}>
+            {socket.connected ? <div className='loader'></div> : <Alert variant={AlertVariant.danger} title='Функционал ограничен'>Закройте дополнительные вкладки сайта</Alert>}
+          </div>
         </div>
       </main>
     </MainContainer>
@@ -76,7 +81,7 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
                     </div>
                   </div>
                   <hr />
-                  <p>{new Date(curr.dateStart).toLocaleDateString() === new Date().toLocaleDateString() ? 'Сегодня' : 'Вчера'} - Round {curr.stage + 1} / 5</p>
+                  <p>{new Date(curr.dateStart).toLocaleDateString() === new Date().toLocaleDateString() ? 'Сегодня' : 'Вчера'} - Раунд {curr.stage + 1} / 5</p>
                 </div>
               ) 
             })}

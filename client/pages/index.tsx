@@ -11,7 +11,7 @@ import cl1 from '../public/clone1.png'
 import cl2 from '../public/clone2.png'
 import medal from '../public/medal.png'
 import MyButtonLink from '../components/UI/MyButtonLink';
-import { users, usersCount } from '../api/userAPI';
+import { usersCount } from '../api/userAPI';
 import Image from 'next/image';
 import styles from '../styles/Index.module.scss'
 import IndexAuth from '../components/IndexAuth';
@@ -53,13 +53,13 @@ const Index : NextPage<IndexProps> = ({users}) => {
               <h2>Изучай карты</h2>
               <p>Изучай карты в своём темпе и набирай как можно больше очков.</p>
             </div>
-            <Image alt='anaxes' src={anaxes} priority />
+            <Image loading='lazy' alt='anaxes' src={anaxes} />
           </div>
           <hr />
           <div className={styles.teaser}>
             <div style={{display:'flex', flexDirection:'row'}}>
-              <img alt='clone phase1' className={styles.img2} src={cl1.src} />
-              <img alt='clone phase2' className={styles.img2} src={cl2.src} />
+              <img loading='lazy' alt='clone phase1' className={styles.img2} src={cl1.src} />
+              <img loading='lazy' alt='clone phase2' className={styles.img2} src={cl2.src} />
             </div>
             <div>
               <h2>Играй с друзьями</h2>
@@ -72,7 +72,7 @@ const Index : NextPage<IndexProps> = ({users}) => {
               <h2>Соревнуйся с другими</h2>
               <p>Проверь свои способности с разными игроками. Поднимайся по таблице! </p>
             </div>
-            <Image alt='medal' src={medal} />
+            <Image loading='lazy' alt='medal' src={medal} />
           </div>
         </main>
       </main>

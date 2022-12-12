@@ -39,13 +39,16 @@ const start = async () => {
 }
 
 
+//!!    TO DO:
+//!!    1) Friends list and games with friends
+//!!    2) Admin panel (work with maps, variants, replacing images etc)
+//!! ПРоБЛЕМА в AWAIT в WRAPPER
 // IO SOKCET
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000',
         methods: ['GET', 'POST']
     }
 })
@@ -53,6 +56,7 @@ const io = new Server(server, {
 server.listen(5003, () => [
     console.log('start')
 ])
+
 io.use(JWTcheck)
 io.use(sessionHandler)
 
@@ -61,21 +65,30 @@ setInterval(() => {
 }, 86400000); // 24h
 
 io.on('connection', (socket) => {
+    console.log('connected - ', socket?.decoded?.name)
     socket.join(socket.sessionID)
-    var countUser = 0 
-    for (let entry of io.of("/").sockets) {
-        entry.map((u) => (u.sessionID === socket.sessionID) && (countUser += 1))
-    }
-    countUser > 1 && socket.disconnect()
-    
+
     socket.on('USER_ONLINE', () => {
         var logUsers = []
         for (let entry of io.of("/").sockets) {
-            entry.map((u) => u.decoded !== undefined && logUsers.push({id: u.sessionID, user: u.decoded}))
+            entry.map((el) => {
+                el.sessionID !== undefined && logUsers.push({id: el.sessionID, user: el.decoded})
+            })
         }
-        
-        io.sockets.emit('USERS_ONLINE', logUsers)
+        logUsers.reduce((acc, cur, i) => {
+            acc[cur.id] = (acc[cur.id] || 0) + 1
+            if (acc[cur.id] >= 2) {
+                socket.emit('close')
+                socket.disconnect()
+                console.log('disconnected - ', cur.user.name)
+                logUsers.splice(i, 1)
+            }
+            return acc
+        }, [])
 
+        // console.log(checkTabs)
+        io.sockets.emit('USERS_ONLINE', logUsers)
+        
         socket.emit('SESSION', {
             sessionID: socket.sessionID
         })
@@ -84,7 +97,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         const logUsers = []
         for (let entry of io.of("/").sockets) {
-            entry.map((u) => u.id !== undefined && logUsers.push({id: u.id, user: u.decoded}))
+            entry.map((u) => u.decoded !== undefined && logUsers.push({id: u.id, user: u.decoded}))
         }
         io.sockets.emit('USERS_ONLINE', logUsers)
     })
