@@ -1,5 +1,4 @@
 import { GetServerSideProps, NextPage } from 'next'
-import React, { useEffect, useState } from 'react'
 import { getUserActivity } from '../../../api/userAPI'
 import MainContainer from '../../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../../store'
@@ -8,7 +7,6 @@ import { setUserProps } from '../../../store/actions/user'
 import styles from '../../../styles/Activities.module.scss'
 import { mapState } from '../../../types/map'
 import { userState } from '../../../types/user'
-import { useSocket } from './../../../hooks/useSocket';
 import mapSVG from '../../../public/mapVariant.svg'
 import like from '../../../public/liked.svg'
 import Image from 'next/image'
@@ -67,6 +65,9 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   var param = query.name
   const activity = await getUserActivity(user.id)
   var dates = []
+  
+  // Reversing dates of all activites... I know, this looks awful ^)
+
   activity.user.userMapPlayeds.reverse().map((m) => {
     var date = new Date(m.updatedAt).toLocaleDateString()
     if (dates[date]) {
@@ -75,8 +76,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
       dates[date] = [{action: 'map_played', mapId: m.mapId, score: m.score, date: m.updatedAt}]
     }
   })
-  // console.log(dates)
-  
+
   activity.user.likes.reverse().map((l) => {
     var date = new Date(l.updatedAt).toLocaleDateString()
     if (dates[date]) {
@@ -87,6 +87,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   })
   let reverse = []
   Object.keys(dates).reverse().forEach((key) => reverse[key] = [...dates[key].reverse()])
+
   if (param !== user.name) {
     return {
       notFound: true

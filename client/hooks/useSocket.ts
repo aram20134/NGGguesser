@@ -2,8 +2,6 @@ import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react"
 import { io, Socket } from "socket.io-client";
 import { useActions } from "./useActions";
-import { useTypedSelector } from './useTypedSelector';
-
 
 export const useSocket = () => {
     const {setSockets} = useActions()
@@ -21,24 +19,25 @@ export const useSocket = () => {
         
     useEffect(() => {
         if (socketNew) {
-            socketNew.on('connect', async () => {
+            console.log('socketEffect')
+            socketNew.on('connect', () => {
                 console.log(socketNew);
                 socketNew.emit('USER_ONLINE')
-                await setSockets({socket: socketNew})
+                setSockets({socket: socketNew})
             })  
             socketNew.on('SESSION', ({sessionID}) => {
                 socketNew.auth = {...socketNew.auth, sessionID}
                 localStorage.setItem('sessionID', sessionID)
             })
         
-            socketNew.on('USERS_ONLINE', async (data) => {
-                await setSockets({sockets: data, socket: socketNew})
+            socketNew.on('USERS_ONLINE', (data) => {
+                setSockets({sockets: data, socket: socketNew})
                 console.log(data);
             })
             socketNew.on('close', () => {
+                setSockets({socket: {disconnected: true, id:"asd", connected:false}})
                 socketNew.disconnect()
                 console.log('discon')
-                setSockets({socket: socketNew})
             })
             return () => {
                 socketNew.disconnect()

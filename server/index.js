@@ -78,8 +78,8 @@ io.on('connection', (socket) => {
         logUsers.reduce((acc, cur, i) => {
             acc[cur.id] = (acc[cur.id] || 0) + 1
             if (acc[cur.id] >= 2) {
+                console.log(logUsers)
                 socket.emit('close')
-                socket.disconnect()
                 console.log('disconnected - ', cur.user.name)
                 logUsers.splice(i, 1)
             }

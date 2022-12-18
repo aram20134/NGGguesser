@@ -1,5 +1,5 @@
 import '../styles/globals.css'
-import React, {FC} from 'react';
+import {FC} from 'react';
 import {AppProps} from 'next/app';
 import {wrapper} from '../store';
 import NextProgress from "next-progress";

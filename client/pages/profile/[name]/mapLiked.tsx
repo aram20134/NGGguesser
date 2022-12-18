@@ -1,11 +1,8 @@
 import { GetServerSideProps, NextPage } from 'next'
-import React, { useEffect } from 'react'
 import MainContainer from '../../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../../store'
 import { setUserProps } from '../../../store/actions/user'
 import styles from '../../../styles/MapLiked.module.scss'
-import { useState } from 'react';
-import { useTypedSelector } from './../../../hooks/useTypedSelector';
 import { getUserLikes } from '../../../api/userAPI'
 import { Ilikes } from '../../../types/map'
 import MapChapter from '../../../components/MapChapter'
@@ -16,10 +13,6 @@ interface mapLikesProps {
 }
 
 const MapLiked : NextPage<mapLikesProps> = ({likes}) => {
-  const [isLiked, setisLiked] = useState()
-  useEffect(() => {
-    console.log(likes);
-  }, [])
 
   return (
     <MainContainer title='Понравившиеся карты'>
@@ -43,7 +36,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
 
   await dispatch(setUserProps(req.cookies.token))
   await dispatch(setMaps())
-  var {user, map} = store.getState()
+  var {user} = store.getState()
   var param = query.name
   const {userLikes} = await getUserLikes(user.id)
 
@@ -54,6 +47,6 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   }
   
   return {
-    props: {user: param, likes: userLikes}
+    props: {likes: userLikes}
   }
 })

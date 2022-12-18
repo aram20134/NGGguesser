@@ -1,5 +1,5 @@
 import { GetServerSideProps, NextPage } from 'next'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import MainContainer from '../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../store'
 import { setUserProps } from '../../store/actions/user'
@@ -21,13 +21,13 @@ import { IuserMapPlayeds } from '../../types/map'
 interface NameProps {
   user: userState
   owner: boolean;
-  userMapPlayed: IuserMapPlayeds[]
 }
 
 const Name : NextPage<NameProps> = ({user, owner}) => {
   const [mapPlayed, setMapPlayed] = useState<IuserMapPlayeds[]>([])
   const [loaded, setLoaded] = useState(false)
   const router = useRouter()
+  
   const avatar = user.avatar === "userNoImage.png" ? user.avatar.split('.').shift() + '.svg' : user.avatar
 
   useEffect(() => {

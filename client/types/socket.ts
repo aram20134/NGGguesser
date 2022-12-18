@@ -13,8 +13,8 @@ interface Isockets {
 
 interface Isocket {
     id: string;
-    disconnected: boolean;
-    connected: boolean;
+    disconnected: boolean | null;
+    connected: boolean | null;
 }
 
 export enum socketActionTypes {

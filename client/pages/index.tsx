@@ -1,11 +1,7 @@
-import type { GetStaticProps, NextPage } from 'next'
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux'
+import type { NextPage } from 'next'
 import MainContainer from '../components/MainContainer'
-import { useActions } from './../hooks/useActions';
 import { useTypedSelector } from './../hooks/useTypedSelector';
-import Link from 'next/link';
-import MyButton, { ButtonVariant } from './../components/UI/MyButton';
+import { ButtonVariant } from './../components/UI/MyButton';
 import anaxes from '../public/anaxes.png'
 import cl1 from '../public/clone1.png'
 import cl2 from '../public/clone2.png'
@@ -19,8 +15,6 @@ import { GetServerSideProps } from 'next';
 import {NextThunkDispatch, wrapper} from '../store';
 import { setMaps } from '../store/actions/map';
 import { setUserProps } from '../store/actions/user';
-import { useSocket } from '../hooks/useSocket';
-import { useRouter } from 'next/router';
 
 interface IndexProps {
   users: number;
@@ -29,8 +23,6 @@ interface IndexProps {
 
 const Index : NextPage<IndexProps> = ({users}) => {
   const user = useTypedSelector(st => st.user)
-  const map = useTypedSelector(st => st.socket)
-  const router = useRouter()
   
   return !user.auth ? (
     <MainContainer title='NGG GUESSER'>
@@ -41,8 +33,8 @@ const Index : NextPage<IndexProps> = ({users}) => {
       <main className={styles.main}>
         <div>
           <h1>ИЗУЧАЙ КАРТЫ!</h1>
-          <p>Покажи свои знания карт. <br /> Соревнуйся с другими игроками, чтобы доказать свои знания! </p>
-          <p>С нами уже {users} игроков!</p>
+          <p>Покажи свои знания карт. <br /> Соревнуйся c другими игроками, чтобы доказать свои знания! </p>
+          <p>C нами уже {users} игроков!</p>
         </div>
         <div>
             <MyButtonLink link='signup' variant={ButtonVariant.primary}>Играть</MyButtonLink>
@@ -62,15 +54,15 @@ const Index : NextPage<IndexProps> = ({users}) => {
               <img loading='lazy' alt='clone phase2' className={styles.img2} src={cl2.src} />
             </div>
             <div>
-              <h2>Играй с друзьями</h2>
+              <h2>Играй c друзьями</h2>
               <p>Сорвенуйся против своих друзей. Докажи кто здесь лучший!</p>
             </div>
           </div>
           <hr />
           <div className={styles.teaser}>
             <div>
-              <h2>Соревнуйся с другими</h2>
-              <p>Проверь свои способности с разными игроками. Поднимайся по таблице! </p>
+              <h2>Соревнуйся c другими</h2>
+              <p>Проверь свои способности c разными игроками. Поднимайся по таблице! </p>
             </div>
             <Image loading='lazy' alt='medal' src={medal} />
           </div>
@@ -88,12 +80,11 @@ export default Index
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res}) => {
   const dispatch = store.dispatch as NextThunkDispatch
+  await dispatch(setUserProps(req.cookies.token))
   
   const {users} = await usersCount()
-  await dispatch(setMaps())
-  await dispatch(setUserProps(req.cookies.token))
 
   return {
     props: {users}
   }
-})
+})  

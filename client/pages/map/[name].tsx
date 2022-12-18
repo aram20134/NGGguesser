@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { NextThunkDispatch, wrapper } from '../../store';
-import { setMaps } from '../../store/actions/map';
 import { setUserProps } from '../../store/actions/user';
 import { useTypedSelector } from './../../hooks/useTypedSelector';
 import MainContainer from '../../components/MainContainer';
@@ -17,28 +15,21 @@ import mapVariant from '../../public/mapVariant.svg'
 import { delLike, setLike } from '../../api/mapAPI';
 import MyButtonLink from '../../components/UI/MyButtonLink';
 import { ButtonVariant } from '../../components/UI/MyButton';
-import { useActions } from '../../hooks/useActions';
-import { Socket, SocketOptions } from 'socket.io-client';
-import { getCookie } from 'cookies-next';
 import { v4 as uuidv4 } from 'uuid';
-import { useSocket } from '../../hooks/useSocket';
 import Highscore from '../../components/Highscore';
+import { findMap } from './../../api/mapAPI';
+import { Imap } from '../../types/map'
 
 interface mapProps {
-  param: any;
-  likesMap: any;
+  map: Imap;
 }
 
-const Map : NextPage<mapProps> = ({param, likesMap}) => {
+const Map : NextPage<mapProps> = ({map}) => {
 
   const [isLiked, setIsLiked] = useState(false)
-  const [likes, setLikes] = useState(likesMap)
+  const [likes, setLikes] = useState(map.likes.length)
   const [UUID, setUUID] = useState()
-  var {maps} = useTypedSelector(st => st.map)
   const user = useTypedSelector(st => st.user)
-  
-  maps = maps.filter((m) => m.name.toLowerCase() === param ? true : false)
-  const map = maps[0]
 
   const {socket} = useTypedSelector(st => st.socket) as any
 
@@ -124,24 +115,26 @@ export default Map
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
   const dispatch = store.dispatch as NextThunkDispatch
-
-  await dispatch(setMaps())
   await dispatch(setUserProps(req.cookies.token))
-  const {map, user} = store.getState()
-  const param = query.name
-  const check = map.maps.filter((m) => m.name.toLowerCase() === param ? true : false)
-  
-  if (check.length === 0) {
+
+  var param = query.name.toLocaleString()
+  param = param[0].toUpperCase() + param.slice(1)
+
+  const {map} = await findMap(param)
+  const {user} = store.getState()
+
+  if (!map) {
     return {
       notFound: true
     }
   }
+  
   if (!user.auth) {
     return {
       redirect: {destination: '/', permanent: true}
     }
   }
   return {
-    props: {param, likesMap: check[0].likes.length}
+    props: {map}
   }
 })

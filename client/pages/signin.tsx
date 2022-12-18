@@ -1,5 +1,5 @@
 import { GetServerSideProps, NextPage } from "next";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { log } from "../api/userAPI";
 import Alert, { AlertVariant } from "../components/UI/Alert";
 import MyButton, { ButtonVariant } from "../components/UI/MyButton";
@@ -10,10 +10,9 @@ import MainContainer from "./../components/MainContainer";
 import MyInput from "./../components/UI/MyInput";
 import { useTypedSelector } from './../hooks/useTypedSelector';
 import { useRouter } from 'next/router';
-import { io } from "socket.io-client";
 import { NextThunkDispatch, wrapper } from "../store";
-import { getCookie } from "cookies-next";
 import { useSocket } from './../hooks/useSocket';
+import { setUserProps } from "../store/actions/user";
 
 const Signin: NextPage = () => {
   const [nameL, setNameL] = useState<string>("");
@@ -42,7 +41,7 @@ const Signin: NextPage = () => {
         setUser(res),
         setTimeout(() => {
           router.push('/')
-        }, 1000)
+        }, 500)
       )
     })
     .finally(()=> {
@@ -94,7 +93,12 @@ const Signin: NextPage = () => {
 export default Signin;
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
-  if (req.cookies.token) {
+  const dispatch = store.dispatch as NextThunkDispatch
+  await dispatch(setUserProps(req.cookies.token))
+
+  const {user} = store.getState()
+
+  if (user.auth) {
     return {
       props: {},  
       redirect: {destination: '/', permanent: true}

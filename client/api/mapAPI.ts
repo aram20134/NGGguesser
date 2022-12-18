@@ -31,3 +31,8 @@ export const getHighscore = async (mapId : number) => {
     const {data} = await host.get(`api/map/highscore/${mapId}`)
     return data
 }
+
+export const findMap = async (name : string) => {
+    const {data} = await host.get(`api/map/findMap/${name}`)
+    return data
+}

@@ -10,7 +10,7 @@ const authHost = axios.create({
 })
 
 const authInterceptor = (config : any) => {
-    config.headers.authorization = `Bearer ${getCookie('token')}`
+    config.headers.Authorization = `Bearer ${getCookie('token')}`
     return config
 }
 authHost.interceptors.request.use(authInterceptor)

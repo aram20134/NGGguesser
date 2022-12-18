@@ -1,17 +1,14 @@
 import { GetServerSideProps, NextPage } from 'next'
-import React, { ReactEventHandler, useEffect, useState } from 'react'
-import { Socket } from 'socket.io-client'
-import { getMaps } from '../../../api/mapAPI'
+import { useEffect, useState } from 'react'
 import MainContainer from '../../../components/MainContainer'
 import Alert, { AlertVariant } from '../../../components/UI/Alert'
 import MyButton, { ButtonVariant } from '../../../components/UI/MyButton'
 import MyButtonLink from '../../../components/UI/MyButtonLink'
-import { useSocket } from '../../../hooks/useSocket'
 import { NextThunkDispatch, wrapper } from '../../../store'
 import { setMaps } from '../../../store/actions/map'
 import { setUserProps } from '../../../store/actions/user'
 import styles from '../../../styles/Games.module.scss'
-import { Imap, IvariantMaps, mapState } from '../../../types/map'
+import { mapState } from '../../../types/map'
 import { userState } from '../../../types/user'
 import { useTypedSelector } from './../../../hooks/useTypedSelector';
 
@@ -31,7 +28,6 @@ interface currGameProps {
 const Games : NextPage<gamesProps> = ({user, map}) => {
   const {socket} = useTypedSelector(st => st.socket) as any
   const [currGames, setCurrGames] = useState<[currGameProps]>()
-  const [error, setError] = useState("")
 
   const delCurrMap = async (e : React.ChangeEvent<HTMLDivElement>, room) => {
     socket.emit('DEL_CURR_MAP', {room})
@@ -55,7 +51,7 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
         <div className={styles.gamesContainer}>
           <h1>Текущие игры</h1>
           <div className={styles.gamesContainer}>
-            {socket.connected ? <div className='loader'></div> : <Alert variant={AlertVariant.danger} title='Функционал ограничен'>Закройте дополнительные вкладки сайта</Alert>}
+            {!socket.disconnected ? <div className='loader'></div> : <Alert variant={AlertVariant.danger} title='Функционал ограничен'>Закройте дополнительные вкладки сайта</Alert>}
           </div>
         </div>
       </main>

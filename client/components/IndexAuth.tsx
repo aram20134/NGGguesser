@@ -1,9 +1,4 @@
-import React, { useEffect } from 'react'
 import styles from '../styles/IndexAuth.module.scss'
-import { getMaps } from './../api/mapAPI';
-import { useActions } from './../hooks/useActions';
-import { useTypedSelector } from './../hooks/useTypedSelector';
-import { mapState } from './../types/map';
 import MapChapter from './MapChapter';
 
 const IndexAuth : React.FC = () => {

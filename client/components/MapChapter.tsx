@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../styles/MapChapter.module.scss";
 import { useTypedSelector } from "./../hooks/useTypedSelector";
 import Image from 'next/image';
@@ -9,6 +9,7 @@ import avgScore from '../public/avgScore.svg'
 import mapVariant from '../public/mapVariant.svg'
 import Tooltip from "./UI/Tooltip";
 import { Ilikes } from "../types/map";
+import { getMaps } from "../api/mapAPI";
 
 interface MapChapterProps {
   title: string;
@@ -17,25 +18,30 @@ interface MapChapterProps {
 }
 
 const MapChapter: React.FC<MapChapterProps> = ({title, phase, likes}) => {
-    let {maps} = useTypedSelector(st => st.map)
-    if (!likes) {
-      maps = maps.filter((m) => m.phase === phase)
-    } else {
-      maps = maps.filter((m) => {
-        if (likes.find((l) => l.mapId === m.id && m.phase === phase)) {
-          return m
+    const [loaded, setLoaded] = useState(false)
+    const [maps, setMaps] = useState([])
+
+    useEffect(() => {
+      getMaps().then(({maps}) => {
+        if (!likes) {
+          setMaps(maps.filter((m) => m.phase === phase))
+        } else {
+          setMaps(maps.filter((m) => {
+            if (likes.find((l) => l.mapId === m.id && m.phase === phase)) {
+              return m
+            }
+          }))
         }
-      })
-    }
+      }).finally(() => setLoaded(true))
+    }, [])
     
-    return (
+    
+    return loaded ? (
       <div className={styles.mapChapter}>
         <h2>{title}</h2>
-        
         <hr />
         <div className={styles.cardContainer}>
           {maps.map((m) =>
-          
             <div key={m.id} className={styles.cardMap}>
               <div className={styles.img}><Image src={`${process.env.REACT_APP_API_URL}/map/${m.image}`} width={'254px'} height={'254px'} objectFit='contain' className={styles.map} /></div>
               <div className={styles.title}>
@@ -61,6 +67,14 @@ const MapChapter: React.FC<MapChapterProps> = ({title, phase, likes}) => {
           )}
         </div>
       </div>
+  ) : (
+    <div className={styles.mapChapter} style={{height:'300px'}}>
+      <h2>{title}</h2>
+      <hr />
+      <div className={styles.cardContainer}>
+        <div className="loader"></div>
+      </div>
+    </div>
   )
 };
 

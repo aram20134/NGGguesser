@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { useSocket } from '../hooks/useSocket';
 import styles from '../styles/Footer.module.scss'
 import { useTypedSelector } from './../hooks/useTypedSelector';
 import Alert, { AlertVariant } from './UI/Alert';
 
 const Footer : React.FC = () => {
-  const {socket, sockets} = useTypedSelector(st => st.socket)
+  const {socket, sockets} = useTypedSelector(st => st.socket)  
 
   if (socket.id === "") {
     return (

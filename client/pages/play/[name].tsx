@@ -1,23 +1,18 @@
 import { GetServerSideProps, NextPage } from 'next'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import MainContainer from '../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../store'
 import { setMaps } from '../../store/actions/map'
 import { setUserProps } from '../../store/actions/user'
 import styles from '../../styles/Name[id].module.scss'
 import { Viewer } from 'photo-sphere-viewer';
-import anaxes from '../../public/anaxes.png'
 import PositionPicker from '../../components/PositionPicker'
-import { Imap, IvariantMaps, mapState } from '../../types/map'
-import { useActions } from '../../hooks/useActions'
+import { Imap, IvariantMaps } from '../../types/map'
 import { useTypedSelector } from '../../hooks/useTypedSelector'
-import { io } from 'socket.io-client'
-import { getCookie } from 'cookies-next'
 import MyButton, { ButtonVariant } from '../../components/UI/MyButton'
 import ScoreBar from '../../components/UI/ScoreBar'
 import { useRouter } from 'next/router';
 import { UserMapPlayed } from '../../api/mapAPI'
-import { useSocket } from './../../hooks/useSocket';
 
 interface playProps {
   variantMap: IvariantMaps;
@@ -33,22 +28,22 @@ const Play : NextPage<playProps> = () => {
   const [map, setMap] = useState<Imap>()
   const [loaded, setLoaded] = useState(false)
   const [stage, setStage] = useState(0)
-  const [last, setLast] = useState(false)
   const [positions, setPositions] = useState<{posX: number, posY: number, truePosX: number, truePosY: number}>()
   const [allChoses, setAllChoses] = useState<[{posX: number, posY: number, truePosX: number, truePosY: number}]>()
   const [checkAllChoses, setCheckAllChoses] = useState(false)
 
   const {maps} = useTypedSelector(st => st.map)
   const {id} = useTypedSelector(st => st.user)
+  
   const router = useRouter()
-
-  const socket = useSocket()
+  const {socket} = useTypedSelector(st => st.socket) as any
 
   useEffect(() => {
-    if (socket) {
+    console.log(socket)
+    if (socket.connected) {
       socket.emit('STARTED_PLAY', {room: router.query.name})
 
-      socket.on('STARTED_PLAY', async (data, stage, score, chooses, userId) => {
+      socket.on('STARTED_PLAY', (data, stage, score, chooses, userId) => {
         
         if (userId !== id) {
           router.replace('/404')
@@ -88,22 +83,21 @@ const Play : NextPage<playProps> = () => {
           const img = new Image()
           img.src = `${process.env.REACT_APP_API_URL}/variantMaps/${variantMaps[stage].image}`
           img.onload = () => {
-            console.log(img.width, img.height);
             const viewer = new Viewer({
               container: document.querySelector('#viewer') as any,
-              panorama: img.src,
+              panorama: `${process.env.REACT_APP_API_URL}/variantMaps/${variantMaps[stage].image}`,
               fisheye: false,
               defaultZoomLvl: 0,
               navbar: [],
               loadingImg: `${process.env.REACT_APP_API_URL}/map/${map.image}`,
-              panoData: {
+              panoData: (img) => ({
                 fullWidth: img.width,
-                fullHeight: img.height * 2,
-                croppedHeight: img.height,
+                fullHeight: Math.round(img.width / 2),
                 croppedWidth: img.width,
-                croppedY: img.height / 2,
-                croppedX: 0
-              }
+                croppedHeight: img.height,
+                croppedX: 0,
+                croppedY: Math.round((img.width / 2 - img.height) / 2),
+              })
             });
           }
         }
@@ -111,12 +105,13 @@ const Play : NextPage<playProps> = () => {
       }
   }, [variantMaps])
      
-    return loaded && (
-      <MainContainer title={`Игра на ${map.name}`}>
+    return (
+      <MainContainer title={loaded ? `Игра на ${map.name}` : 'Загрузка игры...'}>
         <main className={styles.container}>
           <div className={styles.bg}></div>
-            <div id='viewer' style={{width: '100%', height: choseChecked ? '60vh' : '80vh', position: 'relative', overflow: 'hidden'}}>
-               <PositionPicker allChoses={checkAllChoses} last={stage === 5 ? true : last} allPositions={allChoses} setPositions={setPositions} setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMaps[stage]} />
+          {loaded ?
+            <div id='viewer' style={{width: '100%', height: choseChecked ? '60vh' : '75vh', position: 'relative', overflow: 'hidden'}}>
+               <PositionPicker allChoses={checkAllChoses} last={stage === 5 ? true : false} allPositions={allChoses} setPositions={setPositions} setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMaps[stage]} />
               <div className={styles.allScore}>
                 <div className={styles.allScoreAtr}>
                   <p>Карта</p>
@@ -132,6 +127,7 @@ const Play : NextPage<playProps> = () => {
                 </div>
               </div>
             </div>
+          : <div className='loader'></div>}
             {choseChecked &&
               <div className={styles.scoreInfo}>
                 {score >= 0 && !checkAllChoses && <ScoreBar title={`Cчёт: ${score === 0 ? 0 : score}`} width='600px' score={Math.round(score / 50)} />}
@@ -154,7 +150,7 @@ const Play : NextPage<playProps> = () => {
             }
         </main>
       </MainContainer>
-    )
+    ) 
 }
 
 export default Play
@@ -164,8 +160,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
 
     await dispatch(setMaps())
     await dispatch(setUserProps(req.cookies.token))
-    var {user, map} = store.getState()
-    var param = query.name
+    var {user} = store.getState()
 
     if (!user.auth) {
       return {

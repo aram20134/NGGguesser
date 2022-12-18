@@ -1,20 +1,15 @@
 import { GetServerSideProps, NextPage } from "next";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MyButton, { ButtonVariant } from "../components/UI/MyButton";
 import MyInput from "../components/UI/MyInput";
 import styles from "../styles/SignUp.module.scss";
 import MainContainer from "./../components/MainContainer";
-import { checkUser, reg } from "../api/userAPI";
+import { reg } from "../api/userAPI";
 import Alert, { AlertVariant } from "../components/UI/Alert";
 import Link from "next/link";
-import {useRouter} from "next/router";
-import { useTypedSelector } from './../hooks/useTypedSelector';
 import { NextThunkDispatch, wrapper } from './../store/index';
-import { setUser } from './../store/actions/user';
-import { userState } from './../types/user';
-import { io } from "socket.io-client";
-import { useActions } from './../hooks/useActions';
 import { useSocket } from "../hooks/useSocket";
+import { setUserProps } from "../store/actions/user";
 
 const Signup: NextPage = () => {
   const [name, setName] = useState<string>("");
@@ -141,7 +136,11 @@ const Signup: NextPage = () => {
 export default Signup;
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
-  if (req.cookies.token) {  
+  const dispatch = store.dispatch as NextThunkDispatch
+  await dispatch(setUserProps(req.cookies.token))
+  const {user} = store.getState()
+
+  if (user.auth) {
     return {
       props: {},  
       redirect: {destination: '/', permanent: true}

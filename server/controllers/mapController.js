@@ -101,6 +101,15 @@ class mapController {
             next(ApiError.badRequest(e.message))
         }
     }
+    async findMap(req, res, next) {
+        try {
+            const {name} = req.params
+            const map = await Map.findOne({where: {name}, include: [{model: Like}, {model: VariantMap}, {model: UserMapPlayed}]})
+            return res.json({map})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
 }
 
 module.exports = new mapController()

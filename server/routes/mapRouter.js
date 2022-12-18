@@ -12,5 +12,6 @@ router.post('/likeDel', auth, mapController.delLike)
 router.post('/addUserMapPlayed', auth, mapController.addUserMapPlayed)
 router.post('/getUserMapPlayed', mapController.getUserMapPlayed)
 router.get('/highscore/:mapId', mapController.getHighscore)
+router.get('/findMap/:name', mapController.findMap)
 
 module.exports = router

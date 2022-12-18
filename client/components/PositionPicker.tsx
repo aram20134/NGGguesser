@@ -1,16 +1,11 @@
-import { ReactEventHandler, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react'
 import { Imap, IvariantMaps } from '../types/map';
-import { url } from 'inspector';
 import styles from '../styles/PositionPicker.module.scss'
 import clone1 from '../public/clone1.png'
 import clone2 from '../public/clone2.png'
-import anaxes from '../public/anaxes.png'
 import Draggable from 'react-draggable';
 import MyButton, { ButtonVariant } from './UI/MyButton';
-import { userAgent } from 'next/server';
-import { getCookie } from 'cookies-next';
-import { io } from 'socket.io-client';
 
 interface PositionPickerProps {
   map: Imap;
@@ -26,7 +21,7 @@ interface PositionPickerProps {
 }
 
 
-const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLineWidth,choseChecked, setChoseChecked, setScore, setPositions, allPositions, last = false, allChoses = false})  => {
+const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLineWidth, choseChecked, setChoseChecked, setScore, setPositions, allPositions, last = false, allChoses = false})  => {
     const [img, setImg] = useState<{width: number; height: number}>()
     const [load, setLoad] = useState(false)
     const [scale, setScale] = useState(1)
@@ -40,7 +35,7 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
         if (load) {
           var canvas = document.getElementById("canv") as HTMLCanvasElement
           var ctx = canvas?.getContext("2d") as CanvasRenderingContext2D
-
+          
           ctx.lineWidth = 5
           ctx.strokeStyle = 'green'
           ctx.setLineDash([10, 10])
@@ -101,13 +96,26 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
     }, [load, allChoses, last])
     
     
+    const preventScroll = (e) => {
+      if (e.deltaY < 0 && scale <= 2.5) {
+        setScale(prev => prev + 0.05)
+      } else if (e.deltaY > 0 && scale >= 0.3) {
+        setScale(prev => prev - 0.05)
+      }
+      e.preventDefault()
+      return false
+    }
 
     useEffect(() => {
       const getImg = () => {
         const img = new Image()
         img.src = `${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema}`
-        setImg({width: img.width, height: img.height})
-        setLoad(true)
+        img.onload = () => {
+          setLoad(true)
+          setImg({width: img.width, height: img.height})
+          document.getElementById('image')?.addEventListener('wheel', preventScroll, {passive: false})
+        }
+        
       }
       getImg()
     }, [load])
@@ -239,14 +247,14 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
         <Draggable handle='#image' defaultPosition={{x: -img.width / 2, y: -img.height / 2}}>
           <div>
             <div id='image' 
-              onWheel={(e) => {
-                  if (e.deltaY < 0 && scale <= 2.5) {
-                    setScale(prev => prev + 0.05)
-                  } else if (e.deltaY > 0 && scale >= 0.3) {
-                    setScale(prev => prev - 0.05)
-                  }
-                }
-              }
+              // onWheel={(e) => {
+              //     if (e.deltaY < 0 && scale <= 2.5) {
+              //       setScale(prev => prev + 0.05)
+              //     } else if (e.deltaY > 0 && scale >= 0.3) {
+              //       setScale(prev => prev - 0.05)
+              //     }
+              //   }
+              // }
               onDoubleClick={(e) => !choseChecked && setChoose(e)}
               className={styles.img} 
               style={{backgroundImage: `url(${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema})`, width: img.width, height: img.height, transform: `scale(${scale})`}}>
