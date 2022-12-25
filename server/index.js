@@ -41,8 +41,8 @@ const start = async () => {
 
 //!!    TO DO:
 //!!    1) Friends list and games with friends
-//!!    2) Admin panel (work with maps, variants, replacing images etc)
-//!! ПРоБЛЕМА в AWAIT в WRAPPER
+//!!    2) Admin panel (work with maps, variants, replacing images, etc)
+//??   -3) Add different difficult (timer, etc)
 // IO SOKCET
 
 const server = http.createServer(app);
@@ -53,9 +53,9 @@ const io = new Server(server, {
     }
 })
 
-server.listen(5003, () => [
+server.listen(5003, () => {
     console.log('start')
-])
+})
 
 io.use(JWTcheck)
 io.use(sessionHandler)
@@ -76,8 +76,8 @@ io.on('connection', (socket) => {
             })
         }
         logUsers.reduce((acc, cur, i) => {
-            acc[cur.id] = (acc[cur.id] || 0) + 1
-            if (acc[cur.id] >= 2) {
+            acc[cur.user.id] = (acc[cur.user.id] || 0) + 1
+            if (acc[cur.user.id] >= 2) {
                 console.log(logUsers)
                 socket.emit('close')
                 console.log('disconnected - ', cur.user.name)

@@ -12,11 +12,13 @@
         padding-top: 15px;
         flex-direction: row;
         flex-wrap: wrap;
-        gap: 40px;
         justify-content: flex-start;
+        gap: 40px;
         .cardMap {
             display: flex;
             flex-direction: column;
+            background-color: #1A1A2E;
+            border-radius:15px;
             &:hover .map {
                 transform: scale(1.2);
             }
@@ -26,7 +28,6 @@
             .img {
                 height: 150px;
                 overflow: hidden;
-                background-color: #1A1A2E;
                 border-top-left-radius: 15px;
                 border-top-right-radius: 15px;
                 padding-top: 10px;
@@ -36,7 +37,6 @@
             }
             .title {
                 height: 150px;
-                background-color: #1A1A2E;
                 display: flex;
                 flex-direction: column;
                 padding: 15px;
@@ -47,7 +47,6 @@
             }
             .mapStats {
                 height: 50px;
-                background-color: #1A1A2E;
                 display: flex;
                 flex-direction: row;
                 padding: 15px;
@@ -77,13 +76,89 @@
                 }
             }
         }
+        .adminCardInfo {
+            display: flex;
+            background-color: #1A1A2E;
+            border-radius: 15px;
+            flex-direction: column;
+            padding:15px;
+            width: 100%;
+            gap:25px;
+            p {
+                background-color: #300097;
+                border-radius: 15px;
+                padding: 10px;
+                position:relative;
+            }
+            .mapVariantsContainer {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                max-height: 600px;
+                overflow: auto;
+                padding: 5px;
+                .mapVariant {
+                    display: flex;
+                    position:relative;
+                    cursor:pointer;
+                    flex-direction: row;
+                    padding: 15px;
+                    background-color: #73008b;
+                    border-radius:15px;
+                    gap:15px;
+                    transition: all 0.3s ease;
+                    &:hover {
+                        background: #9500b5;
+                    }
+                    table {
+                        border-spacing: 5px 15px;
+                        z-index: 2;
+                        white-space: nowrap;
+                    }
+                }
+            }
+        }
+        .navContainer {
+            display: flex;
+            gap: 40px;
+            flex-direction: column;
+            width: 100%;
+            button {
+                font-size: 20px;
+                font-weight: bold;
+                border: none;
+                padding: 15px;
+                border-radius: 15px;
+                background-color: rgb(26, 6, 158);
+                transition: background-color 0.3s ease;
+                cursor: pointer;
+                &:hover {
+                    background-color: rgb(13, 0, 100);
+                    outline: 2px solid white;
+                }
+            }
+        }
+        
     }
+}
+.chose {
+    position:absolute;
+    width: 20px;
+    left:0;
+    top:0;
+    padding: 10px;
+    border-radius: 55%;
+    border: 2px solid green;
+    box-sizing: content-box;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    cursor: grab;
 }
 @media screen and (max-width: 1200px) {
     .mapChapter {
         display: flex;
         margin-top: 5rem;
-        padding: 2rem;
+        padding: 0rem;
         flex-direction: column;
         hr {
             border: 1px solid rgba(255, 255, 255, 0.545);
@@ -134,5 +209,13 @@
                 }
             }
         }
+    }
+    .mapVariant {
+        display: flex;
+        flex-direction: column !important;
+        padding: 15px;
+        background-color: #73008b;
+        border-radius:15px;
+        gap:15px;
     }
 }

@@ -15,6 +15,7 @@ import { GetServerSideProps } from 'next';
 import {NextThunkDispatch, wrapper} from '../store';
 import { setMaps } from '../store/actions/map';
 import { setUserProps } from '../store/actions/user';
+import { useActions } from './../hooks/useActions';
 
 interface IndexProps {
   users: number;
@@ -23,7 +24,9 @@ interface IndexProps {
 
 const Index : NextPage<IndexProps> = ({users}) => {
   const user = useTypedSelector(st => st.user)
-  
+  const {setMaps} = useActions()
+  setMaps()
+
   return !user.auth ? (
     <MainContainer title='NGG GUESSER'>
       <div className={styles.background}>

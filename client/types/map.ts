@@ -37,6 +37,7 @@ export interface IvariantMaps {
     posX: number;
     posY: number;
     mapId: number;
+    mapImage?: string;
 }
 
 export enum mapActionTypes {

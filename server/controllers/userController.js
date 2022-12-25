@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid')
 const path = require('path')
-const {User, Friend, UserMapPlayed, Like} = require('../models/models');
+const {User, Friend, UserMapPlayed, Like, LevelUp} = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 
@@ -56,6 +56,14 @@ class UserController {
             next(ApiError.badRequest(e.message))
         }
     }
+    async getAllUsers (req, res, next) {
+        try {
+            const users = await User.findAll({include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}, {model: LevelUp}], order: [[UserMapPlayed, 'updatedAt', 'DESC'], [Like, 'updatedAt', 'DESC']]})
+            return res.json({users})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
 
     async findUser (req, res, next) {
         try {
@@ -97,7 +105,7 @@ class UserController {
     async getUserActivity (req, res, next) {
         try {
             const {userId} = req.body
-            const user = await User.findOne({where: {id: userId}, include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}], order: [[UserMapPlayed, 'updatedAt', 'DESC'], [Like, 'updatedAt', 'DESC']]})
+            const user = await User.findOne({where: {id: userId}, include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}, {model: LevelUp}], order: [[UserMapPlayed, 'updatedAt', 'DESC'], [Like, 'updatedAt', 'DESC']]})
             return res.json({user})
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -108,6 +116,24 @@ class UserController {
         const user = await User.findOne({where:{id: req.user.id}})
         const token = signJWT(user)
         return res.json({token})
+    }
+    
+    async addExp (req, res, next) {
+        try {
+            const {exp} = req.body
+            const check = await User.findOne({where: {id: req.user.id}})
+            await User.update({exp: check.exp + exp}, {where: {id: req.user.id}})
+            const user = await User.findOne({where: {id: req.user.id}})
+
+            if (user.exp / (150 * (user.level + 1)) >= 1) {
+                LevelUp.create({prevLvl: user.level, nextLvl: user.level + 1, userId: req.user.id})
+                await User.update({level: user.level + 1, exp: user.exp - (150 * (user.level + 1))}, {where: {id: req.user.id}})
+            }
+            
+            return res.json({message: 'success'})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
     }
 }   
 module.exports = new UserController()

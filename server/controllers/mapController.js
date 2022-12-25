@@ -1,7 +1,6 @@
 const uuid = require('uuid')
 const path = require('path')
 const ApiError = require('../error/ApiError');
-const fs = require('fs');
 const { Map, Like, VariantMap, UserMapPlayed } = require('../models/models');
 
 class mapController {

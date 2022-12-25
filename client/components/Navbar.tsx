@@ -1,9 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect } from 'react'
 import styles from '../styles/Navbar.module.scss'
-import { useActions } from './../hooks/useActions';
 import { useTypedSelector } from './../hooks/useTypedSelector';
 import MyButton, { ButtonVariant } from './UI/MyButton';
 import MyButtonLink from './UI/MyButtonLink';

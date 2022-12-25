@@ -13,6 +13,7 @@ import MyButton, { ButtonVariant } from '../../components/UI/MyButton'
 import ScoreBar from '../../components/UI/ScoreBar'
 import { useRouter } from 'next/router';
 import { UserMapPlayed } from '../../api/mapAPI'
+import { addExp } from './../../api/userAPI';
 
 interface playProps {
   variantMap: IvariantMaps;
@@ -60,7 +61,7 @@ const Play : NextPage<playProps> = () => {
           setMap(map[0])
           setChoseChecked(true)
         }
-  
+
         setAllScore(score)
         setStage(stage)
         setVariantMaps(data)
@@ -73,6 +74,14 @@ const Play : NextPage<playProps> = () => {
       if (choseChecked && stage == 4) {
         socket.emit('STARTED_PLAY', {room: router.query.name})
         UserMapPlayed({score: allScore + score, mapId: map.id})
+        console.log('end')
+        if (map.difficult === 'hard') {
+          addExp(Math.round((allScore + score) / 20))
+        } else if (map.difficult === 'medium') {
+          addExp(Math.round((allScore + score) / 50))
+        } else {
+          addExp(Math.round((allScore + score) / 100))
+        }
       }
     }
   }, [choseChecked, stage, socket])

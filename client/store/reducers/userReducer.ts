@@ -14,6 +14,7 @@ const initialState : userState = {
     friends: [],
     userMapPlayeds: [],
     updatedAt: '0',
+    createdAt: '0',
     likes: []
 }
 

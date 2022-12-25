@@ -8,7 +8,7 @@ const User = sequelize.define("users", {
   password: { type: DataTypes.STRING },
   level: { type: DataTypes.INTEGER, defaultValue: '0'},
   exp: { type: DataTypes.INTEGER, defaultValue: '0' },
-  avatar: { type: DataTypes.STRING, defaultValue: 'userNoImage.png'},
+  avatar: { type: DataTypes.STRING, defaultValue: 'userNoImage.svg'},
   role: { type: DataTypes.STRING, defaultValue: "USER" },
 });
 
@@ -43,6 +43,12 @@ const VariantMap = sequelize.define('variantMap', {
   name: { type: DataTypes.STRING },
 })
 
+const LevelUp = sequelize.define('levelUps', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  prevLvl: { type: DataTypes.INTEGER },
+  nextLvl: { type: DataTypes.INTEGER }
+})
+
 User.hasMany(Friend)
 Friend.belongsTo(User)
 
@@ -61,6 +67,10 @@ UserMapPlayed.belongsTo(Map)
 Map.hasMany(VariantMap)
 VariantMap.belongsTo(Map)
 
+User.hasMany(LevelUp)
+LevelUp.belongsTo(User)
+
+
 module.exports = {
-  User, Friend, Map, Like, UserMapPlayed, VariantMap
+  User, Friend, Map, Like, UserMapPlayed, VariantMap, LevelUp
 };

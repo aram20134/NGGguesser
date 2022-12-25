@@ -17,6 +17,7 @@ import like from '../../public/like.svg'
 import activity from '../../public/avgScore.svg'
 import { GetUserMapPlayed } from '../../api/mapAPI'
 import { IuserMapPlayeds } from '../../types/map'
+import { deleteCookie } from 'cookies-next'
 
 interface NameProps {
   user: userState
@@ -32,6 +33,7 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
 
   useEffect(() => {
     GetUserMapPlayed(user.id).then((res) => {setMapPlayed(res), setLoaded(true)})
+
   }, [])
 
   return mapPlayed && owner ? (
@@ -44,7 +46,7 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
           <h1>{user.name[0].toUpperCase() + user.name.slice(1)}</h1>
           <div className={styles.LVL}>
             <p>LVL {user.level}</p>
-            <ScoreBar myStyle={{height: '24px'}} width={'30%'} score={user.exp} overlay={150} />
+            <ScoreBar myStyle={{height: '24px'}} width={'30%'} score={user.exp / (150 * (user.level + 1)) * 100} overlayLeft={user.exp === 0 ? "0" : user.exp} overlayRight={150 * (user.level + 1)} />
             <p>LVL {user.level + 1}</p>
           </div>
           <hr />
@@ -81,6 +83,12 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
                 </div>
               </a>
             </Link>
+            {user.role === 'ADMIN' && 
+            <Link href={`${user.name}/adminPanel`}>
+              <a className={styles.adminPanel}>
+                <p>Админ Панель</p>
+              </a>
+            </Link>}
           </div>
           <hr />
           <h2>Статистика</h2>
@@ -98,7 +106,7 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
               <p>Лучшая игра</p>
             </div>
           </div>
-          <MyButton variant={ButtonVariant.outlined} click={() => console.log('first')}>Выйти</MyButton>
+          <MyButton variant={ButtonVariant.outlined} click={() => {deleteCookie('token'), router.push('/')}}>Выйти</MyButton>
         </div>
       </main>
     </MainContainer>
@@ -111,7 +119,7 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
           <h1>{user.name[0].toUpperCase() + user.name.slice(1)}</h1>
           <div className={styles.LVL}>
             <p>LVL {user.level}</p>
-            <ScoreBar myStyle={{height: '24px'}} width={'30%'} score={user.exp} overlay={150} />
+            <ScoreBar myStyle={{height: '24px'}} width={'30%'} score={user.exp / (150 * (user.level + 1)) * 100} overlayLeft={user.exp === 0 ? "0" : user.exp} overlayRight={150 * (user.level + 1)} />
             <p>LVL {user.level + 1}</p>
           </div>
           <hr />

@@ -94,30 +94,31 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
         }
       }
     }, [load, allChoses, last])
-    
-    
-    const preventScroll = (e) => {
+
+    const preventScroll = function (e) {
+      e.preventDefault()
       if (e.deltaY < 0 && scale <= 2.5) {
         setScale(prev => prev + 0.05)
       } else if (e.deltaY > 0 && scale >= 0.3) {
         setScale(prev => prev - 0.05)
       }
-      e.preventDefault()
       return false
     }
 
     useEffect(() => {
-      const getImg = () => {
-        const img = new Image()
-        img.src = `${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema}`
-        img.onload = () => {
-          setLoad(true)
-          setImg({width: img.width, height: img.height})
-          document.getElementById('image')?.addEventListener('wheel', preventScroll, {passive: false})
-        }
-        
+      document.getElementById('image')?.addEventListener('wheel', preventScroll, {passive:false})
+      return () => {
+        document.getElementById('image').removeEventListener('wheel', preventScroll)
       }
-      getImg()
+    }, [load, scale])
+    
+    useEffect(() => {
+      const img = new Image()
+      img.src = `${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema}`
+      img.onload = () => {
+        setLoad(true)
+        setImg({width: img.width, height: img.height})
+      }
     }, [load])
 
     useEffect(() => {
@@ -190,8 +191,8 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
         num.style.top = '-20px'
         document.getElementById('image').appendChild(num)
       } else {
-        var posX : number  = Math.round(variantMap.posX / 9 + map.id * 2) - 20
-        var posY : number = Math.round(variantMap.posY / 9 + map.id * 2) - 20
+        var posX : number  = Math.round(variantMap.posX / 9 + map.id * 2) - padding
+        var posY : number = Math.round(variantMap.posY / 9 + map.id * 2) - padding
         setPositions({posX: choseCoords.x, posY: choseCoords.y, truePosX: posX, truePosY: posY})
         setChoseChecked(true)
       }
@@ -247,14 +248,6 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
         <Draggable handle='#image' defaultPosition={{x: -img.width / 2, y: -img.height / 2}}>
           <div>
             <div id='image' 
-              // onWheel={(e) => {
-              //     if (e.deltaY < 0 && scale <= 2.5) {
-              //       setScale(prev => prev + 0.05)
-              //     } else if (e.deltaY > 0 && scale >= 0.3) {
-              //       setScale(prev => prev - 0.05)
-              //     }
-              //   }
-              // }
               onDoubleClick={(e) => !choseChecked && setChoose(e)}
               className={styles.img} 
               style={{backgroundImage: `url(${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema})`, width: img.width, height: img.height, transform: `scale(${scale})`}}>

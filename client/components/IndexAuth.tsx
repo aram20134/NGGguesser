@@ -10,7 +10,7 @@ const IndexAuth : React.FC = () => {
         <div className={styles.container}>
           <h1>Выбери фазу и карту</h1>
           <MapChapter phase={1} title='PHASE 1'/>
-          <MapChapter phase={2} title='PHASE 2' />
+          <MapChapter phase={2} title='PHASE 2'/>
         </div>
     </main>
   )

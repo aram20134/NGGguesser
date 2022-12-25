@@ -15,6 +15,7 @@ export interface userState {
     likes: Ilikes[];
     userMapPlayeds: IuserMapPlayeds[];
     updatedAt: string;
+    createdAt: string;
 }
 
 export enum userActionTypes {

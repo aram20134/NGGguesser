@@ -42,3 +42,13 @@ export const checkUser = async () => {
     setCookie('token', data.token, {maxAge:172800 * 2}) // 96 h == 4 days
     return jwt_decode(data.token)
 }
+
+export const addExp = async (exp : number) => {
+    const {data} = await authHost.post('api/user/exp', {exp})
+    return data
+}
+
+export const getAllUsers = async () => {
+    const {data} = await host.get('api/user')
+    return data
+}

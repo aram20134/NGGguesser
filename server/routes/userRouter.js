@@ -12,6 +12,8 @@ router.post('/findUser', userController.findUser)
 router.post('/userbyname', userController.getUserByName)
 router.post('/useractivity', userController.getUserActivity)
 router.post('/userlikes', userController.getUserLikes)
+router.post('/exp', auth, userController.addExp)
+router.get('/', userController.getAllUsers)
 // router.get('/id', userController.getUserId)
 // router.get('/name', userController.getUserName)
 

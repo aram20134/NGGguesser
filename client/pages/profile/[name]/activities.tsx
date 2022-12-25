@@ -11,6 +11,7 @@ import mapSVG from '../../../public/mapVariant.svg'
 import like from '../../../public/liked.svg'
 import Image from 'next/image'
 import Link from 'next/link'
+import lvlup from '../../../public/lvlup.svg'
 
 interface activitiesProps {
   user: userState;
@@ -35,10 +36,12 @@ const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
                     switch (a.action) {
                       case 'map_played':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
-                        return <div key={i} className={styles.action}><Image loading='lazy' src={mapSVG} /><p>Вы сыграли на <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link> со счётом {a.score}</p></div>
+                        return <div key={i} className={styles.action}><Image loading='lazy' src={mapSVG} /><p>Вы сыграли на <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link> со счётом {a.score} и заработали {Math.round(a.score / 100)} опыта</p></div>
                       case 'map_liked':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
                         return <div key={i} className={styles.action}><Image loading='lazy' src={like} /><p>Вы поставили лайк на карту <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link></p></div>
+                      case 'level_up':
+                        return <div key={i} className={styles.action}><Image loading='lazy' width={32} height={32} src={lvlup} /><p>Вы повысили свой уровень <b>{a.prevLvl} {'>'} {a.nextLvl}</b></p></div>
                     }
                   }
                   )}
@@ -85,6 +88,16 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
       dates[date] = [{action: 'map_liked', mapId: l.mapId, date: l.updatedAt}]
     }
   })
+
+  activity.user.levelUps.reverse().map((l) => {
+    var date = new Date(l.updatedAt).toLocaleDateString()
+    if (dates[date]) {
+      dates[date] = [...dates[date], {action: 'level_up', prevLvl: l.prevLvl, nextLvl: l.nextLvl ,date: l.updatedAt}]
+    } else {
+      dates[date] = [{action: 'level_up', prevLvl: l.prevLvl, nextLvl: l.nextLvl ,date: l.updatedAt}]
+    }
+  })
+
   let reverse = []
   Object.keys(dates).reverse().forEach((key) => reverse[key] = [...dates[key].reverse()])
 
