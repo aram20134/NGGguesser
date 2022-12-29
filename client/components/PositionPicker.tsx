@@ -24,7 +24,8 @@ interface PositionPickerProps {
 const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLineWidth, choseChecked, setChoseChecked, setScore, setPositions, allPositions, last = false, allChoses = false})  => {
     const [img, setImg] = useState<{width: number; height: number}>()
     const [load, setLoad] = useState(false)
-    const [scale, setScale] = useState(1)
+    const [pos, setPos] = useState<{posX: number, posY: number, scale: number}>({posX: 0, posY: 0, scale: 1})
+    const [transform, setTransform] = useState<{posX: number, posY: number}>({posX: 0, posY: 0})
     const [IsChosed, setIsChosed] = useState(false)
     const [choseCoords, setChoseCoords] = useState<{x: number; y: number}>()
     
@@ -95,22 +96,30 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
       }
     }, [load, allChoses, last])
 
-    const preventScroll = function (e) {
-      e.preventDefault()
-      if (e.deltaY < 0 && scale <= 2.5) {
-        setScale(prev => prev + 0.05)
-      } else if (e.deltaY > 0 && scale >= 0.3) {
-        setScale(prev => prev - 0.05)
+      const preventScroll = (e) => {
+        e.preventDefault()
+        const delta = e.deltaY * -0.001;
+        var newScale = pos.scale + delta;
+        if (newScale >= 2.5) {
+          newScale = pos.scale
+        } else if (newScale <= 0.3) {
+          newScale = pos.scale
+        }
+        const ratio = 1 - newScale / pos.scale;
+  
+        setPos({
+          posX: pos.posX + (e.layerX - pos.posX - transform.posX) * ratio,
+          posY: pos.posY + (e.layerY - pos.posY - transform.posY) * ratio,
+          scale: newScale
+        })
       }
-      return false
-    }
 
     useEffect(() => {
       document.getElementById('image')?.addEventListener('wheel', preventScroll, {passive:false})
       return () => {
-        document.getElementById('image').removeEventListener('wheel', preventScroll)
+        document.getElementById('image')?.removeEventListener('wheel', preventScroll)
       }
-    }, [load, scale])
+    }, [load, pos.scale])
     
     useEffect(() => {
       const img = new Image()
@@ -164,8 +173,8 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
         num.style.top = '-20px'
         document.getElementById('image').appendChild(num)
       } else {
-        var x : number = Math.round((e.clientX - target.left) / scale) - image.width / 2 - 12
-        var y : number = Math.round((e.clientY - target.top) / scale) - image.height / 2 - 12
+        var x : number = Math.round((e.clientX - target.left) / pos.scale) - image.width / 2 - 12
+        var y : number = Math.round((e.clientY - target.top) / pos.scale) - image.height / 2 - 12
       }
       image.style.visibility = 'visible'
       image.style.transform = `translate(${x}px, ${y}px)`
@@ -245,12 +254,12 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
   return load && (
     <div id='cont' className={styles.container}>
         <div id ='imageCont' className={choseChecked ? styles.imgPickerChecked : styles.imgPicker}>
-        <Draggable handle='#image' defaultPosition={{x: -img.width / 2, y: -img.height / 2}}>
+        <Draggable onDrag={(e, ui) => setTransform({posX:Math.round(transform.posX + ui.deltaX), posY: Math.round(transform.posY + ui.deltaY)})} handle='#image' defaultPosition={{x: -img.width / 2, y: -img.height / 2}}>
           <div>
             <div id='image' 
               onDoubleClick={(e) => !choseChecked && setChoose(e)}
               className={styles.img} 
-              style={{backgroundImage: `url(${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema})`, width: img.width, height: img.height, transform: `scale(${scale})`}}>
+              style={{backgroundImage: `url(${process.env.REACT_APP_API_URL}/mapSchema/${map.mapSchema})`, width: img.width, height: img.height, transform: `translate(${pos.posX}px, ${pos.posY}px) scale(${pos.scale})`, transition: 'all 0.3s ease'}}>
               <img loading='lazy' id='choose' src={map.phase === 1 ? clone1.src : clone2.src} className={styles.choose} />
               <canvas id='canv' width={img.width} height={img.height}></canvas>
               <img loading='lazy' id='trueChoose' src={`${process.env.REACT_APP_API_URL}/map/${map.image}`} className={styles.trueChoose} />

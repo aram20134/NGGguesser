@@ -8,6 +8,7 @@ export interface Imap {
     description: string;
     image: string;
     phase: number;
+    active:boolean;
     name: string;
     mapSchema: string;
     likes: Ilikes[],
@@ -27,6 +28,7 @@ export interface IuserMapPlayeds {
     mapId: number;
     score: number;
     userId: number;
+    time: number;
     updatedAt: string;
 }
 
@@ -38,6 +40,7 @@ export interface IvariantMaps {
     posY: number;
     mapId: number;
     mapImage?: string;
+    active: boolean;
 }
 
 export enum mapActionTypes {

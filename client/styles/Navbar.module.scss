@@ -56,5 +56,18 @@
             color: #FC4F4F;
             font-size: 20px;
         }
+        .profile {
+            padding: 5px 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            font-size: 18px;
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.34);
+            }
+        }
     }
 }

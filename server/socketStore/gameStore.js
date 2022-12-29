@@ -7,6 +7,7 @@ class gameStore {
     this.dateStart = new Map()
     this.user = new Map()
     this.isStartedPlay = new Map()
+    this.time = new Map()
   }
 
   findGame(room) {
@@ -29,6 +30,10 @@ class gameStore {
     return this.user.get(room);
   }
 
+  findTime(room) {
+    return this.time.get(room)
+  }
+
   findDateStart(room) {
     return this.dateStart.get(room);
   }
@@ -41,6 +46,7 @@ class gameStore {
     this.dateStart.set(room, new Date().getTime())
     this.user.set(room, userId)
     this.isStartedPlay.set(room, false)
+    this.time.set(room, 0)
   }
 
   saveChoose(room, posX, posY, truePosX, truePosY) {
@@ -55,6 +61,10 @@ class gameStore {
     this.stage.set(room, stage)
   }
 
+  saveTime(room, time) {
+    this.time.set(room, time)
+  }
+
   saveIsStartedPlay(room, bool) {
     this.isStartedPlay.set(room, bool);
   }
@@ -64,7 +74,7 @@ class gameStore {
   }
 
   findAllGames(room) {
-    return {room: room, stage: this.stage.get(room), score: this.score.get(room), dateStart: this.dateStart.get(room), mapId: this.games.get(room)[0].mapId}
+    return {room: room, stage: this.stage.get(room), score: this.score.get(room), dateStart: this.dateStart.get(room), mapId: this.games.get(room)[0].mapId, time: this.time.get(room)}
   }
 
   findUserCurrGames(userId) {

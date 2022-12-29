@@ -7,10 +7,12 @@ import { NextThunkDispatch, wrapper } from "../../../store";
 import { setUserProps } from "../../../store/actions/user";
 import styles from "../../../styles/AdminPanel.module.scss";
 import { userState } from "./../../../types/user";
-import Link from "next/link";
 import UserCard from './../../../components/UserCard';
 import MapChapter from "../../../components/MapChapter";
 import { setMaps } from "../../../store/actions/map";
+import Image from "next/image";
+import mapSVG from '../../../public/mapVariant.svg'
+import people from '../../../public/people.svg'
 
 interface AdminPanelProps {
   user: userState;
@@ -53,14 +55,21 @@ const AdminPanel: NextPage<AdminPanelProps> = ({ user, users }) => {
   return allUsers && (
     <MainContainer title="Админ панель">
       <main className={styles.adminPanel}>
+        
         <div className={styles.bg}></div>
         <div className={styles.container}>
           <div className={styles.buttonType}>
-              <button onClick={() => setButtonActive(buttons[0])} className={buttonActive.name === 'maps' && styles.active}>Карты</button>
-              <button onClick={() => setButtonActive(buttons[1])} className={buttonActive.name === 'users' && styles.active}>Пользователи</button>
+              <button onClick={() => setButtonActive(buttons[0])} className={buttonActive.name === 'maps' && styles.active}>
+                <Image src={mapSVG} />
+                Карты
+              </button>
+              <button onClick={() => setButtonActive(buttons[1])} className={buttonActive.name === 'users' && styles.active}>
+                <Image src={people} />
+                <p>Пользователи</p>
+              </button>
           </div>
           <div className={styles.buttonInfo}>
-            <h1 style={{alignSelf: 'center'}}>{buttonActive.ru}</h1>
+            <h1>{buttonActive.ru}</h1>
             {buttonActive.name === 'maps' &&
               <>
               <div className={styles.buttonSection}>

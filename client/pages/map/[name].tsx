@@ -34,7 +34,7 @@ const Map : NextPage<mapProps> = ({map}) => {
   const {socket} = useTypedSelector(st => st.socket) as any
 
   useEffect(() => {
-    if (socket.id) {
+    if (socket.connected) {
       const room = uuidv4()
       setUUID(room)
       socket.emit('START_PLAY', {mapId: map.id, room})
@@ -103,7 +103,11 @@ const Map : NextPage<mapProps> = ({map}) => {
           </div>
         </div>
         <div className={styles.container3}>
+          {socket.connected ? (
             <MyButtonLink variant={ButtonVariant.primary} link={`/play/${UUID}`}>Играть</MyButtonLink>
+          ) : (
+            <MyButtonLink myStyle={{pointerEvents:'none'}} variant={ButtonVariant.outlined} link={`/`}>Играть</MyButtonLink>
+          )}
         </div>
         <Highscore map={map.id} />
       </main>
@@ -123,7 +127,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   const {map} = await findMap(param)
   const {user} = store.getState()
 
-  if (!map) {
+if (!map || !map.active) {
     return {
       notFound: true
     }

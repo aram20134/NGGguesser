@@ -1,7 +1,8 @@
 const uuid = require('uuid')
 const path = require('path')
 const ApiError = require('../error/ApiError');
-const { Map, Like, VariantMap, UserMapPlayed } = require('../models/models');
+const { Map, Like, VariantMap, UserMapPlayed, User } = require('../models/models');
+const {Sequelize} = require('sequelize');
 
 class mapController {
 
@@ -49,33 +50,13 @@ class mapController {
             next(ApiError.badRequest(e.message))
         }
     }
-    async addVariantMap(req, res, next) {
-        try {
-            var {mapId, posX, posY} = req.body
-            const {img} = req.files
-            if (!mapId || !img || !posX || !posY) return next(ApiError.badRequest('Получены не все значения'))
-            
-            let fileName = uuid.v4() + '.' + img.name.split('.').pop()
-
-            img.mv(path.resolve(__dirname, '..', 'static/variantMaps', fileName))
-                
-            const name = fileName.split('.').shift()
-            posX = posX * 9 - mapId * 2
-            posY = posY * 9 - mapId * 2
-            const variantMap = await VariantMap.create({mapId, posX, posY, image:fileName, name})
-            
-            return res.json({variantMap})
-        } catch (e) {
-            next(ApiError.badRequest(e.message))
-        }
-    }
 
     async addUserMapPlayed(req, res, next) {
         try {
-            const {score, mapId} = req.body
+            const {score, mapId, time} = req.body
             const userId = req.user.id
-            if (!score || !userId || !mapId) return next(ApiError.badRequest('Получены не все значения'))
-            const userMapPlayed = await UserMapPlayed.create({score, userId, mapId})
+            if (!score || !userId || !mapId || !time) return next(ApiError.badRequest('Получены не все значения'))
+            const userMapPlayed = await UserMapPlayed.create({score, userId, mapId, time})
             return res.json({userMapPlayed})
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -93,8 +74,14 @@ class mapController {
     }
     async getHighscore(req, res, next) {
         try {
-            const {mapId} = req.params
-            const highscore = await UserMapPlayed.findAll({where: {mapId}, order:[['score', 'DESC']], limit: 5})
+            const {mapId} = req.params //.findAll({where: {mapId}, attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('userId')), 'userId']]})
+            var highscore = await UserMapPlayed.findAll({where: {mapId}, order:[['score', 'DESC'], ['time', 'DESC']], include: [{model: User, attributes:['name', 'avatar']}]})
+            highscore = highscore.reduce((acc, cur) => {
+                if (!acc.find(v => v.userId == cur.userId)) {
+                  acc.push(cur);
+                }
+                return acc;
+              }, []);
             return res.json(highscore)
         } catch (e) {
             next(ApiError.badRequest(e.message))

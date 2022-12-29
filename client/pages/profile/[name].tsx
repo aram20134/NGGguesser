@@ -17,7 +17,6 @@ import like from '../../public/like.svg'
 import activity from '../../public/avgScore.svg'
 import { GetUserMapPlayed } from '../../api/mapAPI'
 import { IuserMapPlayeds } from '../../types/map'
-import { deleteCookie } from 'cookies-next'
 
 interface NameProps {
   user: userState
@@ -33,7 +32,6 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
 
   useEffect(() => {
     GetUserMapPlayed(user.id).then((res) => {setMapPlayed(res), setLoaded(true)})
-
   }, [])
 
   return mapPlayed && owner ? (
@@ -106,7 +104,11 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
               <p>Лучшая игра</p>
             </div>
           </div>
-          <MyButton variant={ButtonVariant.outlined} click={() => {deleteCookie('token'), router.push('/')}}>Выйти</MyButton>
+          <MyButton variant={ButtonVariant.outlined} click={async () => {
+            router.push('/')
+            const {deleteCookie} = await import('cookies-next')
+            deleteCookie('token')
+          }}>Выйти</MyButton>
         </div>
       </main>
     </MainContainer>

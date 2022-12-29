@@ -10,6 +10,7 @@ const initialState : mapState = {
         likes: [],
         phase: 0,
         userMapPlayeds: [],
+        active: false,
         variantMaps: [],
         mapSchema: ''
     }]

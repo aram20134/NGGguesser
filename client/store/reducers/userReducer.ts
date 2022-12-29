@@ -11,11 +11,8 @@ const initialState : userState = {
     avgGameScore: 0,
     avatar: 'UserNoImage.png',
     role: 'USER',
-    friends: [],
-    userMapPlayeds: [],
     updatedAt: '0',
     createdAt: '0',
-    likes: []
 }
 
 export const user = (state = initialState, action : userAction) : userState => {

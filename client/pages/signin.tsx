@@ -21,9 +21,7 @@ const Signin: NextPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const {setUser} = useActions()
-  const sockets = useTypedSelector(state => state.socket)
   const router = useRouter() 
-  const socket = useSocket()
 
   const checkLogin = async (e : React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +52,14 @@ const Signin: NextPage = () => {
     setError("");
   }, [nameL, password]);
 
+  const handleName = (e) => {
+    setNameL(e.currentTarget.value)
+  }
+
+  const handlePassword = (e) => {
+    setPassword(e.currentTarget.value)
+  }
+
   return (
     <MainContainer title="Вход">
       <main className={styles.main}>
@@ -61,8 +67,8 @@ const Signin: NextPage = () => {
         <h1>Вход</h1>
         <form onSubmit={(e) => checkLogin(e)}>
           <div className={styles.form}>
-            <MyInput value={nameL} setValue={setNameL} type="text" title="Никнейм" />
-            <MyInput value={password} setValue={setPassword} type="password" title="Пароль" />
+            <MyInput value={nameL} setValue={handleName} type="text" title="Никнейм" />
+            <MyInput value={password} setValue={handlePassword} type="password" title="Пароль" />
           </div>
           <div className={styles.signup}>
             <MyButton loading={loading} click={(e) => checkLogin(e)} variant={ButtonVariant.primary}>

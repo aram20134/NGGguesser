@@ -11,9 +11,6 @@ export interface userState {
     level: number;
     avgGameScore:number;
     role: string;
-    friends: [];
-    likes: Ilikes[];
-    userMapPlayeds: IuserMapPlayeds[];
     updatedAt: string;
     createdAt: string;
 }

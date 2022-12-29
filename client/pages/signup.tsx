@@ -18,9 +18,6 @@ const Signup: NextPage = () => {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const socket = useSocket()
-
-
   useEffect(() => {
     setError("");
   }, [name, password, password2]);
@@ -51,7 +48,19 @@ const Signup: NextPage = () => {
     setName('')
     setPassword('')
     setPassword2('')
-  };
+  }
+  const handleName = (e) => {
+    setName(e.currentTarget.value)
+  }
+
+  const handlePassword = (e) => {
+    setPassword(e.currentTarget.value)
+  }
+
+  const handlePassword2 = (e) => {
+    setPassword2(e.currentTarget.value)
+  }
+
   return (
     <MainContainer title="Регистрация">
       <main className={styles.main}>
@@ -61,21 +70,21 @@ const Signup: NextPage = () => {
           <div className={styles.form}>
             <MyInput
               value={name}
-              setValue={setName}
+              setValue={handleName}
               type="text"
               title="Никнейм"
               description="Никнейм должен содержать не менее 4 символов"
             />
             <MyInput
               value={password}
-              setValue={setPassword}
+              setValue={handlePassword}
               type="password"
               title="Пароль"
               description="Пароль должен содержать не менее 4 символов"
             />
             <MyInput
               value={password2}
-              setValue={setPassword2}
+              setValue={handlePassword2}
               type="password"
               title="Повторите пароль"
             />

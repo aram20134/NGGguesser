@@ -13,13 +13,11 @@ import styles from '../styles/Index.module.scss'
 import IndexAuth from '../components/IndexAuth';
 import { GetServerSideProps } from 'next';
 import {NextThunkDispatch, wrapper} from '../store';
-import { setMaps } from '../store/actions/map';
 import { setUserProps } from '../store/actions/user';
 import { useActions } from './../hooks/useActions';
 
 interface IndexProps {
   users: number;
-  test: any
 }
 
 const Index : NextPage<IndexProps> = ({users}) => {
@@ -84,10 +82,11 @@ export default Index
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res}) => {
   const dispatch = store.dispatch as NextThunkDispatch
   await dispatch(setUserProps(req.cookies.token))
+  var {user} = store.getState()
   
-  const {users} = await usersCount()
+  const {users} = !user.auth && await usersCount()
 
-  return {
+  return !user.auth && {
     props: {users}
   }
 })  

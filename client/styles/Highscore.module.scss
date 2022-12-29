@@ -1,0 +1,49 @@
+.highScoreContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    .scoreContainer {
+        display: flex;
+        width: 100%;
+        max-width: 1200px;
+        flex-direction: column;
+        gap: 15px;
+        background-color: rgba(0, 0, 0, 0.169);
+        table {
+            border-spacing: 5px 15px;
+        }
+    }
+    .tableContainer {
+        display: grid; 
+        grid-template-columns: 50px 1fr 10fr 1fr; 
+        grid-template-rows: 1fr; 
+        width: 100%;
+        max-width: 1200px;
+        gap: 15px 0px;
+        // gap: 15px;
+        padding: 15px;
+        .score {
+            justify-self: flex-end;
+        }
+        * {
+            white-space: pre;
+            display: flex;
+            flex-direction: row;
+            font-weight: bold;
+            font-size: 20px;
+            gap: 15px;
+            align-items: center;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    }
+    hr {
+        width: 100%;
+        width: 100%;
+        max-width: 1200px;
+        border: 1px solid rgba(128, 128, 128, 0.564);
+    }
+}

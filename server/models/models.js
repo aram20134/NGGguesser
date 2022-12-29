@@ -24,6 +24,7 @@ const Map = sequelize.define('maps', {
   image: { type: DataTypes.STRING },
   mapSchema: { type: DataTypes.STRING },
   difficult: { type: DataTypes.STRING },
+  active: { type: DataTypes.BOOLEAN, defaultValue: false }
 })
 
 const Like = sequelize.define('likes', {
@@ -32,15 +33,17 @@ const Like = sequelize.define('likes', {
 
 const UserMapPlayed = sequelize.define('userMapPlayed', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  score: { type: DataTypes.INTEGER, defaultValue: '0'}
+  score: { type: DataTypes.INTEGER, defaultValue: '0'},
+  time: { type: DataTypes.INTEGER, defaultValue: '0'}
 })
 
 const VariantMap = sequelize.define('variantMap', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   image: { type: DataTypes.STRING },
-  posX: { type: DataTypes.INTEGER },
-  posY: { type: DataTypes.INTEGER },
+  posX: { type: DataTypes.INTEGER, defaultValue: 0 },
+  posY: { type: DataTypes.INTEGER, defaultValue: 0 },
   name: { type: DataTypes.STRING },
+  active: { type: DataTypes.BOOLEAN, defaultValue: false }
 })
 
 const LevelUp = sequelize.define('levelUps', {

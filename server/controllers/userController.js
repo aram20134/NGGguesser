@@ -6,9 +6,9 @@ const {User, Friend, UserMapPlayed, Like, LevelUp} = require('../models/models')
 const ApiError = require('../error/ApiError');
 
 
-const signJWT = ({id, name, number, experience, avatar, level, role, friends, userMapPlayeds}) => {
+const signJWT = ({id, name, number, experience, avatar, level, role}) => {
     return jwt.sign(
-        {id, name, number, experience, avatar, level, role, friends, userMapPlayeds}, 
+        {id, name, number, experience, avatar, level, role}, 
         process.env.SECRET_KEY,
         {expiresIn: '48h'}
     )

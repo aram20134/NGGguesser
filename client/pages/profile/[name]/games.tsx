@@ -23,6 +23,7 @@ interface currGameProps {
   score: number;
   dateStart: number;
   mapId: number;
+  time: number;
 }
 
 const Games : NextPage<gamesProps> = ({user, map}) => {
@@ -78,6 +79,8 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
                   </div>
                   <hr />
                   <p>{new Date(curr.dateStart).toLocaleDateString() === new Date().toLocaleDateString() ? 'Сегодня' : 'Вчера'} - Раунд {curr.stage + 1} / 5</p>
+                  <p>Счёт - {curr.score}</p>
+                  <p>Время - {curr.time}s</p>
                 </div>
               ) 
             })}

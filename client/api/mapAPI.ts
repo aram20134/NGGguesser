@@ -17,8 +17,8 @@ export const delLike = async ({mapId}) => {
     return data
 }
 
-export const UserMapPlayed = async ({score, mapId}) => {
-    const {data} = await authHost.post('api/map/addUserMapPlayed', {score, mapId})
+export const UserMapPlayed = async ({score, mapId, time}) => {
+    const {data} = await authHost.post('api/map/addUserMapPlayed', {score, mapId, time})
     return data
 }
 

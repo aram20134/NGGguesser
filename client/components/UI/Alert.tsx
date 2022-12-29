@@ -1,4 +1,3 @@
-import React from 'react'
 import styles from '../../styles/Alert.module.scss'
 import danger from '../../public/danger.png'
 import warning from '../../public/warning.png'

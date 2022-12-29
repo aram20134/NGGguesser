@@ -29,12 +29,15 @@
             background-color: rgba(0, 0, 0, 0.158);
             border-radius:15px;
             button {
-                padding: 25px;
+                padding: 20px;
                 background: transparent;
                 font-size: 24px;
                 font-weight: bold;
                 cursor: pointer;
                 border:none;
+                display: flex;
+                justify-content: center;
+                gap: 15px;
                 border-radius:15px;
                 transition: background-color 0.3s ease;
                 &:hover {
@@ -56,6 +59,11 @@
             gap:15px;
             align-items: stretch;
             flex-direction: column;
+            h1 {
+                display: flex;
+                gap: 15px;
+                align-self: center;
+            }
             .buttonSection {
                 gap:15px;
                 display:flex;

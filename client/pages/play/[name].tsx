@@ -32,6 +32,7 @@ const Play : NextPage<playProps> = () => {
   const [positions, setPositions] = useState<{posX: number, posY: number, truePosX: number, truePosY: number}>()
   const [allChoses, setAllChoses] = useState<[{posX: number, posY: number, truePosX: number, truePosY: number}]>()
   const [checkAllChoses, setCheckAllChoses] = useState(false)
+  const [time, setTime] = useState(0)
 
   const {maps} = useTypedSelector(st => st.map)
   const {id} = useTypedSelector(st => st.user)
@@ -39,12 +40,31 @@ const Play : NextPage<playProps> = () => {
   const router = useRouter()
   const {socket} = useTypedSelector(st => st.socket) as any
 
+
   useEffect(() => {
-    console.log(socket)
+    let timer
+    if (choseChecked) {
+      clearTimeout(timer)
+    } else {
+      timer = setTimeout(() => {
+        if (socket.connected) {
+          socket.emit('ADD_TIME', {room: router.query.name, time})
+        }
+        setTime(prev => prev + 1)
+      }, 1000)
+    }
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [time])
+
+  useEffect(() => {
     if (socket.connected) {
       socket.emit('STARTED_PLAY', {room: router.query.name})
 
-      socket.on('STARTED_PLAY', (data, stage, score, chooses, userId) => {
+      socket.on('STARTED_PLAY', (data, stage, score, chooses, userId, time) => {
+        setTime(time)
+        console.log(time);
         
         if (userId !== id) {
           router.replace('/404')
@@ -52,6 +72,7 @@ const Play : NextPage<playProps> = () => {
         if (data === null || data === undefined) {
           router.replace('/404')
         }
+
         setAllChoses(chooses)
         if (stage <= 4) {
           var map = maps.filter((m) => m.id === data[stage].mapId ? true : false)
@@ -71,9 +92,10 @@ const Play : NextPage<playProps> = () => {
       if (choseChecked && stage <= 4) {
         socket.emit('NEXT_MAP', {room: router.query.name, score: score, posX: positions.posX, posY: positions.posY, truePosX: positions.truePosX, truePosY: positions.truePosY})
       }
+
       if (choseChecked && stage == 4) {
         socket.emit('STARTED_PLAY', {room: router.query.name})
-        UserMapPlayed({score: allScore + score, mapId: map.id})
+        UserMapPlayed({score: allScore + score, mapId: map.id, time})
         console.log('end')
         if (map.difficult === 'hard') {
           addExp(Math.round((allScore + score) / 20))
@@ -133,6 +155,10 @@ const Play : NextPage<playProps> = () => {
                 <div className={styles.allScoreAtr}>
                   <p>Счёт</p>
                   <h5>{allScore}</h5>
+                </div>
+                <div className={styles.allScoreAtr}>
+                  <p>Время</p>
+                  <h5>{time + 's'}</h5>
                 </div>
               </div>
             </div>

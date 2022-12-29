@@ -40,9 +40,9 @@ const start = async () => {
 
 
 //!!    TO DO:
-//!!    1) Friends list and games with friends
-//!!    2) Admin panel (work with maps, variants, replacing images, etc)
-//??   -3) Add different difficult (timer, etc)
+//!!    1) Friends list and games with --PRIORITATE--
+//!!    2) Admin panel (work with maps, variants, replacing images, etc) --Done--
+//??   -3) Add different difficult (timer, etc) --Done--
 // IO SOKCET
 
 const server = http.createServer(app);
@@ -103,13 +103,14 @@ io.on('connection', (socket) => {
     })
 
     socket.on('START_PLAY', async ({mapId, room}) => {
-        var variantMaps = await models.VariantMap.findAll({order: sequelize.random(), limit: 5, where: {mapId}})
+        var variantMaps = await models.VariantMap.findAll({order: sequelize.random(), limit: 5, where: {mapId, active: true}})
+        console.log(variantMaps)
         gameStore.saveGame(room, variantMaps, socket.decoded.id)
     })
 
     socket.on('STARTED_PLAY', ({room}) => {
         gameStore.saveIsStartedPlay(room, true)
-        socket.emit('STARTED_PLAY', gameStore.findGame(room), gameStore.findStage(room), gameStore.findScore(room), gameStore.findAllChooses(room), gameStore.findUser(room))
+        socket.emit('STARTED_PLAY', gameStore.findGame(room), gameStore.findStage(room), gameStore.findScore(room), gameStore.findAllChooses(room), gameStore.findUser(room), gameStore.findTime(room))
     })
 
     socket.on('NEXT_MAP', ({room, score, posX, posY, truePosX, truePosY}) => {
@@ -117,9 +118,15 @@ io.on('connection', (socket) => {
             gameStore.saveChoose(room, posX, posY, truePosX, truePosY)
             gameStore.saveScore(room, gameStore.findScore(room) + score)
             gameStore.saveStage(room, gameStore.findStage(room) + 1)
-            console.log(gameStore)
+            
         }
     })
+
+    socket.on('ADD_TIME', ({room, time}) => {
+        gameStore.saveTime(room, time)
+        console.log(gameStore.findTime(room));
+    })
+
     socket.on('GET_CURR_MAPS', ({userId}) => {
         socket.emit('GET_CURR_MAPS', gameStore.findUserCurrGames(userId))
         console.log(gameStore.findUserCurrGames(userId))

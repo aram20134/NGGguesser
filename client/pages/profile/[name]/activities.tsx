@@ -19,7 +19,7 @@ interface activitiesProps {
   map: mapState;
 }
 
-const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
+const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {  
 
   return (
     <MainContainer title='Активность'>
@@ -28,20 +28,20 @@ const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
         <div className={styles.container}>
           <div className={styles.activitiesContainer}>
             <h1>Активность</h1>
-            {Object.keys(dates).map((key) => {
+            {Object.keys(dates).sort((a, b) => new Date(a).getTime() - new Date(b).getTime()).reverse().map((key) => {
               return (
                 <div key={key} className={styles.activity}>
-                  <div className={styles.lineBar}><h3>{key}</h3> <div className={styles.line}></div></div>
+                  <div className={styles.lineBar}><h3>{new Date(key).toLocaleDateString()}</h3> <div className={styles.line}></div></div>
                   {dates[key].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).reverse().map((a, i) => {
                     switch (a.action) {
                       case 'map_played':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
-                        return <div key={i} className={styles.action}><Image loading='lazy' src={mapSVG} /><p>Вы сыграли на <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link> со счётом {a.score} и заработали {Math.round(a.score / 100)} опыта</p></div>
+                        return <div key={i} className={styles.action}><Image src={mapSVG} /><p>Вы сыграли на <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link> за <b>{a.time}</b> сек со счётом <b>{a.score}</b> и заработали <b>{Math.round(a.score / 100)}</b> опыта</p></div>
                       case 'map_liked':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
-                        return <div key={i} className={styles.action}><Image loading='lazy' src={like} /><p>Вы поставили лайк на карту <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link></p></div>
+                        return <div key={i} className={styles.action}><Image src={like} /><p>Вы поставили лайк на карту <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link></p></div>
                       case 'level_up':
-                        return <div key={i} className={styles.action}><Image loading='lazy' width={32} height={32} src={lvlup} /><p>Вы повысили свой уровень <b>{a.prevLvl} {'>'} {a.nextLvl}</b></p></div>
+                        return <div key={i} className={styles.action}><Image width={32} height={32} src={lvlup} /><p>Вы повысили свой уровень <b>{a.prevLvl} {'>'} {a.nextLvl}</b></p></div>
                     }
                   }
                   )}
@@ -70,31 +70,31 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   var dates = []
   
   // Reversing dates of all activites... I know, this looks awful ^)
-
+  
   activity.user.userMapPlayeds.reverse().map((m) => {
-    var date = new Date(m.updatedAt).toLocaleDateString()
+    var date = new Date(m.createdAt).toDateString()
     if (dates[date]) {
-      dates[date] = [...dates[date], {action: 'map_played', mapId: m.mapId, score: m.score, date: m.updatedAt}]
+      dates[date] = [...dates[date], {action: 'map_played', mapId: m.mapId, time: m.time, score: m.score, date: m.createdAt}]
     } else {
-      dates[date] = [{action: 'map_played', mapId: m.mapId, score: m.score, date: m.updatedAt}]
+      dates[date] = [{action: 'map_played', mapId: m.mapId, time: m.time, score: m.score, date: m.createdAt}]
     }
   })
 
   activity.user.likes.reverse().map((l) => {
-    var date = new Date(l.updatedAt).toLocaleDateString()
+    var date = new Date(l.createdAt).toDateString()
     if (dates[date]) {
-      dates[date] = [...dates[date], {action: 'map_liked', mapId: l.mapId, date: l.updatedAt}]
+      dates[date] = [...dates[date], {action: 'map_liked', mapId: l.mapId, date: l.createdAt}]
     } else {
-      dates[date] = [{action: 'map_liked', mapId: l.mapId, date: l.updatedAt}]
+      dates[date] = [{action: 'map_liked', mapId: l.mapId, date: l.createdAt}]
     }
   })
 
   activity.user.levelUps.reverse().map((l) => {
-    var date = new Date(l.updatedAt).toLocaleDateString()
+    var date = new Date(l.createdAt).toDateString()
     if (dates[date]) {
-      dates[date] = [...dates[date], {action: 'level_up', prevLvl: l.prevLvl, nextLvl: l.nextLvl ,date: l.updatedAt}]
+      dates[date] = [...dates[date], {action: 'level_up', prevLvl: l.prevLvl, nextLvl: l.nextLvl, date: l.createdAt}]
     } else {
-      dates[date] = [{action: 'level_up', prevLvl: l.prevLvl, nextLvl: l.nextLvl ,date: l.updatedAt}]
+      dates[date] = [{action: 'level_up', prevLvl: l.prevLvl, nextLvl: l.nextLvl, date: l.createdAt}]
     }
   })
 
