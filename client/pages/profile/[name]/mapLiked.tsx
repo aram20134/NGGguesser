@@ -3,7 +3,7 @@ import MainContainer from '../../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../../store'
 import { setUserProps } from '../../../store/actions/user'
 import styles from '../../../styles/MapLiked.module.scss'
-import { getUserLikes } from '../../../api/userAPI'
+import { getUserLikesServer } from '../../../api/userAPI'
 import { Ilikes } from '../../../types/map'
 import MapChapter from '../../../components/MapChapter'
 import { setMaps } from '../../../store/actions/map'
@@ -38,7 +38,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   await dispatch(setMaps())
   var {user} = store.getState()
   var param = query.name
-  const {userLikes} = await getUserLikes(user.id)
+  const {userLikes} = await getUserLikesServer(user.id)
 
   if (param !== user.name) {
     return {

@@ -7,9 +7,8 @@ export interface userState {
     exp: number;
     auth:boolean;
     number: number,
-    gamesPlayed:number;
+    userMapPlayeds?: IuserMapPlayeds[];
     level: number;
-    avgGameScore:number;
     role: string;
     updatedAt: string;
     createdAt: string;

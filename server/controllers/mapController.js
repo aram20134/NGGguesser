@@ -75,7 +75,7 @@ class mapController {
     async getHighscore(req, res, next) {
         try {
             const {mapId} = req.params //.findAll({where: {mapId}, attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('userId')), 'userId']]})
-            var highscore = await UserMapPlayed.findAll({where: {mapId}, order:[['score', 'DESC'], ['time', 'DESC']], include: [{model: User, attributes:['name', 'avatar']}]})
+            var highscore = await UserMapPlayed.findAll({where: {mapId}, order:[['score', 'DESC'], ['time', 'ASC']], include: [{model: User, attributes:['name', 'avatar']}]})
             highscore = highscore.reduce((acc, cur) => {
                 if (!acc.find(v => v.userId == cur.userId)) {
                   acc.push(cur);

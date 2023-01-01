@@ -8,5 +8,6 @@ router.post('/changeVariantMap', auth, checkRole('ADMIN'), adminController.saveC
 router.post('/changeMap', auth, checkRole('ADMIN'), adminController.saveChangesMap)
 router.post('/addVariantMap', auth, checkRole('ADMIN'), adminController.addVariantMap)
 router.post('/deleteVariantMap', auth, checkRole('ADMIN'), adminController.deleteVariantMap)
+router.post('/setAdminUser', auth, checkRole('ADMIN'), adminController.setAdminUser)
 
 module.exports = router

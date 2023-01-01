@@ -58,7 +58,7 @@ class UserController {
     }
     async getAllUsers (req, res, next) {
         try {
-            const users = await User.findAll({include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}, {model: LevelUp}], order: [[UserMapPlayed, 'updatedAt', 'DESC'], [Like, 'updatedAt', 'DESC']]})
+            const users = await User.findAll({include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}, {model: LevelUp}], order: [[UserMapPlayed, 'updatedAt', 'DESC'], [Like, 'updatedAt', 'DESC']], attributes: {exclude: ['password']}})
             return res.json({users})
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -70,9 +70,9 @@ class UserController {
             const {userId, name} = req.body
             var user
             if (userId) {
-                user = await User.findOne({where:{id: userId}})
+                user = await User.findOne({where:{id: userId}, include: [{model: Friend}], attributes: {exclude: ['password']}})
             } else if (name) {
-                user = await User.findOne({where:{name}})
+                user = await User.findOne({where:{name}, include: [{model: Friend}], attributes: {exclude: ['password']}})
             } else {
                 next(ApiError.badRequest('Не получено ни одно значение'))
             }
@@ -105,8 +105,14 @@ class UserController {
     async getUserActivity (req, res, next) {
         try {
             const {userId} = req.body
-            const user = await User.findOne({where: {id: userId}, include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}, {model: LevelUp}], order: [[UserMapPlayed, 'updatedAt', 'DESC'], [Like, 'updatedAt', 'DESC']]})
-            return res.json({user})
+            var user = await User.findOne({where: {id: userId}, include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}, {model: LevelUp}], order: [[UserMapPlayed, 'createdAt', 'DESC'], [Like, 'createdAt', 'DESC'], [LevelUp, 'createdAt', 'DESC']]})
+            let friends = []
+
+            for (let i = 0; i < user.friends.length; i++) {
+                var a = await User.findOne({where: {id: user.friends[i].friendId}, attributes: {exclude: ['password']}})
+                friends.push(a)
+            }
+            return res.json({user, friends})
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
@@ -131,6 +137,30 @@ class UserController {
             }
             
             return res.json({message: 'success'})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+    async addFriend (req, res, next) {
+        try {
+            const {friendId} = req.body
+            const userId = req.user.id
+            // console.log(req.decoded)
+            await Friend.create({userId: friendId, friendId: userId})
+            await Friend.create({friendId, userId})
+            const test = await Friend.findAll()
+            return res.json(test)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+    async searchUsers (req, res, next) {
+        try {
+            const {search} = req.query
+            console.log(search)
+            var users = await User.findAll()
+            users = users.filter((u) => u.name.toLowerCase().includes(search.toLowerCase()))
+            res.json(users)
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }

@@ -1,7 +1,7 @@
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 3;
     left: 0;
     top: 0;
     width: 100%;
@@ -16,7 +16,7 @@
         background-color: rgb(22, 13, 51);
         padding: 20px;
         border: 1px solid #888;
-        width: 80%;
+        max-width: 80%;
         display: flex;
         justify-content: center;
         flex-direction: column;
@@ -49,12 +49,62 @@
             }
         }
     }
-    @keyframes animModal {
-        from {
-            opacity: 0;
+}
+
+.modalMini {
+    display: none;
+    position: relative;
+    z-index: 3;
+    left: 0;
+    top: 0;
+    overflow: auto;
+    align-items: center;
+    justify-content: center;
+    -webkit-animation: animModal 0.5s;
+    animation: animModal 0.5s;
+    .modalContent {
+        background-color: rgb(22, 13, 51);
+        padding: 20px;
+        border: 1px solid #888;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        .modalFooter {
+            display: flex;
+            flex-direction: row;
+            gap: 25px;
+            width: 100%;
+            justify-content: flex-end;
+            button {
+                padding: 5px 15px;
+                font-weight: bold;
+                font-size: 20px;
+                background-color: transparent;
+                cursor: pointer;
+                border: 2px solid purple;
+                border-radius: 10px;
+                transition: all 0.3s ease;
+                &:hover {
+                    background-color: rgb(86, 0, 86);
+                }
+                &:last-child {
+                    border: 2px solid darkred;
+                    &:hover {
+                        background-color: rgb(95, 0, 0);
+                    }
+                }
+            }
         }
-        to {
-            opacity: 1;
-        }
+    }
+}
+
+@keyframes animModal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }

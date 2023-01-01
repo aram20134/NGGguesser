@@ -12,12 +12,11 @@ import liked from '../../public/liked.svg'
 import people from '../../public/people.svg'
 import avgScore from '../../public/avgScore.svg'
 import mapVariant from '../../public/mapVariant.svg'
-import { delLike, setLike } from '../../api/mapAPI';
+import { delLike, findMapServer, setLike } from '../../api/mapAPI';
 import MyButtonLink from '../../components/UI/MyButtonLink';
 import { ButtonVariant } from '../../components/UI/MyButton';
 import { v4 as uuidv4 } from 'uuid';
 import Highscore from '../../components/Highscore';
-import { findMap } from './../../api/mapAPI';
 import { Imap } from '../../types/map'
 
 interface mapProps {
@@ -124,7 +123,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   var param = query.name.toLocaleString()
   param = param[0].toUpperCase() + param.slice(1)
 
-  const {map} = await findMap(param)
+  const {map} = await findMapServer(param)
   const {user} = store.getState()
 
 if (!map || !map.active) {

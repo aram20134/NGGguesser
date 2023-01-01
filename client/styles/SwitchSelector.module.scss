@@ -1,0 +1,35 @@
+.switchSelector {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    background-color: #1A1A2E;
+    padding: 10px;
+    border-radius: 10px;
+    label {
+        z-index: 2;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        span {
+            padding: 5px;
+        }
+    }
+    input {
+        display: none;
+    }
+    .inp:checked + div {
+        transform: scale(1);
+    }
+    .switch {
+        width: 100%;
+        position: absolute;
+        height: 100%;
+        top: 0;
+        z-index: -2;
+        transform: scale(0);
+        background-color: purple;
+        transition: all 0.3s ease;
+        border-radius: 5px;
+    }
+}

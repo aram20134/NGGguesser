@@ -5,7 +5,7 @@ import { NextThunkDispatch, wrapper } from '../../store'
 import { setUserProps } from '../../store/actions/user'
 import { useRouter } from 'next/router';
 import styles from '../../styles/profile[name].module.scss'
-import { findUser } from '../../api/userAPI'
+import { findUser, findUserServer } from '../../api/userAPI'
 import Image from 'next/image'
 import MyButton, { ButtonVariant } from '../../components/UI/MyButton'
 import { userState } from '../../types/user'
@@ -103,6 +103,10 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
               <h2>{loaded ? mapPlayed.reduce((acc, cur) => {return acc > cur.score ? acc : cur.score}, 0) : (<div className="mini-loader" style={{width: '35px', height:'35px'}}></div>)}</h2>
               <p>Лучшая игра</p>
             </div>
+            <div className={styles.stats}>
+              <h2>{loaded ? (mapPlayed.length >= 1 ? mapPlayed.sort((a, b) => a.time - b.time).shift().time + ' сек' : '0 сек') : (<div className="mini-loader" style={{width: '35px', height:'35px'}}></div>)}</h2>
+              <p>Самая быстрая игра</p>
+            </div>
           </div>
           <MyButton variant={ButtonVariant.outlined} click={async () => {
             router.push('/')
@@ -139,6 +143,10 @@ const Name : NextPage<NameProps> = ({user, owner}) => {
               <h2>{mapPlayed.reduce((acc, cur) => {return acc > cur.score ? acc : cur.score}, 0)}</h2>
               <p>Лучшая игра</p>
             </div>
+            <div className={styles.stats}>
+              <h2>{loaded ? (mapPlayed.length >= 1 ? mapPlayed.sort((a, b) => a.time - b.time).shift().time + ' сек' : '0 сек') : (<div className="mini-loader" style={{width: '35px', height:'35px'}}></div>)}</h2>
+              <p>Самая быстрая игра</p>
+            </div>
           </div>
         </div>
       </main>
@@ -151,9 +159,9 @@ export default Name
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
     const dispatch = store.dispatch as NextThunkDispatch
 
-    dispatch(setUserProps(req.cookies.token))
+    await dispatch(setUserProps(req.cookies.token))
     var {user} = store.getState()
-    var response = await findUser(null, query.name)
+    var response = await findUserServer(null, query.name)
 
     if (!response) {
       return {

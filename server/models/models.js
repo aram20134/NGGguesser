@@ -14,6 +14,8 @@ const User = sequelize.define("users", {
 
 const Friend = sequelize.define("friends", {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  friendId: { type: DataTypes.INTEGER },
+  active: { type: DataTypes.BOOLEAN, defaultValue: false }
 })
 
 const Map = sequelize.define('maps', {

@@ -1,7 +1,7 @@
 import { GetServerSideProps } from "next";
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { getAllUsers } from "../../../api/userAPI";
+import { getAllUsersServer } from "../../../api/userAPI";
 import MainContainer from "../../../components/MainContainer";
 import { NextThunkDispatch, wrapper } from "../../../store";
 import { setUserProps } from "../../../store/actions/user";
@@ -13,6 +13,7 @@ import { setMaps } from "../../../store/actions/map";
 import Image from "next/image";
 import mapSVG from '../../../public/mapVariant.svg'
 import people from '../../../public/people.svg'
+import MyInput from "../../../components/UI/MyInput";
 
 interface AdminPanelProps {
   user: userState;
@@ -85,7 +86,8 @@ const AdminPanel: NextPage<AdminPanelProps> = ({ user, users }) => {
             {buttonActive.name === 'users' &&
               <div className={styles.usersContainer}>
                 <p>Найдено: {allUsers.length}</p>
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Поиск по нику" type='text' className={styles.inputSearch} />
+                <MyInput myStyle={{width:'100%'}} value={search} setValue={(e) => setSearch(e.target.value)} title='Поиск по нику'  type="text" />
+                {/* <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Поиск по нику" type='text' className={styles.inputSearch} /> */}
                 <div className={styles.sortContainer}>
                   <p>Сортировать по:</p>
                   <div className={styles.sortInput}>
@@ -98,7 +100,7 @@ const AdminPanel: NextPage<AdminPanelProps> = ({ user, users }) => {
                   </div>
                 </div>
                 {allUsers.map((u) => (
-                    <UserCard user={u} key={u.id} />
+                    <UserCard user={u} key={u.id} adminMode />
                 ))}
                 {allUsers.length === 0 && <h3 style={{alignSelf: 'center'}}>Пользователь не найден</h3>}
               </div>
@@ -120,7 +122,7 @@ export const getServerSideProps: GetServerSideProps =
     await dispatch(setMaps())
     const { user } = store.getState();
     var param = query.name;
-    const {users} = await getAllUsers()
+    const {users} = await getAllUsersServer()
 
     if (param !== user.name && user.role !== "ADMIN") {
       return {

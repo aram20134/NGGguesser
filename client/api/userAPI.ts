@@ -1,5 +1,5 @@
 import jwt_decode from 'jwt-decode';
-import { authHost, host } from '.';
+import { authHost, host, localHost } from '.';
 import { setCookie } from 'cookies-next';
 
 export const reg = async (name : string, password : string) => {
@@ -13,7 +13,7 @@ export const log = async (name : string, password : string) => {
 }
 
 export const usersCount = async () => {
-    const {data} = await host.get('api/user/userscount')
+    const {data} = await localHost.get('api/user/userscount')
     return data
 }
 
@@ -27,13 +27,18 @@ export const findUser = async (userId?, name?) => {
     return data
 }
 
-export const getUserLikes = async (userId : number) => {
-    const {data} = await host.post('api/user/userlikes', {userId})
+export const findUserServer = async (userId?, name?) => {
+    const {data} = await localHost.post('api/user/findUser', {userId, name})
     return data
 }
 
-export const getUserActivity = async (userId : number) => {
-    const {data} = await host.post('api/user/useractivity', {userId})
+export const getUserLikesServer = async (userId : number) => {
+    const {data} = await localHost.post('api/user/userlikes', {userId})
+    return data
+}
+
+export const getUserActivityServer = async (userId : number) => {
+    const {data} = await localHost.post('api/user/useractivity', {userId})
     return data
 }
 
@@ -48,7 +53,21 @@ export const addExp = async (exp : number) => {
     return data
 }
 
-export const getAllUsers = async () => {
-    const {data} = await host.get('api/user')
+export const getAllUsersServer = async () => {
+    const {data} = await localHost.get('api/user')
+    return data
+}
+
+export const searchUsers = async (search) => {
+    const {data} = await host.get('api/user/searchUsers', {
+        params: {
+            search
+        }
+    })
+    return data
+}
+
+export const addFriend = async ({friendId}) => {
+    const {data} = await authHost.post('api/user/addFriend', {friendId})
     return data
 }

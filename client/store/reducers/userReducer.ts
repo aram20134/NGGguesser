@@ -7,8 +7,6 @@ const initialState : userState = {
     level: 0,
     auth: false,
     exp: 0,
-    gamesPlayed: 0,
-    avgGameScore: 0,
     avatar: 'UserNoImage.png',
     role: 'USER',
     updatedAt: '0',

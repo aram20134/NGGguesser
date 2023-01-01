@@ -1,5 +1,5 @@
 import { GetServerSideProps, NextPage } from 'next'
-import { getUserActivity } from '../../../api/userAPI'
+import { findUser, findUserServer, getUserActivityServer } from '../../../api/userAPI'
 import MainContainer from '../../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../../store'
 import { setMaps } from '../../../store/actions/map'
@@ -11,7 +11,10 @@ import mapSVG from '../../../public/mapVariant.svg'
 import like from '../../../public/liked.svg'
 import Image from 'next/image'
 import Link from 'next/link'
+import people from '../../../public/people.svg'
 import lvlup from '../../../public/lvlup.svg'
+import { useEffect, useState } from 'react'
+import UserCard from '../../../components/UserCard'
 
 interface activitiesProps {
   user: userState;
@@ -20,7 +23,24 @@ interface activitiesProps {
 }
 
 const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {  
+  const [keys, setKeys] = useState([])
+  const [date, setDate] = useState([])
+  const [loaded, setLoaded] = useState(false)
 
+  useEffect(() => {
+    // getUserActivity(1).then(res => console.log(res))
+    console.log(dates)
+    setKeys(Object.keys(dates).sort((a, b) => new Date(a).getTime() - new Date(b).getTime()).reverse())
+  }, [])
+  
+  useEffect(() => {
+    setDate(keys.map((key) => dates[key].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).reverse()))
+  }, [keys])
+
+  useEffect(() => {
+    setLoaded(true)
+  }, [date])
+  
   return (
     <MainContainer title='Активность'>
       <main className={styles.activities}>
@@ -28,11 +48,11 @@ const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
         <div className={styles.container}>
           <div className={styles.activitiesContainer}>
             <h1>Активность</h1>
-            {Object.keys(dates).sort((a, b) => new Date(a).getTime() - new Date(b).getTime()).reverse().map((key) => {
+            {loaded ? keys.map((key, i) => {
               return (
                 <div key={key} className={styles.activity}>
                   <div className={styles.lineBar}><h3>{new Date(key).toLocaleDateString()}</h3> <div className={styles.line}></div></div>
-                  {dates[key].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).reverse().map((a, i) => {
+                  {date[i]?.map((a, i) => {
                     switch (a.action) {
                       case 'map_played':
                         var m = map.maps.filter((m) => m.id === a.mapId)[0]
@@ -42,12 +62,17 @@ const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
                         return <div key={i} className={styles.action}><Image src={like} /><p>Вы поставили лайк на карту <Link href={`/map/${m.name.toLowerCase()}`}>{m.name}</Link></p></div>
                       case 'level_up':
                         return <div key={i} className={styles.action}><Image width={32} height={32} src={lvlup} /><p>Вы повысили свой уровень <b>{a.prevLvl} {'>'} {a.nextLvl}</b></p></div>
+                      case 'add_friend':
+                        return <div key={i} className={styles.action}><Image width={32} height={32} src={people} />
+                          <p>Вы добавили друга: </p>
+                          <Link href={`/profile/${a.name}`}><a>{a.name} - {a.id}</a></Link>
+                        </div>
                     }
                   }
                   )}
                 </div>
               )
-            })}
+            }): <div className='loader'></div>}
           </div>
         </div>
       </main>
@@ -66,12 +91,22 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
   
   var {user, map} = store.getState()
   var param = query.name
-  const activity = await getUserActivity(user.id)
+  const activity = await getUserActivityServer(user.id)
   var dates = []
-  
+  var friends = activity.friends.reverse()
   // Reversing dates of all activites... I know, this looks awful ^)
+
+  activity.user.friends.reverse().map((f, i) => {
+    var date = new Date(f.createdAt).toDateString()
+
+    if (dates[date]) {
+      dates[date] = [...dates[date], {action: 'add_friend', ...friends[i], date: f.createdAt}]
+    } else {
+      dates[date] = [{action: 'add_friend', ...friends[i], date: f.createdAt}]
+    }
+  })
   
-  activity.user.userMapPlayeds.reverse().map((m) => {
+  activity.user.userMapPlayeds.map((m) => {
     var date = new Date(m.createdAt).toDateString()
     if (dates[date]) {
       dates[date] = [...dates[date], {action: 'map_played', mapId: m.mapId, time: m.time, score: m.score, date: m.createdAt}]
@@ -80,7 +115,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
     }
   })
 
-  activity.user.likes.reverse().map((l) => {
+  activity.user.likes.map((l) => {
     var date = new Date(l.createdAt).toDateString()
     if (dates[date]) {
       dates[date] = [...dates[date], {action: 'map_liked', mapId: l.mapId, date: l.createdAt}]
@@ -89,7 +124,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
     }
   })
 
-  activity.user.levelUps.reverse().map((l) => {
+  activity.user.levelUps.map((l) => {
     var date = new Date(l.createdAt).toDateString()
     if (dates[date]) {
       dates[date] = [...dates[date], {action: 'level_up', prevLvl: l.prevLvl, nextLvl: l.nextLvl, date: l.createdAt}]
@@ -106,6 +141,7 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
       notFound: true
     }
   }
+  
   return {
     props: {user, dates: {...reverse}, map}
   }

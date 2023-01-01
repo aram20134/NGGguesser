@@ -6,13 +6,14 @@ interface MyInputProps {
     value?: string;
     setValue: Function;
     description?: string;
+    myStyle?: object;
 }
 
-const MyInput : React.FC<MyInputProps> = ({title, type, value, setValue, description}) => {
+const MyInput : React.FC<MyInputProps> = ({title, type, value, setValue, description, myStyle}) => {
   return (
     <div className={styles.col}>
         <p>{title}</p>
-        <input value={value} onChange={(e : React.FormEvent<HTMLInputElement>) => setValue(e)} className={styles.inp} type={type} />
+        <input style={{...myStyle}} value={value} onChange={(e : React.FormEvent<HTMLInputElement>) => setValue(e)} className={styles.inp} type={type} />
         <span className={styles.desc}>{description}</span>
     </div>
   )

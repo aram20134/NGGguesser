@@ -1,7 +1,7 @@
 const uuid = require('uuid')
 const path = require('path')
 const ApiError = require('../error/ApiError');
-const { Map, Like, VariantMap, UserMapPlayed } = require('../models/models');
+const { Map, Like, VariantMap, UserMapPlayed, User } = require('../models/models');
 const fs = require('fs');
 
 class adminController {
@@ -21,7 +21,7 @@ class adminController {
     async saveChangesMap (req, res, next) {
         try {
             const {active, id} = req.body
-            const map = await Map.update({active}, {where:{id}})
+            await Map.update({active}, {where:{id}})
             console.log(active);
 
             return res.json({message: 'Успешно'})
@@ -48,11 +48,19 @@ class adminController {
     async deleteVariantMap (req, res, next) {
         try {
             const {id} = req.body
-            console.log(id)
             const {image} = await VariantMap.findOne({where: {id}})
             await VariantMap.destroy({where: {id}})
             fs.unlinkSync(path.resolve(__dirname, '..', 'static/variantMaps', image))
 
+            return res.json({message: 'Успешно'})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+    async setAdminUser (req, res, next) {
+        try {
+            const {id, role} = req.body
+            await User.update({role}, {where: {id}})
             return res.json({message: 'Успешно'})
         } catch (e) {
             next(ApiError.badRequest(e.message))

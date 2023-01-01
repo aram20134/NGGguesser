@@ -10,15 +10,11 @@ const path = require('path')
 const errorHandle = require('./middleware/ErrorHandle')
 const { Server } = require("socket.io");
 const http = require('http');
-const ApiError = require('./error/ApiError')
-const uuid = require('uuid');
 const sessionHandler = require('./middleware/sessionHandler');
 const gameStore = require('./socketStore/gameStore');
-const sessionStore = require('./socketStore/sessionStore');
 
 const PORT = 5002 || procces.env.PORT
 const app = express()
-
 
 app.use(cors())
 app.use(express.json())
@@ -39,10 +35,12 @@ const start = async () => {
 }
 
 
-//!!    TO DO:
-//!!    1) Friends list and games with --PRIORITATE--
-//!!    2) Admin panel (work with maps, variants, replacing images, etc) --Done--
-//??   -3) Add different difficult (timer, etc) --Done--
+//     TODO:
+//*    1) Friends list --Done--
+//*    2) Admin panel (work with maps, variants, replacing images, etc) --Done--
+//*    3) Add different difficul (timer, etc) --Done--
+//?    4) Games with friends
+//?    5) Different modes
 // IO SOKCET
 
 const server = http.createServer(app);
@@ -60,13 +58,10 @@ server.listen(5003, () => {
 io.use(JWTcheck)
 io.use(sessionHandler)
 
-setInterval(() => {
-    gameStore.clearGames()
-}, 86400000); // 24h
-
 io.on('connection', (socket) => {
     console.log('connected - ', socket?.decoded?.name)
     socket.join(socket.sessionID)
+    socket.join(socket?.decoded?.id)
 
     socket.on('USER_ONLINE', () => {
         var logUsers = []
@@ -107,7 +102,6 @@ io.on('connection', (socket) => {
         console.log(variantMaps)
         gameStore.saveGame(room, variantMaps, socket.decoded.id)
     })
-
     socket.on('STARTED_PLAY', ({room}) => {
         gameStore.saveIsStartedPlay(room, true)
         socket.emit('STARTED_PLAY', gameStore.findGame(room), gameStore.findStage(room), gameStore.findScore(room), gameStore.findAllChooses(room), gameStore.findUser(room), gameStore.findTime(room))
@@ -118,12 +112,11 @@ io.on('connection', (socket) => {
             gameStore.saveChoose(room, posX, posY, truePosX, truePosY)
             gameStore.saveScore(room, gameStore.findScore(room) + score)
             gameStore.saveStage(room, gameStore.findStage(room) + 1)
-            
         }
     })
 
     socket.on('ADD_TIME', ({room, time}) => {
-        gameStore.saveTime(room, time)
+        gameStore.saveTime(room, time + 1)
         console.log(gameStore.findTime(room));
     })
 
@@ -135,6 +128,11 @@ io.on('connection', (socket) => {
     socket.on('DEL_CURR_MAP', ({room}) => {
         gameStore.clearGame(room)
         console.log(gameStore);
+    })
+
+    socket.on('ADD_FRIEND', ({from, to}) => {
+        console.log('add')
+        socket.to(to).emit('ADD_FRIEND', from)
     })
 })
 

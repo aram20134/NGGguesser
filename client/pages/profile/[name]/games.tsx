@@ -4,6 +4,7 @@ import MainContainer from '../../../components/MainContainer'
 import Alert, { AlertVariant } from '../../../components/UI/Alert'
 import MyButton, { ButtonVariant } from '../../../components/UI/MyButton'
 import MyButtonLink from '../../../components/UI/MyButtonLink'
+import Tooltip from '../../../components/UI/Tooltip'
 import { NextThunkDispatch, wrapper } from '../../../store'
 import { setMaps } from '../../../store/actions/map'
 import { setUserProps } from '../../../store/actions/user'
@@ -78,7 +79,9 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
                     </div>
                   </div>
                   <hr />
-                  <p>{new Date(curr.dateStart).toLocaleDateString() === new Date().toLocaleDateString() ? 'Сегодня' : 'Вчера'} - Раунд {curr.stage + 1} / 5</p>
+                  <Tooltip title={new Date(curr.dateStart).toLocaleDateString() + ' ' + new Date(curr.dateStart).toLocaleTimeString()}>
+                    <p>{new Date(curr.dateStart).toLocaleDateString() === new Date().toLocaleDateString() ? 'Сегодня' : 'Вчера'} - Раунд {curr.stage + 1} / 5</p>
+                  </Tooltip>
                   <p>Счёт - {curr.score}</p>
                   <p>Время - {curr.time}s</p>
                 </div>
@@ -86,6 +89,7 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
             })}
           </div>
           {currGames.length < 1 && <h4>У вас нет начатых игр</h4>}
+          {currGames.length >= 1 && <Alert variant={AlertVariant.warning} title='Успей закончить игры!'>Незаконченные игры удаляются через 2 дня с момента начала игры.</Alert>}
         </div>
       </main>
     </MainContainer>

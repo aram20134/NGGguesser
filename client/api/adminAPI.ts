@@ -25,3 +25,8 @@ export const deleteVariantMap = async ({id}) => {
     const {data} = await authHost.post('api/admin/deleteVariantMap', {id})
     return data
 }
+
+export const setAdminUser = async ({id, role}) => {
+    const {data} = await authHost.post('api/admin/setAdminUser', {id, role})
+    return data
+}

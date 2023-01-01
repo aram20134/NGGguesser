@@ -32,7 +32,7 @@ const Play : NextPage<playProps> = () => {
   const [positions, setPositions] = useState<{posX: number, posY: number, truePosX: number, truePosY: number}>()
   const [allChoses, setAllChoses] = useState<[{posX: number, posY: number, truePosX: number, truePosY: number}]>()
   const [checkAllChoses, setCheckAllChoses] = useState(false)
-  const [time, setTime] = useState(0)
+  const [time, setTime] = useState(1)
 
   const {maps} = useTypedSelector(st => st.map)
   const {id} = useTypedSelector(st => st.user)
@@ -43,20 +43,19 @@ const Play : NextPage<playProps> = () => {
 
   useEffect(() => {
     let timer
-    if (choseChecked) {
+    if (choseChecked && socket.connected) {
+      // socket.emit('ADD_TIME', {room: router.query.name, time})
       clearTimeout(timer)
-    } else {
+    } else if (socket.connected) {
       timer = setTimeout(() => {
-        if (socket.connected) {
-          socket.emit('ADD_TIME', {room: router.query.name, time})
-        }
         setTime(prev => prev + 1)
+        socket.emit('ADD_TIME', {room: router.query.name, time})
       }, 1000)
     }
     return () => {
       clearTimeout(timer)
     }
-  }, [time])
+  }, [time, socket])
 
   useEffect(() => {
     if (socket.connected) {

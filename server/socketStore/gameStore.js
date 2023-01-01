@@ -47,6 +47,12 @@ class gameStore {
     this.user.set(room, userId)
     this.isStartedPlay.set(room, false)
     this.time.set(room, 0)
+
+    var timeout = setTimeout(() => {
+      this.clearGame(room)
+      console.log('cleared game')
+      clearTimeout(timeout)
+    }, 172800000) // 48h
   }
 
   saveChoose(room, posX, posY, truePosX, truePosY) {
@@ -89,6 +95,7 @@ class gameStore {
     this.stage.clear()
     this.score.clear()
     this.chooses.clear()
+    this.time.clear()
     this.dateStart.clear()
     this.user.clear()
     this.isStartedPlay.clear()
@@ -98,6 +105,7 @@ class gameStore {
     this.games.delete(room)
     this.score.delete(room)
     this.chooses.delete(room)
+    this.time.delete(room)
     this.dateStart.delete(room)
     this.user.delete(room)
     this.isStartedPlay.delete(room)

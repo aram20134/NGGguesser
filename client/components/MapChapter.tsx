@@ -11,13 +11,14 @@ import Tooltip from "./UI/Tooltip";
 import { Ilikes, Imap, IvariantMaps } from "../types/map";
 import Draggable from "react-draggable";
 import { addVariantMap, changeMap, changeVariantMap, deleteVariantMap } from "../api/adminAPI";
-import Alert, { AlertVariant } from "./UI/Alert";
+import { AlertVariant } from "./UI/Alert";
 import save from '../public/save.svg'
 import MyInput from "./UI/MyInput";
 import dynamic from "next/dynamic";
 
 const DynamicModal = dynamic(() => import('../components/UI/Modal'))
 const ScoreBar = dynamic(() => import('../components/UI/ScoreBar'))
+const Alert = dynamic(() => import('./UI/Alert'))
 
 interface MapChapterProps {
   title: string;
@@ -306,8 +307,8 @@ const MapChapter: React.FC<MapChapterProps> = ({title, phase, likes, adminMode})
                 : (
                   <div className="loader"></div>
                 )}
-                {fetching.message && <Alert title="Сохранено" variant={AlertVariant.success}>Все изменения успешно сохранены</Alert>}
-                {variantActive && !fetching.message && <Alert title="Внимание!" variant={AlertVariant.warning}>При нажатии кнопки "Сохранить", сохраняется только последняя изменённая карта! <br /> При редактировании нескольких карт изменяйте их поочередно.</Alert>}
+                {fetching.message && <Alert title={`Сохранено`} variant={AlertVariant.success}>Все изменения успешно сохранены</Alert>}
+                {variantActive && !fetching.message && <Alert title={`Внимание!`} variant={AlertVariant.warning}>При нажатии кнопки &quot;Сохранить&quot;, сохраняется только последняя изменённая карта! <br /> При редактировании нескольких карт изменяйте их поочередно.</Alert>}
                 <div className={styles.adminCardInfo}>
                   <p style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                     <b>Статус: </b> 

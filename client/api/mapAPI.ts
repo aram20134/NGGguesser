@@ -1,9 +1,9 @@
 import jwt_decode from 'jwt-decode';
-import { authHost, host } from '.';
+import { authHost, host, localHost } from '.';
 import { setCookie } from 'cookies-next';
 
-export const getMaps = async () => {
-    const {data} = await host.get('api/map/get')
+export const getMapsServer = async () => {
+    const {data} = await localHost.get('api/map/get')
     return data
 }
 
@@ -32,7 +32,7 @@ export const getHighscore = async (mapId : number) => {
     return data
 }
 
-export const findMap = async (name : string) => {
-    const {data} = await host.get(`api/map/findMap/${name}`)
+export const findMapServer = async (name : string) => {
+    const {data} = await localHost.get(`api/map/findMap/${name}`)
     return data
 }

@@ -1,5 +1,5 @@
 import { Dispatch } from "react"
-import { host } from "../../api"
+import { host, localHost } from "../../api"
 import { checkUser } from "../../api/userAPI"
 import jwt_decode from 'jwt-decode';
 import { userAction, userActionTypes, userState } from "../../types/user"
@@ -25,7 +25,7 @@ export const setUserProps = (token) => {
                     authorization: `Bearer ${token}`
                 }
             }
-            const {data} = await host.get('api/user/check', config)
+            const {data} = await localHost.get('api/user/check', config)
             dispacth({type: userActionTypes.SET_USER, payload: jwt_decode(data.token)})
         } catch (e) {
             console.log(e.message)
