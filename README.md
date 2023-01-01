@@ -1,5 +1,5 @@
 # NGGguesser - WORK IN PROGRESS
-DEMO PREVIEW - https://guesser.swrpngg.space/ 
+DEMO PREVIEW - https://swrpngg.ru
 
 
 NGGguesser is similar to the popular site https://www.geoguessr.com/
