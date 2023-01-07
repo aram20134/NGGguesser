@@ -4,7 +4,7 @@ import MainContainer from '../../components/MainContainer'
 import { NextThunkDispatch, wrapper } from '../../store'
 import { setMaps } from '../../store/actions/map'
 import { setUserProps } from '../../store/actions/user'
-import styles from '../../styles/Name[id].module.scss'
+import styles from '../../styles/Play.module.scss'
 import { Viewer } from 'photo-sphere-viewer';
 import PositionPicker from '../../components/PositionPicker'
 import { Imap, IvariantMaps } from '../../types/map'
@@ -44,12 +44,12 @@ const Play : NextPage<playProps> = () => {
   useEffect(() => {
     let timer
     if (choseChecked && socket.connected) {
-      // socket.emit('ADD_TIME', {room: router.query.name, time})
+      socket.emit('ADD_TIME', {room: router.query.name, time})
       clearTimeout(timer)
     } else if (socket.connected) {
       timer = setTimeout(() => {
         setTime(prev => prev + 1)
-        socket.emit('ADD_TIME', {room: router.query.name, time})
+        socket.emit('ADD_TIME', {room: router.query.uuid, time})
       }, 1000)
     }
     return () => {
@@ -59,12 +59,10 @@ const Play : NextPage<playProps> = () => {
 
   useEffect(() => {
     if (socket.connected) {
-      socket.emit('STARTED_PLAY', {room: router.query.name})
+      socket.emit('STARTED_PLAY', {room: router.query.uuid})
 
       socket.on('STARTED_PLAY', (data, stage, score, chooses, userId, time) => {
         setTime(time)
-        console.log(time);
-        
         if (userId !== id) {
           router.replace('/404')
         }
@@ -89,13 +87,12 @@ const Play : NextPage<playProps> = () => {
       })
       
       if (choseChecked && stage <= 4) {
-        socket.emit('NEXT_MAP', {room: router.query.name, score: score, posX: positions.posX, posY: positions.posY, truePosX: positions.truePosX, truePosY: positions.truePosY})
+        socket.emit('NEXT_MAP', {room: router.query.uuid, score: score, posX: positions.posX, posY: positions.posY, truePosX: positions.truePosX, truePosY: positions.truePosY})
       }
 
       if (choseChecked && stage == 4) {
-        socket.emit('STARTED_PLAY', {room: router.query.name})
+        socket.emit('STARTED_PLAY', {room: router.query.uuid})
         UserMapPlayed({score: allScore + score, mapId: map.id, time})
-        console.log('end')
         if (map.difficult === 'hard') {
           addExp(Math.round((allScore + score) / 20))
         } else if (map.difficult === 'medium') {
@@ -139,6 +136,7 @@ const Play : NextPage<playProps> = () => {
       <MainContainer title={loaded ? `Игра на ${map.name}` : 'Загрузка игры...'}>
         <main className={styles.container}>
           <div className={styles.bg}></div>
+          <div>sdsdsd</div>
           {loaded ?
             <div id='viewer' style={{width: '100%', height: choseChecked ? '60vh' : '75vh', position: 'relative', overflow: 'hidden'}}>
                <PositionPicker allChoses={checkAllChoses} last={stage === 5 ? true : false} allPositions={allChoses} setPositions={setPositions} setLineWidth={setLineWidth} setScore={setScore} choseChecked={choseChecked} setChoseChecked={(arg) => setChoseChecked(arg)}  map={map} variantMap={variantMaps[stage]} />
@@ -190,19 +188,19 @@ const Play : NextPage<playProps> = () => {
 export default Play
 
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res, query}) => {
-    const dispatch = store.dispatch as NextThunkDispatch
+  const dispatch = store.dispatch as NextThunkDispatch
 
-    await dispatch(setMaps())
-    await dispatch(setUserProps(req.cookies.token))
-    var {user} = store.getState()
+  await dispatch(setMaps())
+  await dispatch(setUserProps(req.cookies.token))
+  var {user} = store.getState()
 
-    if (!user.auth) {
-      return {
-        redirect: {destination: '/', permanent: true}
-      }
-    }
-    
+  if (!user.auth) {
     return {
-      props: {}
+      redirect: {destination: '/', permanent: true}
     }
-  })
+  }
+  
+  return {
+    props: {}
+  }
+})

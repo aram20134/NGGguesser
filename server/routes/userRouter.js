@@ -16,6 +16,8 @@ router.post('/exp', auth, userController.addExp)
 router.get('/', userController.getAllUsers)
 router.post('/addFriend', auth, userController.addFriend)
 router.get('/searchUsers', userController.searchUsers)
+router.post('/delFriend', auth, userController.delFriend)
+router.post('/getFriends', auth, userController.getFriends)
 // router.get('/id', userController.getUserId)
 // router.get('/name', userController.getUserName)
 

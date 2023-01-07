@@ -12,6 +12,8 @@ const { Server } = require("socket.io");
 const http = require('http');
 const sessionHandler = require('./middleware/sessionHandler');
 const gameStore = require('./socketStore/gameStore');
+const gameFriendsStore = require('./socketStore/gameFriendsStore');
+const { randomUUID } = require('crypto');
 
 const PORT = 5002 || procces.env.PORT
 const app = express()
@@ -99,12 +101,82 @@ io.on('connection', (socket) => {
 
     socket.on('START_PLAY', async ({mapId, room}) => {
         var variantMaps = await models.VariantMap.findAll({order: sequelize.random(), limit: 5, where: {mapId, active: true}})
-        console.log(variantMaps)
         gameStore.saveGame(room, variantMaps, socket.decoded.id)
     })
+
+    socket.on('START_PLAY_FRIENDS', async ({room}) => {
+        gameFriendsStore.saveLobby(room, socket.decoded.id)
+    })
+    
     socket.on('STARTED_PLAY', ({room}) => {
         gameStore.saveIsStartedPlay(room, true)
         socket.emit('STARTED_PLAY', gameStore.findGame(room), gameStore.findStage(room), gameStore.findScore(room), gameStore.findAllChooses(room), gameStore.findUser(room), gameStore.findTime(room))
+    })
+
+    socket.on('LOBBY_FRIENDS_START_GAME', async (room, mapId) => {
+        var variantMaps = await models.VariantMap.findAll({order: sequelize.random(), limit: 5, where: {mapId, active: true}})
+        const friends = gameFriendsStore.findFriends(room)
+        var roomGame = randomUUID()
+        gameFriendsStore.saveGame(roomGame, variantMaps, socket.decoded.id, friends)
+        gameFriendsStore.clearLobby(room)
+        socket.to(room).emit('LOBBY_FRIENDS_START_GAME', roomGame)
+        socket.emit('LOBBY_FRIENDS_START_GAME', roomGame)
+    })
+
+    socket.on('STARTED_PLAY_FRIENDS', (room) => {
+        socket.join(room)
+        gameFriendsStore.saveIsStartedPlay(room, true)
+        const chooses = gameFriendsStore.findAllChooses(room)
+        const friends = gameFriendsStore.findFriends(room)
+        let count = 0
+        var stage = gameFriendsStore.findStage(room)
+        chooses?.map((c) => {
+            if (c.stage === stage) {
+                count = count + 1
+            }
+        })
+        var gameEnd = friends.length + 1 === count
+        console.log(gameEnd)
+        socket.emit('STARTED_PLAY_FRIENDS', gameFriendsStore.findGame(room), gameFriendsStore.findStage(room), gameFriendsStore.findScore(room), gameFriendsStore.findAllChooses(room), gameFriendsStore.findUser(room), gameFriendsStore.findTime(room), gameFriendsStore.findFriends(room), gameEnd)
+    })
+
+    socket.on('LOBBY_FRIENDS', ({room}, friend) => {
+        socket.join(room)
+        const host = gameFriendsStore.findUser(room)
+        if (host !== friend.id) {
+            const friends = gameFriendsStore.findFriends(room)
+            const check = friends?.every((f) => f.id !== friend.id)
+            check && gameFriendsStore.saveFriend(room, {...friend, ready: false, time: 0})
+        }
+        gameFriendsStore.saveFriendAll(room, gameFriendsStore.findFriends(room)?.filter((f) => f.id))
+        socket.to(room).emit('LOBBY_FRIENDS', gameFriendsStore.findUser(room), gameFriendsStore.findFriends(room))
+        socket.emit('LOBBY_FRIENDS', gameFriendsStore.findUser(room), gameFriendsStore.findFriends(room))
+    })
+
+    socket.on('LOBBY_FRIENDS_READY', (room, user, ready) => {
+        const friends = gameFriendsStore.findFriends(room)
+        const id = gameFriendsStore.findUser(room)
+        id === user.id && gameFriendsStore.saveUserReady(room, ready)
+        gameFriendsStore.saveFriendAll(room, friends.map((f) => {
+            if (f.id === user.id) {
+                return {...f, ready: ready}
+            } else {
+                return f
+            }
+        }))
+        socket.to(room).emit('LOBBY_FRIENDS_READY', gameFriendsStore.findFriends(room), gameFriendsStore.findUserReady(room))
+        socket.emit('LOBBY_FRIENDS_READY', gameFriendsStore.findFriends(room), gameFriendsStore.findUserReady(room))
+    })
+
+    socket.on('LOBBY_FRIENDS_LEAVE', (room, friend) => {
+        const friends = gameFriendsStore.findFriends(room)
+        const host = gameFriendsStore.findUser(room)
+        if (host === friend.id) {
+            gameFriendsStore.clearLobby(room)
+        } else {
+            gameFriendsStore.saveFriendAll(room, friends.filter((f) => f.id !== friend.id))
+            socket.to(room).emit('LOBBY_FRIENDS', gameFriendsStore.findUser(room), gameFriendsStore.findFriends(room))
+        }
     })
 
     socket.on('NEXT_MAP', ({room, score, posX, posY, truePosX, truePosY}) => {
@@ -115,24 +187,76 @@ io.on('connection', (socket) => {
         }
     })
 
+    socket.on('NEXT_MAP_FRIENDS', (room) => {
+        const stage = gameFriendsStore.findStage(room)
+        if (stage <= 5) {
+            socket.emit('NEXT_MAP_FRIENDS')
+            socket.to(room).emit('NEXT_MAP_FRIENDS')
+            gameFriendsStore.saveStage(room, gameFriendsStore.findStage(room) + 1)
+        }
+    })
+
+    socket.on('FRIEND_MAP_CHECKED', (room, {id, name, score, posX, posY, truePosX, truePosY, stage, lineWidth}) => {
+        if (gameFriendsStore.findStage(room) <= 5) {
+            console.log(id, name, score, posX, posY, truePosX, truePosY, stage, lineWidth)
+            gameFriendsStore.saveChoose(room, id, name, score, posX, posY, truePosX, truePosY, stage, lineWidth)
+            const chooses = gameFriendsStore.findAllChooses(room)
+            const friends = gameFriendsStore.findFriends(room)
+            let count = 0
+            chooses.map((c) => {
+                if (c.stage === stage) {
+                    count = count + 1
+                }
+            })
+            var gameEnd = friends.length + 1 === count
+            socket.to(room).emit('FRIEND_MAP_CHECKED', gameFriendsStore.findAllChooses(room), gameEnd)
+            socket.emit('FRIEND_MAP_CHECKED', gameFriendsStore.findAllChooses(room), gameEnd)
+        }
+    })
+
     socket.on('ADD_TIME', ({room, time}) => {
         gameStore.saveTime(room, time + 1)
-        console.log(gameStore.findTime(room));
+    })
+
+    socket.on('ADD_TIME_FRIEND' , (room, id, time) => {
+        const friends = gameFriendsStore.findFriends(room)
+        const hostId = gameFriendsStore.findUser(room)
+        if (hostId === id) {
+            gameFriendsStore.saveTime(room, time + 1)
+        } else {
+            gameFriendsStore.saveFriendAll(room, friends?.map((f) => {
+                if (f.id === id) {
+                    return {...f, time: time + 1}
+                }
+                return f
+            }))
+        }
+        socket.emit('ADD_TIME_FRIEND', gameFriendsStore.findFriends(room), gameFriendsStore.findTime(room))
+        socket.to(room).emit('ADD_TIME_FRIEND', gameFriendsStore.findFriends(room), gameFriendsStore.findTime(room))
     })
 
     socket.on('GET_CURR_MAPS', ({userId}) => {
         socket.emit('GET_CURR_MAPS', gameStore.findUserCurrGames(userId))
-        console.log(gameStore.findUserCurrGames(userId))
     })
     
     socket.on('DEL_CURR_MAP', ({room}) => {
         gameStore.clearGame(room)
-        console.log(gameStore);
     })
 
     socket.on('ADD_FRIEND', ({from, to}) => {
-        console.log('add')
         socket.to(to).emit('ADD_FRIEND', from)
+    })
+    socket.on('INVITE_GAME', ({from, to, map, lobby}) => {
+        socket.to(to).emit('INVITE_GAME', from, map, lobby)
+    })
+
+    socket.on('ADDED_FRIEND', (id) => {
+        socket.to(id).emit('ADDED_FRIEND')
+        socket.emit('ADDED_FRIEND')
+    })
+
+    socket.on('FRIEND_DELETED', (id) => {
+        socket.to(id).emit('FRIEND_DELETED')
     })
 })
 

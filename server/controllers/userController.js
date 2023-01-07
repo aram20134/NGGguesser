@@ -107,11 +107,11 @@ class UserController {
             const {userId} = req.body
             var user = await User.findOne({where: {id: userId}, include: [{model: Friend}, {model: UserMapPlayed}, {model: Like}, {model: LevelUp}], order: [[UserMapPlayed, 'createdAt', 'DESC'], [Like, 'createdAt', 'DESC'], [LevelUp, 'createdAt', 'DESC']]})
             let friends = []
-
             for (let i = 0; i < user.friends.length; i++) {
                 var a = await User.findOne({where: {id: user.friends[i].friendId}, attributes: {exclude: ['password']}})
                 friends.push(a)
             }
+
             return res.json({user, friends})
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -154,6 +154,34 @@ class UserController {
             next(ApiError.badRequest(e.message))
         }
     }
+
+    async delFriend (req, res, next) {
+        try {
+            const {id} = req.body
+            await Friend.destroy({where: {friendId: id}})
+            await Friend.destroy({where: {userId: id}})
+
+            return res.json({message: 'Успешно'})
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async getFriends (req, res, next) {
+        try {
+            const {id} = req.user
+            const user = await User.findOne({where: {id}, include: {model: Friend}})
+            let friends = []
+            for (let i = 0; i < user.friends.length; i++) {
+                var a = await User.findOne({where: {id: user.friends[i].friendId}, attributes: {exclude: ['password']}})
+                friends.push(a)
+            }
+            return res.json(friends)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
     async searchUsers (req, res, next) {
         try {
             const {search} = req.query

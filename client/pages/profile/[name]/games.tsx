@@ -70,7 +70,7 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
           <div className={styles.currGames}>
             {currGames.map((curr) => {
               return (
-                <div id='currGame' key={curr.dateStart} className={styles.currGame}>
+                <div key={curr.dateStart} className={styles.currGame}>
                   <div className={styles.row}>
                     <h2>{map.maps.map((m) => m.id === curr.mapId ? m.name : '' )}</h2>
                     <div className={styles.buttonsContainer}>
@@ -78,8 +78,8 @@ const Games : NextPage<gamesProps> = ({user, map}) => {
                       <MyButton myStyle={{fontSize: '18px', padding: '5px 15px', background: 'red'}} variant={ButtonVariant.primary} click={(e) => delCurrMap(e, curr.room)}>Удалить</MyButton>
                     </div>
                   </div>
-                  <hr />
-                  <Tooltip title={new Date(curr.dateStart).toLocaleDateString() + ' ' + new Date(curr.dateStart).toLocaleTimeString()}>
+                  <hr style={{width:'100%'}} />
+                  <Tooltip myStyle={{justifyContent:'flex-start'}} title={new Date(curr.dateStart).toLocaleDateString() + ' ' + new Date(curr.dateStart).toLocaleTimeString()}>
                     <p>{new Date(curr.dateStart).toLocaleDateString() === new Date().toLocaleDateString() ? 'Сегодня' : 'Вчера'} - Раунд {curr.stage + 1} / 5</p>
                   </Tooltip>
                   <p>Счёт - {curr.score}</p>

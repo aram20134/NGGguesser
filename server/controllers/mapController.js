@@ -1,7 +1,7 @@
 const uuid = require('uuid')
 const path = require('path')
 const ApiError = require('../error/ApiError');
-const { Map, Like, VariantMap, UserMapPlayed, User } = require('../models/models');
+const { Map, Like, VariantMap, UserMapPlayed, User, Friend } = require('../models/models');
 const {Sequelize} = require('sequelize');
 
 class mapController {
@@ -72,6 +72,7 @@ class mapController {
             next(ApiError.badRequest(e.message))
         }
     }
+
     async getHighscore(req, res, next) {
         try {
             const {mapId} = req.params //.findAll({where: {mapId}, attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('userId')), 'userId']]})
@@ -81,12 +82,32 @@ class mapController {
                   acc.push(cur);
                 }
                 return acc;
-              }, []);
+            }, []);
+            highscore = highscore.slice(0, 5)
             return res.json(highscore)
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
     }
+
+    async getFriendsHighScore (req, res, next) {
+        try {
+            const {id} = req.user
+            const {mapId} = req.params 
+            var friends = []
+            var user = await User.findOne({where: {id}, include: [{model: Friend}]})
+            
+            for (let i = 0; i < user.friends.length; i++) {
+                var a = await User.findOne({where: {id: user.friends[i].friendId}, attributes: {exclude: ['password']}, include: [{model: UserMapPlayed, where: {mapId}}], order:[[UserMapPlayed, 'score', 'DESC'], [UserMapPlayed, 'time', 'ASC']]})
+                friends.push({name: a?.name, avatar: a?.avatar, score: a?.userMapPlayeds[0].score, time: a?.userMapPlayeds[0].time})
+            }
+            friends = friends.filter((f) => f.name)
+            res.json(friends)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
     async findMap(req, res, next) {
         try {
             const {name} = req.params

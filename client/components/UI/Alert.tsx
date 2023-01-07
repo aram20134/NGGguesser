@@ -13,12 +13,13 @@ interface AlertProps {
     children: React.ReactNode;
     variant: AlertVariant;
     title: string;
+    myStyle?: Object;
 }
 
-const Alert : React.FC<AlertProps> = ({children, variant, title}) => {
+const Alert : React.FC<AlertProps> = ({children, variant, title, myStyle}) => {
   if (variant === AlertVariant.danger) {
     return (
-        <div className={styles.danger}>
+        <div style={myStyle} className={styles.danger}>
             <img src={danger.src} />
             <h2>{title}</h2>
             <p>{children}</p>
@@ -26,7 +27,7 @@ const Alert : React.FC<AlertProps> = ({children, variant, title}) => {
       )
   } else if (variant === AlertVariant.warning) {
     return (
-        <div className={styles.warning}>
+        <div style={myStyle} className={styles.warning}>
             <img src={warning.src} />
             <h2>{title}</h2>
             <p>{children}</p>
@@ -34,7 +35,7 @@ const Alert : React.FC<AlertProps> = ({children, variant, title}) => {
       )
   } else {
     return (
-        <div className={styles.success}>
+        <div style={myStyle} className={styles.success}>
             <img src={check.src} />
             <h2>{title}</h2>
             <p>{children}</p>

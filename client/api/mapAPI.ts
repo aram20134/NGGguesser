@@ -32,6 +32,11 @@ export const getHighscore = async (mapId : number) => {
     return data
 }
 
+export const getFriendsHighScore = async ({mapId}) => {
+    const {data} = await authHost.post(`api/map/friendsHighScore/${mapId}`)
+    return data
+}
+
 export const findMapServer = async (name : string) => {
     const {data} = await localHost.get(`api/map/findMap/${name}`)
     return data

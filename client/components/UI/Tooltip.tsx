@@ -4,11 +4,12 @@ interface TooltipProps {
     children: React.ReactNode;
     title: string;
     classN?: string;
+    myStyle?: Object;
 }
 
-const Tooltip : React.FC<TooltipProps> = ({children, title, classN}) => {
+const Tooltip : React.FC<TooltipProps> = ({children, title, classN, myStyle}) => {
   return (
-    <div style={{position:'relative'}} className={classN + ' ' + styles.tooltip}>
+    <div style={{position:'relative', display:'flex', justifyContent:'center', ...myStyle}} className={classN + ' ' + styles.tooltip}>
         <div className={styles.helper}>{title}</div>
         {children}
     </div>

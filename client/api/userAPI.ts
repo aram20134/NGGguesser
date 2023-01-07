@@ -71,3 +71,13 @@ export const addFriend = async ({friendId}) => {
     const {data} = await authHost.post('api/user/addFriend', {friendId})
     return data
 }
+
+export const delFriend = async (id) => {
+    const {data} = await authHost.post('api/user/delFriend', {id})
+    return data
+}
+
+export const getFriends = async () => {
+    const {data} = await authHost.post('api/user/getFriends')
+    return data
+}

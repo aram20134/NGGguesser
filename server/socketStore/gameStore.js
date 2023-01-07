@@ -8,6 +8,7 @@ class gameStore {
     this.user = new Map()
     this.isStartedPlay = new Map()
     this.time = new Map()
+    this.friends = new Map()
   }
 
   findGame(room) {

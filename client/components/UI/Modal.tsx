@@ -6,7 +6,7 @@ interface ModalProps {
     children: React.ReactNode;
     title: string;
     onClose: {name: string, action: Function};
-    onSubmit: {name: string, action: Function};
+    onSubmit?: {name: string, action: Function};
     mini?: boolean;
 }
 
@@ -19,7 +19,7 @@ const Modal : React.FC<ModalProps> = ({modalActive, children, title, onClose, on
                 <h2>{title}</h2>
                 {children}
                 <div className={styles.modalFooter}>
-                    <button onClick={onSubmit.action as any}>{onSubmit.name}</button>
+                    {onSubmit && <button onClick={onSubmit.action as any}>{onSubmit.name}</button>}
                     <button onClick={onClose.action as any}>{onClose.name}</button>
                 </div>
             </div>

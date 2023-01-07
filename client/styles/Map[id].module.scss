@@ -11,6 +11,7 @@
     flex-direction: column;
     gap: 50px;
     flex: 1 1 auto;
+    align-items: center;
 }
 .container {
     display: flex;
@@ -18,6 +19,7 @@
     flex-direction: row;
     align-items: center;
     gap: 30px;
+    margin: 15px;
     .map {
         border-radius: 50%;
     }
@@ -27,7 +29,7 @@
     .desc {
         display: flex;
         flex-direction: column;
-        max-width: 20vw;
+        max-width: 500px;
     }
 }
 // .imageContainer {
@@ -79,7 +81,8 @@
 }
 .container3 {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    gap: 25px;
     justify-content: center;
     align-items: center;
 }

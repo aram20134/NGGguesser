@@ -1,0 +1,74 @@
+.bg {
+    background-image: repeating-linear-gradient(135deg,purple -15%, #222256 86%, purple);
+    position: fixed;
+    top: 0;
+    min-height: 100%;
+    z-index: -2;
+    min-width: 100%;
+}
+
+.lobby {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    flex: 1 1 auto;
+    align-items: center;
+    .container {
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+        width: 100%;
+        max-width: 1200px;
+        justify-content: space-between;
+        .leftSide {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            .map {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                background-color: #0000004f;
+                padding: 15px;
+                border-radius: 15px;
+            }
+            .buttons {
+                gap: 15px;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+        .users {
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+            background-color: #0000004f;
+            border-radius: 15px;
+            width: 100%;
+            align-items: center;
+            hr {
+                width: 100%;
+            }
+        }
+    }
+}
+.inviteFriend {
+    width: 100%;
+    padding: 15px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(46, 0, 53, 0.13);
+    transition: bacground-color 0.3s ease;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0px 0px 5px 0px rgb(0 0 0);
+    font-size: 18px;
+    align-items: center;
+    &:hover {
+        outline: 2px solid white;
+    }
+}

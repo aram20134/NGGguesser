@@ -5,7 +5,7 @@ import { setUserProps } from '../../../store/actions/user'
 import { useTypedSelector } from './../../../hooks/useTypedSelector';
 import styles from '../../../styles/Friends.module.scss'
 import MainContainer from '../../../components/MainContainer';
-import { findUser, searchUsers } from '../../../api/userAPI';
+import { delFriend, findUser, getFriends, searchUsers } from '../../../api/userAPI';
 import UserCard from '../../../components/UserCard';
 import SwitchSelector from '../../../components/UI/SwitchSelector';
 import MyInput from '../../../components/UI/MyInput';
@@ -13,8 +13,8 @@ import Alert, { AlertVariant } from '../../../components/UI/Alert';
 
 const Friends : NextPage = () => {
   const user = useTypedSelector(st => st.user)
-  const {socket, sockets} = useTypedSelector(st => st.socket)
-  const [friends, setFriends] = useState([])
+  const {socket, sockets} = useTypedSelector(st => st.socket) as any
+  // const [friends, setFriends] = useState([])
   const [userFriends, setUserFriends] = useState([])
   const [queryFriends, setQueryFriends] = useState([])
   const [loaded, setLoaded] = useState(false)
@@ -22,22 +22,12 @@ const Friends : NextPage = () => {
   const [search, setSearch] = useState("")
   const [searchLoading, setSearchLoading] = useState(false)
   const [first, setFirst] = useState(true)
+  const [updateState, setUpdateState] = useState(false)
 
   useEffect(() => {
-    setUserFriends([])
-    let timer = setTimeout(() => {
-      findUser(user.id).then(res => setFriends(res.friends)).finally(() => setLoaded(true))
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [sockets])
+    getFriends().then(res => setUserFriends(res)).finally(() => setLoaded(true))
+  }, [socket, updateState])
   
-  useEffect(() => {
-    friends.map(async (f) => {
-      var user = await findUser(f.friendId)
-      setUserFriends(prev => [...prev, user])
-    })
-  }, [friends])
-
   useEffect(() => {
     let timer = setTimeout(() => {
       search && setFirst(false)
@@ -49,6 +39,27 @@ const Friends : NextPage = () => {
       clearTimeout(timer)
     }
   }, [search])
+
+  const delFriends = (id) => {
+    setUserFriends(prev => prev.filter((f) => id !== f.id))
+    delFriend(id).then((res) => console.log(res))
+    if (socket.connected) {
+      socket.emit('FRIEND_DELETED', (id))
+    }
+  }
+
+  useEffect(() => {
+    if (socket.connected) {
+      socket.on('FRIEND_DELETED', () => {
+        console.log('deleted')
+        setUpdateState(!updateState)
+      })
+      socket.on('ADDED_FRIEND', () => {
+        console.log('update')
+        setUpdateState(!updateState)
+      })
+    }
+  }, [socket])
   
 
   if (!loaded) {
@@ -74,10 +85,10 @@ const Friends : NextPage = () => {
           <SwitchSelector props={[{name: 'Мои друзья', onClick: () => setRazdel(true), checked: true}, {name: 'Найти друга', onClick: () => setRazdel(false)}]} />
           {razdel ? (
             <div className={styles.friendsBox}>
-              {friends.length >= 1 ? (
+              {userFriends.length >= 1 ? (
               <div className={styles.friendsBox}>
                 {userFriends.map((f) => 
-                  <UserCard key={f.id} user={f} />
+                  <UserCard delFriends={delFriends} key={f.id} user={f} />
                 )}
               </div>
             ) : (
@@ -91,13 +102,12 @@ const Friends : NextPage = () => {
               <div className={styles.friendsBox}>
                 {searchLoading && <div className='loader'></div>}
                 {!searchLoading && queryFriends.map((q) => 
-                  <UserCard withFriends friends={friends.filter(f => f.friendId === q.id)[0]} user={q} key={q.id} />
+                  <UserCard withFriends friends={userFriends.filter(f => f.id === q.id)[0]} user={q} key={q.id} />
                 )}
                 {!first && !searchLoading && queryFriends.length === 0 && <h3>Игроков не найдено</h3>}
               </div>
             </div>
           )}
-          
         </div>
       </main>
     </MainContainer>

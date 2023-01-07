@@ -161,6 +161,7 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
       if (!document.querySelector('#image')) return
       const target = document.querySelector('#image').getBoundingClientRect()
       const image : HTMLImageElement = document.querySelector('#choose')
+      
       if (posX && posY) {
         var x : number = posX
         var y : number = posY
@@ -181,7 +182,6 @@ const PositionPicker : React.FC<PositionPickerProps> = ({map, variantMap, setLin
 
       setIsChosed(true)
       setChoseCoords({x, y})
-      console.log(x, y);
     }
 
     const checkChoose = (e, truePosX?, truePosY?, LposX?, LposY?) => {

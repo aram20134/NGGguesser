@@ -14,7 +14,7 @@ import IndexAuth from '../components/IndexAuth';
 import { GetServerSideProps } from 'next';
 import {NextThunkDispatch, wrapper} from '../store';
 import { setUserProps } from '../store/actions/user';
-import { useActions } from './../hooks/useActions';
+import { setMaps } from '../store/actions/map';
 
 interface IndexProps {
   users: number;
@@ -22,8 +22,6 @@ interface IndexProps {
 
 const Index : NextPage<IndexProps> = ({users}) => {
   const user = useTypedSelector(st => st.user)
-  const {setMaps} = useActions()
-  setMaps()
 
   return !user.auth ? (
     <MainContainer title='NGG GUESSER'>
@@ -82,6 +80,7 @@ export default Index
 export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProps(store => async ({req, res}) => {
   const dispatch = store.dispatch as NextThunkDispatch
   await dispatch(setUserProps(req.cookies.token))
+  await dispatch(setMaps())
   var {user} = store.getState()
   
   const {users} = !user.auth && await usersCount()

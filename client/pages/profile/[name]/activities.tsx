@@ -65,7 +65,7 @@ const Activities : NextPage<activitiesProps> = ({user, dates, map}) => {
                       case 'add_friend':
                         return <div key={i} className={styles.action}><Image width={32} height={32} src={people} />
                           <p>Вы добавили друга: </p>
-                          <Link href={`/profile/${a.name}`}><a>{a.name} - {a.id}</a></Link>
+                          <Link href={`/profile/${a.name}`}><a>{a.name}</a></Link>
                         </div>
                     }
                   }
@@ -98,7 +98,6 @@ export const getServerSideProps : GetServerSideProps = wrapper.getServerSideProp
 
   activity.user.friends.reverse().map((f, i) => {
     var date = new Date(f.createdAt).toDateString()
-
     if (dates[date]) {
       dates[date] = [...dates[date], {action: 'add_friend', ...friends[i], date: f.createdAt}]
     } else {

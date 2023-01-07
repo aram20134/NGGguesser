@@ -27,7 +27,7 @@ const Map : NextPage<mapProps> = ({map}) => {
 
   const [isLiked, setIsLiked] = useState(false)
   const [likes, setLikes] = useState(map.likes.length)
-  const [UUID, setUUID] = useState()
+  const [UUID, setUUID] = useState<{room: string, roomFriends: string}>({room: '', roomFriends: ''})
   const user = useTypedSelector(st => st.user)
 
   const {socket} = useTypedSelector(st => st.socket) as any
@@ -35,8 +35,10 @@ const Map : NextPage<mapProps> = ({map}) => {
   useEffect(() => {
     if (socket.connected) {
       const room = uuidv4()
-      setUUID(room)
+      const roomFriends = uuidv4()
+      setUUID({room, roomFriends})
       socket.emit('START_PLAY', {mapId: map.id, room})
+      socket.emit('START_PLAY_FRIENDS', {room: roomFriends})
     }
   }, [socket])
   
@@ -103,7 +105,10 @@ const Map : NextPage<mapProps> = ({map}) => {
         </div>
         <div className={styles.container3}>
           {socket.connected ? (
-            <MyButtonLink variant={ButtonVariant.primary} link={`/play/${UUID}`}>Играть</MyButtonLink>
+            <>
+              <MyButtonLink variant={ButtonVariant.primary} link={`/play/${UUID.room}`}>Играть</MyButtonLink>
+              <MyButtonLink variant={ButtonVariant.primary} link={`/lobby/${UUID.roomFriends}?map=${map.name}`}>Играть с друзьями</MyButtonLink>
+            </>
           ) : (
             <MyButtonLink myStyle={{pointerEvents:'none'}} variant={ButtonVariant.outlined} link={`/`}>Играть</MyButtonLink>
           )}

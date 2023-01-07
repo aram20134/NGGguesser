@@ -4,6 +4,7 @@
     border-radius:15px;
     display:flex;
     flex-direction:column;
+    gap: 15px;
     background-color: rgb(46 0 53 / 13%);
     transition: bacground-color 0.3s ease;
     cursor:auto;
@@ -20,14 +21,14 @@
         flex-direction: row;
         align-items: center;
         gap:15px;
-        p {
+        div {
             white-space: pre;
         }
         .profile {
             display: flex;
             flex-direction: row;
             gap: 15px;
-            width: 100%;
+            width: 80%;
             align-items: center;
             justify-content: flex-start;
         }
@@ -47,6 +48,28 @@
             height: 20px;
             background-color: darkred;
             border-radius: 50%;
+        }
+        .friendDel {
+            display: flex;
+            background-color: transparent;
+            border: 1px solid darkred;
+            cursor: pointer;
+            align-items: center;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            &:hover {
+                background-color: rgb(90, 0, 0);
+            }
+        }
+    }
+    .userBottom {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        gap: 15px;
+        span {
+            white-space: pre;
         }
     }
 }
@@ -90,11 +113,11 @@
 
 @keyframes fade {
     from {
-        transform: translate(100px);
+        transform: translate(0px, 30px);
         opacity: 0.5;
     }
     to {
-        transform: translate(0px);
+        transform: translate(0px, 0px);
         opacity: 1;
     }
 }

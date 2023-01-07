@@ -19,7 +19,6 @@ export const useSocket = () => {
         
     useEffect(() => {
         if (socketNew) {
-            console.log('socketEffect')
             socketNew.on('connect', () => {
                 console.log(socketNew);
                 socketNew.emit('USER_ONLINE')
@@ -37,7 +36,6 @@ export const useSocket = () => {
             socketNew.on('close', () => {
                 setSockets({socket: {disconnected: true, id:"asd", connected:false}})
                 socketNew.disconnect()
-                console.log('discon')
             })
             return () => {
                 socketNew.disconnect()
