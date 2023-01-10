@@ -1,4 +1,5 @@
 import { getCookie } from "cookies-next";
+import jwtDecode from "jwt-decode";
 import { useEffect, useState } from "react"
 import { io, Socket } from "socket.io-client";
 import { useActions } from "./useActions";
@@ -9,8 +10,8 @@ export const useSocket = () => {
 
 
     useEffect(() => {
-        if (getCookie('token')) {
-            setSocketNew(io(process.env.REACT_APP_API_URL, {autoConnect: true, auth: {token : getCookie('token'), sessionID: localStorage.getItem('sessionID')}}))
+        if (!(jwtDecode<{exp: number}>(getCookie('token') as string).exp < Date.now() / 1000)) {
+            setSocketNew(io(process.env.REACT_APP_API_URL, {autoConnect: true, auth: {token : getCookie('token')}}))
         } else {
             setSocketNew(io(process.env.REACT_APP_API_URL, {query: {forOnline: true}}))
         }
@@ -24,10 +25,6 @@ export const useSocket = () => {
                 socketNew.emit('USER_ONLINE')
                 setSockets({socket: socketNew})
             })  
-            socketNew.on('SESSION', ({sessionID}) => {
-                socketNew.auth = {...socketNew.auth, sessionID}
-                localStorage.setItem('sessionID', sessionID)
-            })
         
             socketNew.on('USERS_ONLINE', (data) => {
                 setSockets({sockets: data, socket: socketNew})

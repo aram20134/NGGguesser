@@ -116,14 +116,17 @@ class gameFriendsStore {
     }
   
     findAllGames(room) {
-      return {room: room, stage: this.stage.get(room), score: this.score.get(room), dateStart: this.dateStart.get(room), mapId: this.games.get(room)[0].mapId, time: this.time.get(room)}
+      return {room: room, user: this.user.get(room), stage: this.stage.get(room), score: this.score.get(room), dateStart: this.dateStart.get(room), mapId: this.games.get(room)[0].mapId, time: this.time.get(room), friends: this.friends.get(room)}
     }
   
     findUserCurrGames(userId) {
+      var friends = [...this.friends.entries()]
       var pairs = [...this.user.entries()]
-      
+      // console.log(userId)
       pairs = pairs.map((pair) => pair[1] === userId && pair[0]).map((room, i) => this.findIsStartedPlay(room) && this.findAllGames(room)).filter(pair => pair != null)
-      return pairs
+      friends = friends.map((f) => f[1] !== undefined && f[1][0]?.id === userId && friends[0]).map((room, i) => this.findIsStartedPlay(room[0]) && this.findAllGames(room[0])).filter(pair => pair != null)
+      // console.log(friends)
+      return [...friends, ...pairs]
     }
   
     clearGames() {
@@ -152,6 +155,7 @@ class gameFriendsStore {
       this.user.delete(room)
       this.isStartedPlay.delete(room)
       this.friends.delete(room)
+      this.userReady.delete(room)
     }
   }
   module.exports = new gameFriendsStore()

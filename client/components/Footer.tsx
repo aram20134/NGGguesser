@@ -1,9 +1,11 @@
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import styles from '../styles/Footer.module.scss'
 import { useTypedSelector } from './../hooks/useTypedSelector';
 import Alert, { AlertVariant } from './UI/Alert';
 
 const Footer : React.FC = () => {
-  const {socket, sockets} = useTypedSelector(st => st.socket)  
+  const {socket, sockets} = useTypedSelector(st => st.socket) 
 
   if (socket.id === "") {
     return (

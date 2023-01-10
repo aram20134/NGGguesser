@@ -22,7 +22,7 @@ const Alert : React.FC<AlertProps> = ({children, variant, title, myStyle}) => {
         <div style={myStyle} className={styles.danger}>
             <img src={danger.src} />
             <h2>{title}</h2>
-            <p>{children}</p>
+            <div>{children}</div>
         </div>
       )
   } else if (variant === AlertVariant.warning) {
@@ -30,7 +30,7 @@ const Alert : React.FC<AlertProps> = ({children, variant, title, myStyle}) => {
         <div style={myStyle} className={styles.warning}>
             <img src={warning.src} />
             <h2>{title}</h2>
-            <p>{children}</p>
+            <div>{children}</div>
         </div>
       )
   } else {
@@ -38,7 +38,7 @@ const Alert : React.FC<AlertProps> = ({children, variant, title, myStyle}) => {
         <div style={myStyle} className={styles.success}>
             <img src={check.src} />
             <h2>{title}</h2>
-            <p>{children}</p>
+            <div>{children}</div>
         </div>
       )
   }

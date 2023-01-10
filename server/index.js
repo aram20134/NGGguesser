@@ -10,7 +10,6 @@ const path = require('path')
 const errorHandle = require('./middleware/ErrorHandle')
 const { Server } = require("socket.io");
 const http = require('http');
-const sessionHandler = require('./middleware/sessionHandler');
 const gameStore = require('./socketStore/gameStore');
 const gameFriendsStore = require('./socketStore/gameFriendsStore');
 const { randomUUID } = require('crypto');
@@ -41,7 +40,7 @@ const start = async () => {
 //*    1) Friends list --Done--
 //*    2) Admin panel (work with maps, variants, replacing images, etc) --Done--
 //*    3) Add different difficul (timer, etc) --Done--
-//?    4) Games with friends
+//*    4) Games with friends --Done--
 //?    5) Different modes
 // IO SOKCET
 
@@ -58,18 +57,16 @@ server.listen(5003, () => {
 })
 
 io.use(JWTcheck)
-io.use(sessionHandler)
 
 io.on('connection', (socket) => {
     console.log('connected - ', socket?.decoded?.name)
-    socket.join(socket.sessionID)
     socket.join(socket?.decoded?.id)
 
     socket.on('USER_ONLINE', () => {
         var logUsers = []
         for (let entry of io.of("/").sockets) {
             entry.map((el) => {
-                el.sessionID !== undefined && logUsers.push({id: el.sessionID, user: el.decoded})
+                el.decoded !== undefined && logUsers.push({user: el.decoded})
             })
         }
         logUsers.reduce((acc, cur, i) => {
@@ -85,10 +82,6 @@ io.on('connection', (socket) => {
 
         // console.log(checkTabs)
         io.sockets.emit('USERS_ONLINE', logUsers)
-        
-        socket.emit('SESSION', {
-            sessionID: socket.sessionID
-        })
     })
 
     socket.on('disconnect', () => {
@@ -136,7 +129,6 @@ io.on('connection', (socket) => {
             }
         })
         var gameEnd = friends.length + 1 === count
-        console.log(gameEnd)
         socket.emit('STARTED_PLAY_FRIENDS', gameFriendsStore.findGame(room), gameFriendsStore.findStage(room), gameFriendsStore.findScore(room), gameFriendsStore.findAllChooses(room), gameFriendsStore.findUser(room), gameFriendsStore.findTime(room), gameFriendsStore.findFriends(room), gameEnd)
     })
 
@@ -236,11 +228,15 @@ io.on('connection', (socket) => {
     })
 
     socket.on('GET_CURR_MAPS', ({userId}) => {
-        socket.emit('GET_CURR_MAPS', gameStore.findUserCurrGames(userId))
+        socket.emit('GET_CURR_MAPS', gameStore.findUserCurrGames(userId), gameFriendsStore.findUserCurrGames(userId))
     })
     
     socket.on('DEL_CURR_MAP', ({room}) => {
         gameStore.clearGame(room)
+    })
+
+    socket.on('DEL_CURR_MAP_FRIENDS', ({room}) => {
+        gameFriendsStore.clearGame(room)
     })
 
     socket.on('ADD_FRIEND', ({from, to}) => {
