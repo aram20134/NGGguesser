@@ -1,5 +1,5 @@
 # NGGguesser - REALEASED
-look here - https://dasigty.ru
+look here - https://dasigty.online
 
 
 NGGguesser is similar to the popular site https://www.geoguessr.com/
